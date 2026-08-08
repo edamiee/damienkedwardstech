@@ -20,7 +20,14 @@ export async function saveSiteContent(formData: FormData) {
   const keys = Object.keys(SITE_CONTENT_DEFAULTS) as SiteContentKey[];
   const rows = keys.map((key) => ({
     key,
-    value: String(formData.get(key) ?? ""),
+    // chat_enabled is a checkbox — "on" when checked, absent when not —
+    // rather than free text, so it needs its own true/false mapping.
+    value:
+      key === "chat_enabled"
+        ? formData.get("chat_enabled") === "on"
+          ? "true"
+          : "false"
+        : String(formData.get(key) ?? ""),
     updated_at: new Date().toISOString(),
   }));
 

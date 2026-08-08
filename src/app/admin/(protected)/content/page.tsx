@@ -28,6 +28,28 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Chat widget
+          </legend>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="chat_enabled"
+              defaultChecked={content.chat_enabled !== "false"}
+              className="h-4 w-4 accent-teal"
+            />
+            Show the &quot;Ask about Damien&apos;s work&quot; chat button on public pages
+          </label>
+          <p className="text-xs text-muted">
+            Answers are grounded in the{" "}
+            <a href="/admin/chat-index" className="text-teal hover:underline">
+              chat index
+            </a>{" "}
+            — keep it rebuilt after publishing new content.
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Gated projects page
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

@@ -3,6 +3,7 @@ import { getLatestAiNews } from "@/lib/ai-feed";
 import { getSiteContent } from "@/lib/site-content";
 import { getHomeServices } from "@/lib/home-services";
 import { TerrainHero } from "@/components/terrain-hero";
+import { NewsletterForm } from "@/components/newsletter-form";
 
 export default async function HomePage() {
   const [aiNews, content, services] = await Promise.all([
@@ -65,6 +66,7 @@ export default async function HomePage() {
         <p className="mt-2 max-w-[55ch] font-display text-lg italic leading-snug text-fg">
           {content.weekly_ai_insight}
         </p>
+        <NewsletterForm />
       </section>
 
       <section className="py-14">

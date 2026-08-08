@@ -1,5 +1,6 @@
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ChatWidget } from "@/components/chat-widget";
 import { getNavLinks } from "@/lib/nav-links";
 import { getSiteContent } from "@/lib/site-content";
 
@@ -11,6 +12,7 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <SiteHeader links={links} name={content.site_name} />
       <main className="flex-1">{children}</main>
       <SiteFooter name={content.site_name} tagline={content.footer_tagline} />
+      {content.chat_enabled !== "false" && <ChatWidget />}
     </div>
   );
 }

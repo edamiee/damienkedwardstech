@@ -19,6 +19,16 @@ export default async function CaseStudyPage({
 
   if (!cs) notFound();
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: cs.title,
+    description: cs.summary ?? undefined,
+    datePublished: cs.published_at ?? undefined,
+    url: `https://damienkedwards.tech/case-studies/${slug}`,
+    author: { "@type": "Person", name: "Damien Edwards" },
+  };
+
   const stack: string[] = (cs.stack ?? "")
     .split(",")
     .map((s: string) => s.trim())
@@ -32,6 +42,10 @@ export default async function CaseStudyPage({
 
   return (
     <article className="mx-auto max-w-4xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {cs.published_at && (
         <p className="font-data text-[11.5px] text-muted">
           {new Date(cs.published_at).toLocaleDateString(undefined, {

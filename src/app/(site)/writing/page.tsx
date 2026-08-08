@@ -47,7 +47,15 @@ export default async function WritingIndexPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="font-display text-3xl">Writing</h1>
+      <div className="flex items-baseline justify-between gap-4">
+        <h1 className="font-display text-3xl">Writing</h1>
+        <a
+          href="/feed.xml"
+          className="whitespace-nowrap font-data text-[11.5px] text-muted hover:text-teal"
+        >
+          RSS ↗
+        </a>
+      </div>
       <p className="mt-2 max-w-[55ch] text-sm text-muted">
         Posts written here, and longer documents — research notes, guides —
         linked out from wherever they&apos;re hosted.

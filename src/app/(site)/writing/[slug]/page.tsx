@@ -20,8 +20,22 @@ export default async function WritingPostPage({
 
   const html = await marked.parse(post.body_markdown);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline: post.title,
+    datePublished: post.published_at ?? undefined,
+    dateModified: post.published_at ?? undefined,
+    url: `https://damienkedwards.tech/writing/${slug}`,
+    author: { "@type": "Person", name: "Damien Edwards" },
+  };
+
   return (
     <article className="mx-auto max-w-4xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {post.published_at && (
         <p className="font-data text-[11.5px] text-muted">
           {new Date(post.published_at).toLocaleDateString(undefined, {

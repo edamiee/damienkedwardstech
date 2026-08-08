@@ -11,6 +11,7 @@ export default async function AdminDashboard() {
     { count: projectCount },
     { count: navCount },
     { count: serviceCount },
+    { count: subscriberCount },
   ] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }),
     supabase.from("case_studies").select("id", { count: "exact", head: true }),
@@ -21,6 +22,7 @@ export default async function AdminDashboard() {
     supabase.from("site_projects").select("id", { count: "exact", head: true }),
     supabase.from("nav_links").select("id", { count: "exact", head: true }),
     supabase.from("home_services").select("id", { count: "exact", head: true }),
+    supabase.from("subscribers").select("email", { count: "exact", head: true }),
   ]);
 
   const sections = [
@@ -31,6 +33,7 @@ export default async function AdminDashboard() {
     { href: "/admin/projects", label: "Gated projects", count: projectCount },
     { href: "/admin/nav", label: "Navigation links", count: navCount },
     { href: "/admin/services", label: '"What I do" cards', count: serviceCount },
+    { href: "/admin/subscribers", label: "Subscribers", count: subscriberCount },
   ];
 
   return (

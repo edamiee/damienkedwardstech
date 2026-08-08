@@ -32,7 +32,7 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //      in src/lib/site-content.ts (site_name, home_eyebrow, home_heading,
 //      home_subheading, now_line, weekly_ai_insight, about_body, about_skills,
 //      resume_url, footer_tagline, contact_intro, contact_email,
-//      contact_linkedin, projects_github_url).
+//      contact_linkedin, projects_github_url, chat_enabled ("true"/"false")).
 //
 // { "type": "nav_link", "id": "...", "label": "...", "href": "...",
 //   "sort_order": 0, "visible": true }

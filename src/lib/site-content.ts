@@ -26,6 +26,7 @@ export const SITE_CONTENT_DEFAULTS = {
   contact_email: "damien.k.edwards@gmail.com",
   contact_linkedin: "",
   projects_github_url: "",
+  chat_enabled: "true",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

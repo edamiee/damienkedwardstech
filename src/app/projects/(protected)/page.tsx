@@ -15,7 +15,11 @@ export default async function ProjectsIndexPage() {
         access granted<span className="cursor" />
       </h1>
 
-      <ul className="mt-8 divide-y divide-term-fg-dim">
+      <p className="mt-8 text-xs uppercase tracking-[0.2em] text-term-fg-dim">
+        ── projects ──
+      </p>
+
+      <ul className="mt-3 divide-y divide-term-fg-dim">
         {(projects ?? []).map((p) => (
           <li key={p.name} className="py-4">
             <a

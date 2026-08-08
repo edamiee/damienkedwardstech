@@ -91,6 +91,16 @@ export default async function AdminSiteContentPage() {
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Resume link (PDF or Google Doc URL — leave blank to hide the button)
+            <input
+              name="resume_url"
+              type="url"
+              placeholder="https://…"
+              defaultValue={content.resume_url}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

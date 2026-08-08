@@ -26,6 +26,16 @@ export default async function ContactPage() {
             LinkedIn ↗
           </a>
         )}
+        {content.resume_url && (
+          <a
+            href={content.resume_url}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-sm border border-line px-5 py-2.5 text-sm font-semibold"
+          >
+            Resume ↗
+          </a>
+        )}
       </div>
     </div>
   );

@@ -16,6 +16,7 @@ export const SITE_CONTENT_DEFAULTS = {
     "I'm Damien Edwards, an AI and data engineer. I build the pipelines that move and shape data, and the AI-powered features that sit on top of it — the parts a business actually depends on, not just a demo.\n\nReplace this paragraph with your real background: past roles, industries you've worked in, the kind of problems you're best at, and what you're looking for next (contract, freelance, full-time — or all three).",
   about_skills:
     "Data pipelines, Python, TypeScript / Next.js, Supabase / Postgres, Claude / LLM integration, ETL & orchestration",
+  resume_url: "",
   footer_tagline: "Surveyed with care",
   contact_intro:
     "Open to freelance and contract AI/data engineering work, and to full-time roles. The fastest way to reach me is email.",

@@ -30,6 +30,9 @@ export const SITE_CONTENT_DEFAULTS = {
   chat_header: "Ask about Damien's work",
   chat_subheader: "Answers from published posts & case studies",
   chat_example_question: "What kind of AI projects has Damien worked on?",
+  newsletter_capture_enabled: "false",
+  newsletter_sending_enabled: "false",
+  newsletter_from_email: "",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

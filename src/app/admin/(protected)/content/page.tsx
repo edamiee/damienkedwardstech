@@ -74,6 +74,50 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Newsletter
+          </legend>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="newsletter_capture_enabled"
+              defaultChecked={content.newsletter_capture_enabled === "true"}
+              className="h-4 w-4 accent-teal"
+            />
+            Show the signup form on the homepage
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="newsletter_sending_enabled"
+              defaultChecked={content.newsletter_sending_enabled === "true"}
+              className="h-4 w-4 accent-teal"
+            />
+            Actually email subscribers the weekly note (needs a verified sender below)
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            From address (must be a Resend-verified sender, e.g. Damien &lt;hello@damienkedwards.tech&gt;)
+            <input
+              name="newsletter_from_email"
+              placeholder="Name <hello@yourdomain.com>"
+              defaultValue={content.newsletter_from_email}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-sm"
+            />
+          </label>
+          <p className="text-xs text-muted">
+            Both start off. Turning on signup just shows the form and stores
+            emails — turning on sending also requires{" "}
+            <code className="font-data">RESEND_API_KEY</code> to be set and a
+            from address verified in Resend, or sending silently no-ops.
+            Subscribers are listed at{" "}
+            <a href="/admin/subscribers" className="text-teal hover:underline">
+              /admin/subscribers
+            </a>
+            .
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Gated projects page
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

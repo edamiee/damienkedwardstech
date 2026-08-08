@@ -8,8 +8,24 @@ export default async function AboutPage() {
     .map((s) => s.trim())
     .filter(Boolean);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    name: "Damien Edwards",
+    jobTitle: "AI & Data Engineer",
+    description: paragraphs[0] ?? content.home_subheading,
+    url: "https://damienkedwards.tech",
+    email: content.contact_email || undefined,
+    knowsAbout: skills.length > 0 ? skills : undefined,
+    sameAs: content.contact_linkedin ? [content.contact_linkedin] : undefined,
+  };
+
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <h1 className="font-display text-3xl">About</h1>
         {content.resume_url && (

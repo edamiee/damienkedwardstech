@@ -2,14 +2,17 @@ import Link from "next/link";
 import { getLatestAiNews } from "@/lib/ai-feed";
 import { getSiteContent } from "@/lib/site-content";
 import { getHomeServices } from "@/lib/home-services";
+import { getLatestHermesActivity } from "@/lib/hermes-activity";
+import { formatRelativeTime } from "@/lib/format-relative-time";
 import { TerrainHero } from "@/components/terrain-hero";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 export default async function HomePage() {
-  const [aiNews, content, services] = await Promise.all([
+  const [aiNews, content, services, hermesActivity] = await Promise.all([
     getLatestAiNews(5),
     getSiteContent(),
     getHomeServices(),
+    getLatestHermesActivity(),
   ]);
 
   return (
@@ -57,6 +60,16 @@ export default async function HomePage() {
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-rust" />
           Uncharted — <Link href="/projects" className="text-rust underline">sign in</Link> to see project work, including the Arcade game
         </span>
+        {hermesActivity && (
+          <span className="inline-flex items-center gap-2 text-muted">
+            <span className="inline-block h-2.5 w-2.5 rounded-full bg-teal-soft" />
+            Last published by Hermes —{" "}
+            <Link href={hermesActivity.href} className="text-teal underline">
+              {hermesActivity.title}
+            </Link>
+            , {formatRelativeTime(hermesActivity.updatedAt)}
+          </span>
+        )}
       </section>
 
       <section className="border-l-2 border-teal py-8 pl-5">
@@ -66,7 +79,7 @@ export default async function HomePage() {
         <p className="mt-2 max-w-[55ch] font-display text-lg italic leading-snug text-fg">
           {content.weekly_ai_insight}
         </p>
-        <NewsletterForm />
+        {content.newsletter_capture_enabled === "true" && <NewsletterForm />}
       </section>
 
       <section className="py-14">

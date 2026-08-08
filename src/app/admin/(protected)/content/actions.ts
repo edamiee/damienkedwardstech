@@ -13,6 +13,15 @@ function revalidatePublicPages() {
   revalidatePath("/", "layout");
 }
 
+// Checkboxes post "on" when checked and nothing at all when unchecked,
+// unlike the free-text fields this form otherwise loops over generically —
+// so these keys need their own true/false mapping.
+const CHECKBOX_KEYS: SiteContentKey[] = [
+  "chat_enabled",
+  "newsletter_capture_enabled",
+  "newsletter_sending_enabled",
+];
+
 export async function saveSiteContent(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error("Not authorized");
@@ -20,14 +29,11 @@ export async function saveSiteContent(formData: FormData) {
   const keys = Object.keys(SITE_CONTENT_DEFAULTS) as SiteContentKey[];
   const rows = keys.map((key) => ({
     key,
-    // chat_enabled is a checkbox — "on" when checked, absent when not —
-    // rather than free text, so it needs its own true/false mapping.
-    value:
-      key === "chat_enabled"
-        ? formData.get("chat_enabled") === "on"
-          ? "true"
-          : "false"
-        : String(formData.get(key) ?? ""),
+    value: CHECKBOX_KEYS.includes(key)
+      ? formData.get(key) === "on"
+        ? "true"
+        : "false"
+      : String(formData.get(key) ?? ""),
     updated_at: new Date().toISOString(),
   }));
 

@@ -14,7 +14,9 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //
 // { "type": "post", "title": "...", "body_markdown": "...", "excerpt": "...",
 //   "published": true, "source": "hermes" }
-//   -> upserts public.posts by slug (derived from title)
+//   -> upserts public.posts by slug (derived from title). "source" defaults
+//      to "agent" if omitted; set it to "hermes" specifically so the
+//      homepage's "Last published by Hermes" line picks it up.
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -22,10 +24,11 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //
 // { "type": "case_study", "title": "...", "summary": "...", "problem": "...",
 //   "approach": "...", "outcome": "...", "stack": "...", "project_url": "...",
-//   "published": true }
+//   "published": true, "source": "hermes" }
 //   -> upserts public.case_studies by slug (derived from title).
 //      project_url is optional — omit it for work with nothing public to
-//      link to (e.g. an internal agent or tool).
+//      link to (e.g. an internal agent or tool). "source" works the same
+//      as on posts, defaulting to "agent".
 //
 // { "type": "site_content", "key": "about_body", "value": "..." }
 //   -> upserts public.site_content by key. Valid keys: see SITE_CONTENT_DEFAULTS
@@ -33,7 +36,9 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //      home_subheading, now_line, weekly_ai_insight, about_body, about_skills,
 //      resume_url, footer_tagline, contact_intro, contact_email,
 //      contact_linkedin, projects_github_url, chat_enabled ("true"/"false"),
-//      chat_header, chat_subheader, chat_example_question).
+//      chat_header, chat_subheader, chat_example_question,
+//      newsletter_capture_enabled, newsletter_sending_enabled ("true"/"false"),
+//      newsletter_from_email).
 //
 // { "type": "nav_link", "id": "...", "label": "...", "href": "...",
 //   "sort_order": 0, "visible": true }
@@ -258,6 +263,7 @@ export async function POST(request: NextRequest) {
         project_url: body.project_url ?? null,
         published,
         published_at: published ? new Date().toISOString() : null,
+        source: body.source ?? "agent",
         updated_at: new Date().toISOString(),
       },
       { onConflict: "slug" }

@@ -23,7 +23,21 @@ export default async function AdminDashboard() {
   return (
     <div className="mx-auto max-w-3xl">
       <h1 className="font-display text-2xl">Dashboard</h1>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+
+      <Link
+        href="/admin/content"
+        className="mt-6 flex items-center justify-between rounded-sm border border-line bg-surface px-5 py-4 hover:border-teal"
+      >
+        <div>
+          <p className="font-medium">Homepage &amp; About content</p>
+          <p className="mt-0.5 text-sm text-muted">
+            Edit the hero headline, subheading, and About page copy.
+          </p>
+        </div>
+        <span className="text-teal">Edit →</span>
+      </Link>
+
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
         {sections.map((s) => (
           <Link
             key={s.href}

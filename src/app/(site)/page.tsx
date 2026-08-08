@@ -1,33 +1,42 @@
 import Link from "next/link";
+import { getLatestAiNews } from "@/lib/ai-feed";
+import { getSiteContent } from "@/lib/site-content";
+import { TerrainHero } from "@/components/terrain-hero";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [aiNews, content] = await Promise.all([
+    getLatestAiNews(5),
+    getSiteContent(),
+  ]);
+
   return (
     <div className="mx-auto max-w-4xl px-6">
-      <section className="relative overflow-hidden py-20">
-        <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-rust">
-          Field notes from the data terrain
-        </p>
-        <h1 className="max-w-[16ch] text-balance font-display text-4xl font-normal leading-tight sm:text-5xl">
-          Charting the ground between raw data and working AI systems.
-        </h1>
-        <p className="mt-5 max-w-[48ch] text-[15.5px] text-muted">
-          I&apos;m Damien Edwards, a freelance AI &amp; data engineer — data
-          pipelines, LLM integrations, and the applied AI features built on
-          top of them. Available for contract and full-time engagements.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-4">
-          <Link
-            href="/writing"
-            className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
-          >
-            Read my writing →
-          </Link>
-          <Link
-            href="/contact"
-            className="inline-flex items-center gap-2 rounded-sm border border-line px-5 py-2.5 text-sm font-semibold"
-          >
-            Get in touch
-          </Link>
+      <section className="relative overflow-hidden py-20 lg:pr-[46%]">
+        <TerrainHero />
+        <div className="relative z-10">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.14em] text-rust">
+            {content.home_eyebrow}
+          </p>
+          <h1 className="max-w-[16ch] text-balance font-display text-4xl font-normal leading-tight sm:text-5xl">
+            {content.home_heading}
+          </h1>
+          <p className="mt-5 max-w-[48ch] text-[15.5px] text-muted">
+            {content.home_subheading}
+          </p>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <Link
+              href="/writing"
+              className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
+            >
+              Read my writing →
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex items-center gap-2 rounded-sm border border-line px-5 py-2.5 text-sm font-semibold"
+            >
+              Get in touch
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -68,6 +77,31 @@ export default function HomePage() {
           ))}
         </div>
       </section>
+
+      {aiNews.length > 0 && (
+        <section className="border-t border-line py-14">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+            Latest in AI
+          </h2>
+          <ul className="divide-y divide-line">
+            {aiNews.map((item) => (
+              <li key={item.link} className="py-3.5">
+                <a
+                  href={item.link}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group flex items-baseline justify-between gap-4"
+                >
+                  <span className="text-sm group-hover:text-teal">{item.title}</span>
+                  <span className="whitespace-nowrap font-data text-[11px] text-muted">
+                    {item.source}
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

@@ -34,7 +34,7 @@ export default function ProjectsLoginPage() {
     <div className="theme-terminal scanlines min-h-screen">
       <div className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
         <p className="text-term-fg-dim text-xs">$ ./projects --list</p>
-        <p className="text-term-alert mt-1 text-sm">Permission denied.</p>
+        <p className="text-term-fg-dim mt-1 text-sm">→ authentication required</p>
         <h1 className="mt-6 text-xl">
           sign in to continue<span className="cursor" />
         </h1>

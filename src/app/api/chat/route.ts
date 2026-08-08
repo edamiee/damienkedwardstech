@@ -69,8 +69,13 @@ export async function POST(request: NextRequest) {
     const matches = (data ?? []) as MatchRow[];
 
     if (matches.length > 0) {
+      // Deliberately excludes url_path from what the model reads — a URL
+      // slug can carry old wording (e.g. a renamed page keeping its
+      // original slug) that would otherwise leak into the answer even
+      // after the visible title/text have been rewritten. Sources are
+      // still returned separately below for the widget's citation links.
       contextBlock = matches
-        .map((m) => `Source: ${m.title} (${m.url_path})\n${m.chunk_text}`)
+        .map((m) => `Source: ${m.title}\n${m.chunk_text}`)
         .join("\n\n---\n\n");
 
       const seen = new Set<string>();

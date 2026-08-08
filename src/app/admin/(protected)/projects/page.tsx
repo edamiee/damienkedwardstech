@@ -5,7 +5,7 @@ export default async function AdminProjectsPage() {
   const supabase = await createClient();
   const { data: projects } = await supabase
     .from("site_projects")
-    .select("id, name, description, url, visible")
+    .select("id, name, description, url, visible, image_url")
     .order("sort_order", { ascending: true });
 
   return (
@@ -40,6 +40,13 @@ export default async function AdminProjectsPage() {
               name="description"
               defaultValue={p.description ?? ""}
               placeholder="One-line description"
+              className="rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+            />
+            <input
+              name="image_url"
+              type="url"
+              defaultValue={p.image_url ?? ""}
+              placeholder="Screenshot URL (optional)"
               className="rounded-sm border border-line bg-bg px-3 py-2 text-sm"
             />
             <div className="flex items-center gap-4">
@@ -85,6 +92,12 @@ export default async function AdminProjectsPage() {
         <input
           name="description"
           placeholder="One-line description"
+          className="rounded-sm border border-line bg-surface px-3 py-2 text-sm"
+        />
+        <input
+          name="image_url"
+          type="url"
+          placeholder="Screenshot URL (optional)"
           className="rounded-sm border border-line bg-surface px-3 py-2 text-sm"
         />
         <label className="flex items-center gap-2 text-sm">

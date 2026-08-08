@@ -18,9 +18,17 @@ export async function saveProject(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const description = String(formData.get("description") ?? "").trim() || null;
   const url = String(formData.get("url") ?? "").trim();
+  const imageUrl = String(formData.get("image_url") ?? "").trim() || null;
   const visible = formData.get("visible") === "on";
 
-  const payload = { name, slug: slugify(name), description, url, visible };
+  const payload = {
+    name,
+    slug: slugify(name),
+    description,
+    url,
+    image_url: imageUrl,
+    visible,
+  };
 
   if (id) {
     await admin.supabase.from("site_projects").update(payload).eq("id", id);

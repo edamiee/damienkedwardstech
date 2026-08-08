@@ -20,12 +20,19 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //   "published": true }
 //   -> upserts public.papers by slug (derived from title)
 //
+// { "type": "case_study", "title": "...", "summary": "...", "problem": "...",
+//   "approach": "...", "outcome": "...", "stack": "...", "project_url": "...",
+//   "published": true }
+//   -> upserts public.case_studies by slug (derived from title).
+//      project_url is optional — omit it for work with nothing public to
+//      link to (e.g. an internal agent or tool).
+//
 // { "type": "site_content", "key": "about_body", "value": "..." }
 //   -> upserts public.site_content by key. Valid keys: see SITE_CONTENT_DEFAULTS
 //      in src/lib/site-content.ts (site_name, home_eyebrow, home_heading,
-//      home_subheading, weekly_ai_insight, about_body, about_skills, resume_url,
-//      footer_tagline, contact_intro, contact_email, contact_linkedin,
-//      projects_github_url).
+//      home_subheading, now_line, weekly_ai_insight, about_body, about_skills,
+//      resume_url, footer_tagline, contact_intro, contact_email,
+//      contact_linkedin, projects_github_url).
 //
 // { "type": "nav_link", "id": "...", "label": "...", "href": "...",
 //   "sort_order": 0, "visible": true }
@@ -37,12 +44,12 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //      ("body" here is the card's description text, not the request body)
 //
 // { "type": "project", "id": "...", "name": "...", "url": "...",
-//   "description": "...", "visible": true }
+//   "description": "...", "image_url": "...", "visible": true }
 //   -> upserts public.site_projects by slug (derived from name) if no id
 //      given, otherwise updates by id
 //
-// Posts/papers/projects upsert by slug, so posting the same title/name
-// again updates that entry instead of creating a duplicate.
+// Posts/papers/case studies/projects upsert by slug, so posting the same
+// title/name again updates that entry instead of creating a duplicate.
 
 function slugify(title: string) {
   return title
@@ -152,6 +159,7 @@ export async function POST(request: NextRequest) {
     if (name !== undefined) payload.slug = slugify(name);
     if (url !== undefined) payload.url = url;
     if (body.description !== undefined) payload.description = body.description;
+    if (body.image_url !== undefined) payload.image_url = body.image_url;
     if (body.visible !== undefined) payload.visible = Boolean(body.visible);
 
     let query;
@@ -170,11 +178,11 @@ export async function POST(request: NextRequest) {
 
   const { title, published = false } = body;
 
-  if (!title || (type !== "post" && type !== "paper")) {
+  if (!title || (type !== "post" && type !== "paper" && type !== "case_study")) {
     return NextResponse.json(
       {
         error:
-          "type must be one of 'post', 'paper', 'site_content', 'nav_link', 'service', 'project'",
+          "type must be one of 'post', 'paper', 'case_study', 'site_content', 'nav_link', 'service', 'project'",
       },
       { status: 400 }
     );
@@ -211,19 +219,45 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ post: data });
   }
 
-  if (!body.url) {
-    return NextResponse.json({ error: "url is required for papers" }, { status: 400 });
+  if (type === "paper") {
+    if (!body.url) {
+      return NextResponse.json({ error: "url is required for papers" }, { status: 400 });
+    }
+    const { data, error } = await supabase
+      .from("papers")
+      .upsert(
+        {
+          slug,
+          title,
+          description: body.description ?? null,
+          url: body.url,
+          published,
+          published_at: published ? new Date().toISOString() : null,
+        },
+        { onConflict: "slug" }
+      )
+      .select()
+      .single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ paper: data });
   }
+
   const { data, error } = await supabase
-    .from("papers")
+    .from("case_studies")
     .upsert(
       {
         slug,
         title,
-        description: body.description ?? null,
-        url: body.url,
+        summary: body.summary ?? null,
+        problem: body.problem ?? null,
+        approach: body.approach ?? null,
+        outcome: body.outcome ?? null,
+        stack: body.stack ?? null,
+        project_url: body.project_url ?? null,
         published,
         published_at: published ? new Date().toISOString() : null,
+        updated_at: new Date().toISOString(),
       },
       { onConflict: "slug" }
     )
@@ -231,5 +265,5 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
-  return NextResponse.json({ paper: data });
+  return NextResponse.json({ case_study: data });
 }

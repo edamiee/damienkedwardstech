@@ -49,8 +49,8 @@ export default async function WritingIndexPage() {
     <div className="mx-auto max-w-4xl px-6 py-16">
       <h1 className="font-display text-3xl">Writing</h1>
       <p className="mt-2 max-w-[55ch] text-sm text-muted">
-        Posts written here, and longer documents — writeups, case studies,
-        research notes — linked out from wherever they&apos;re hosted.
+        Posts written here, and longer documents — research notes, guides —
+        linked out from wherever they&apos;re hosted.
       </p>
 
       <ul className="mt-10 divide-y divide-line">

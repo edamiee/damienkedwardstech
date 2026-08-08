@@ -25,6 +25,11 @@ export default async function HomePage() {
           <p className="mt-5 max-w-[48ch] text-[15.5px] text-muted">
             {content.home_subheading}
           </p>
+          {content.now_line && (
+            <p className="mt-3 max-w-[48ch] text-sm text-teal">
+              <span className="font-semibold">Now:</span> {content.now_line}
+            </p>
+          )}
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/writing"

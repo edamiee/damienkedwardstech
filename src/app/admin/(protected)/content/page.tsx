@@ -72,6 +72,16 @@ export default async function AdminSiteContentPage() {
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Now (one short line — what you&apos;re building or exploring
+            currently; leave blank to hide it)
+            <input
+              name="now_line"
+              placeholder="Building an agent that..."
+              defaultValue={content.now_line}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

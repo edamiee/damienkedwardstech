@@ -6,7 +6,7 @@ export default async function ProjectsIndexPage() {
   const [{ data: projects }, content] = await Promise.all([
     supabase
       .from("site_projects")
-      .select("name, description, url")
+      .select("name, description, url, image_url")
       .eq("visible", true)
       .order("sort_order", { ascending: true }),
     getSiteContent(),
@@ -47,6 +47,22 @@ export default async function ProjectsIndexPage() {
             </a>
             {p.description && (
               <p className="mt-1 text-sm opacity-80">{p.description}</p>
+            )}
+            {p.image_url && (
+              <a
+                href={p.url}
+                target="_blank"
+                rel="noreferrer"
+                className="scanlines relative mt-3 block w-full max-w-sm overflow-hidden border border-term-fg-dim"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- arbitrary external screenshot URLs, not worth remotePatterns config */}
+                <img
+                  src={p.image_url}
+                  alt={`${p.name} screenshot`}
+                  loading="lazy"
+                  className="block h-40 w-full object-cover opacity-90 grayscale-[15%] contrast-125"
+                />
+              </a>
             )}
           </li>
         ))}

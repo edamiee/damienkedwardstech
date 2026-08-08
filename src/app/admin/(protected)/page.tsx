@@ -5,6 +5,7 @@ export default async function AdminDashboard() {
   const supabase = await createClient();
   const [
     { count: postCount },
+    { count: caseStudyCount },
     { count: paperCount },
     { count: viewerCount },
     { count: projectCount },
@@ -12,6 +13,7 @@ export default async function AdminDashboard() {
     { count: serviceCount },
   ] = await Promise.all([
     supabase.from("posts").select("id", { count: "exact", head: true }),
+    supabase.from("case_studies").select("id", { count: "exact", head: true }),
     supabase.from("papers").select("id", { count: "exact", head: true }),
     supabase
       .from("project_viewer_invites")
@@ -23,6 +25,7 @@ export default async function AdminDashboard() {
 
   const sections = [
     { href: "/admin/posts", label: "Blog posts", count: postCount },
+    { href: "/admin/case-studies", label: "Case studies", count: caseStudyCount },
     { href: "/admin/papers", label: "Writing / documents", count: paperCount },
     { href: "/admin/viewers", label: "Project viewer invites", count: viewerCount },
     { href: "/admin/projects", label: "Gated projects", count: projectCount },

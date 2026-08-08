@@ -15,9 +15,10 @@ export default async function AdminChatIndexPage({
       <h1 className="font-display text-2xl">Chat index</h1>
       <p className="mt-1 text-sm text-muted">
         The homepage chat widget answers from a search index built over your
-        published posts, papers, and case studies — not live database
-        queries. Rebuild it here after publishing or editing content so the
-        chat&apos;s answers stay current.
+        published posts, papers, case studies, and a teaser (name +
+        description only, never the link) for each visible gated project —
+        not live database queries. Rebuild it here after publishing or
+        editing content so the chat&apos;s answers stay current.
       </p>
 
       <div className="mt-6 rounded-sm border border-line bg-surface p-5">

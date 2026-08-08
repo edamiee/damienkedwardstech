@@ -1,26 +1,162 @@
 @import "tailwindcss";
 
+/* ============================================================
+   Public site — Topographic Survey theme.
+   Light: parchment/paper ground with teal "contour ink" and a
+   rust accent for calls to action and locked/gated markers.
+   Dark: inverted to a night-survey teal-black ground with warm
+   cream ink — not a naive invert, contrast re-checked both ways.
+   ============================================================ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: #f1ecdf;
+  --surface: #f8f4e9;
+  --fg: #2a2620;
+  --muted: #746f5e;
+  --line: #cdbfa0;
+  --teal: #1f5c56;
+  --teal-soft: #a9c6be;
+  --rust: #b65c38;
+  color-scheme: light dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0e211e;
+    --surface: #142b27;
+    --fg: #efe6d2;
+    --muted: #9cad9f;
+    --line: #2f4a44;
+    --teal: #8fd4c4;
+    --teal-soft: #2f4a44;
+    --rust: #e08159;
   }
 }
 
+:root[data-theme="dark"] {
+  --bg: #0e211e;
+  --surface: #142b27;
+  --fg: #efe6d2;
+  --muted: #9cad9f;
+  --line: #2f4a44;
+  --teal: #8fd4c4;
+  --teal-soft: #2f4a44;
+  --rust: #e08159;
+}
+
+:root[data-theme="light"] {
+  --bg: #f1ecdf;
+  --surface: #f8f4e9;
+  --fg: #2a2620;
+  --muted: #746f5e;
+  --line: #cdbfa0;
+  --teal: #1f5c56;
+  --teal-soft: #a9c6be;
+  --rust: #b65c38;
+}
+
+/* Phosphor Terminal tokens — a single committed dark world (see block
+   below), so these are plain constants rather than light/dark variants. */
+:root {
+  --term-bg: #060f0b;
+  --term-fg: #6fe0a8;
+  --term-fg-dim: #2e6e52;
+  --term-alert: #6fb8ff;
+  --term-cursor: #c9f5de;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-teal: var(--teal);
+  --color-teal-soft: var(--teal-soft);
+  --color-rust: var(--rust);
+  --color-term-bg: var(--term-bg);
+  --color-term-fg: var(--term-fg);
+  --color-term-fg-dim: var(--term-fg-dim);
+  --color-term-alert: var(--term-alert);
+  --color-term-cursor: var(--term-cursor);
+  --font-display: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --font-body: -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-data: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Gated /projects area — Phosphor Terminal theme.
+   A deliberate, single committed dark world (like a real CRT is
+   always dark) rather than adapting to light/dark preference.
+   Toned down from a neon phosphor to reduce eye strain on long
+   reads, and the locked/alert accent is blue-cyan rather than
+   amber so it stays distinguishable for red-green colorblindness.
+   ============================================================ */
+.theme-terminal {
+  background: var(--term-bg);
+  color: var(--term-fg);
+  min-height: 100%;
+  font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+
+.theme-terminal a {
+  color: inherit;
+}
+
+.theme-terminal :focus-visible {
+  outline: 2px solid var(--term-fg);
+  outline-offset: 2px;
+}
+
+.theme-terminal .scanlines {
+  background:
+    repeating-linear-gradient(rgba(0, 0, 0, 0) 0, rgba(0, 0, 0, 0) 2px, rgba(0, 0, 0, 0.35) 3px),
+    radial-gradient(ellipse at 50% 0%, rgba(111, 224, 168, 0.05), transparent 60%);
+}
+
+.theme-terminal .cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  background: var(--term-cursor);
+  vertical-align: -0.15em;
+  animation: term-blink 1s steps(1) infinite;
+}
+
+@keyframes term-blink {
+  50% {
+    opacity: 0;
+  }
 }

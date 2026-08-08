@@ -14,7 +14,7 @@ export function NewsletterForm() {
         type="email"
         name="email"
         required
-        placeholder="you@company.com"
+        placeholder="your@email.com"
         className="w-56 max-w-full rounded-sm border border-line bg-surface px-3 py-2 text-sm text-fg placeholder:text-muted focus:border-teal focus:outline-none"
       />
       <button

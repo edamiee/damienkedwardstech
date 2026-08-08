@@ -116,6 +116,23 @@ a {
   }
 }
 
+/* One-shot hint on the 3D hero — tells first-time visitors it's live and
+   draggable before it fades, since the terrain otherwise reads as a static
+   graphic until something touches it. */
+@keyframes hero-hint-fade {
+  0%,
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.hero-hint {
+  animation: hero-hint-fade 4.5s ease forwards;
+}
+
 /* ============================================================
    Gated /projects area — Phosphor Terminal theme.
    A deliberate, single committed dark world (like a real CRT is

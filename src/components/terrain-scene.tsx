@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -52,11 +52,27 @@ function Terrain({ color, lineColor }: { color: string; lineColor: string }) {
     pulsesRef.current.push({ point: event.point.clone(), startedAt: performance.now() });
   }
 
-  useFrame(() => {
+  // Fires one ripple shortly after mount, unprompted, so the terrain
+  // demonstrates its own interactivity instead of waiting for a visitor
+  // to discover it by accident.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      pulsesRef.current.push({ point: new THREE.Vector3(0, 0, 0), startedAt: performance.now() });
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useFrame((state) => {
     const group = groupRef.current;
     if (group) {
-      const targetX = pointer.current.y * 0.18;
-      const targetY = pointer.current.x * 0.28;
+      // Gentle idle drift keeps the terrain visibly alive even before a
+      // visitor's cursor ever reaches it — otherwise it reads as a still
+      // image until touched. Pointer tilt is layered on top of it.
+      const elapsed = state.clock.getElapsedTime();
+      const idleX = Math.sin(elapsed * 0.35) * 0.06;
+      const idleY = Math.sin(elapsed * 0.22) * 0.1 + Math.cos(elapsed * 0.13) * 0.05;
+      const targetX = pointer.current.y * 0.18 + idleX;
+      const targetY = pointer.current.x * 0.28 + idleY;
       group.rotation.x += (targetX - group.rotation.x) * 0.04;
       group.rotation.y += (targetY - group.rotation.y) * 0.04;
     }
@@ -90,12 +106,11 @@ function Terrain({ color, lineColor }: { color: string; lineColor: string }) {
       onPointerDown={handlePointerDown}
     >
       <mesh geometry={geometry}>
-        <meshStandardMaterial
-          color={color}
-          wireframe
-          transparent
-          opacity={0.55}
-        />
+        {/* Unlit on purpose — wireframe lines on a lit material dim out
+            wherever a face normal points away from the light, which made
+            the terrain nearly invisible in places. Flat color reads
+            consistently regardless of viewing angle. */}
+        <meshBasicMaterial color={color} wireframe transparent opacity={0.85} />
       </mesh>
       {[0, 1, 2].map((i) => (
         <mesh

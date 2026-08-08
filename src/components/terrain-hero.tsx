@@ -37,10 +37,13 @@ export function TerrainHero() {
 
   return (
     <div
-      className="pointer-events-auto absolute inset-y-0 right-0 hidden w-[48%] opacity-80 lg:block"
+      className="pointer-events-auto absolute inset-y-0 right-0 hidden w-[48%] lg:block"
       aria-hidden="true"
     >
       <TerrainScene color="#4f9b8f" lineColor="#c9714a" />
+      <span className="hero-hint pointer-events-none absolute bottom-8 right-8 rounded-full border border-line bg-surface/80 px-3 py-1 text-xs uppercase tracking-[0.1em] text-muted backdrop-blur-sm">
+        drag to explore
+      </span>
     </div>
   );
 }

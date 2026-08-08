@@ -37,7 +37,31 @@ export default async function AdminSiteContentPage() {
               defaultChecked={content.chat_enabled !== "false"}
               className="h-4 w-4 accent-teal"
             />
-            Show the &quot;Ask about Damien&apos;s work&quot; chat button on public pages
+            Show the chat button on public pages
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Header (shown at the top of the chat panel)
+            <input
+              name="chat_header"
+              defaultValue={content.chat_header}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Subheader
+            <input
+              name="chat_subheader"
+              defaultValue={content.chat_subheader}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Example question (shown before the visitor asks anything)
+            <input
+              name="chat_example_question"
+              defaultValue={content.chat_example_question}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
           </label>
           <p className="text-xs text-muted">
             Answers are grounded in the{" "}

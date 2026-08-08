@@ -8,7 +8,13 @@ type Message = {
   sources?: { title: string; url_path: string }[];
 };
 
-export function ChatWidget() {
+type ChatWidgetProps = {
+  header: string;
+  subheader: string;
+  exampleQuestion: string;
+};
+
+export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -56,8 +62,8 @@ export function ChatWidget() {
         <div className="mb-3 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-sm border border-line bg-surface shadow-xl">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">
             <div>
-              <p className="font-display text-sm">Ask about Damien&apos;s work</p>
-              <p className="text-[11px] text-muted">Answers from published posts &amp; case studies</p>
+              <p className="font-display text-sm">{header}</p>
+              <p className="text-[11px] text-muted">{subheader}</p>
             </div>
             <button
               onClick={() => setOpen(false)}
@@ -70,9 +76,7 @@ export function ChatWidget() {
 
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-3">
             {messages.length === 0 && (
-              <p className="text-sm text-muted">
-                Try: &quot;What kind of AI projects has Damien worked on?&quot;
-              </p>
+              <p className="text-sm text-muted">Try: &quot;{exampleQuestion}&quot;</p>
             )}
             {messages.map((m, i) => (
               <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>

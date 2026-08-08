@@ -12,7 +12,13 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
       <SiteHeader links={links} name={content.site_name} />
       <main className="flex-1">{children}</main>
       <SiteFooter name={content.site_name} tagline={content.footer_tagline} />
-      {content.chat_enabled !== "false" && <ChatWidget />}
+      {content.chat_enabled !== "false" && (
+        <ChatWidget
+          header={content.chat_header}
+          subheader={content.chat_subheader}
+          exampleQuestion={content.chat_example_question}
+        />
+      )}
     </div>
   );
 }

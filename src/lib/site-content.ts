@@ -27,6 +27,9 @@ export const SITE_CONTENT_DEFAULTS = {
   contact_linkedin: "",
   projects_github_url: "",
   chat_enabled: "true",
+  chat_header: "Ask about Damien's work",
+  chat_subheader: "Answers from published posts & case studies",
+  chat_example_question: "What kind of AI projects has Damien worked on?",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

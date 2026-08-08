@@ -1,14 +1,14 @@
 import { getSiteContent } from "@/lib/site-content";
-import { saveSiteContent } from "./actions";
+import { saveSiteContent, regenerateWeeklyInsight } from "./actions";
 
 export default async function AdminSiteContentPage() {
   const content = await getSiteContent();
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-2xl">Homepage &amp; About content</h1>
+      <h1 className="font-display text-2xl">Site content</h1>
       <p className="mt-1 text-sm text-muted">
-        Edits go live on the public homepage and About page immediately.
+        Edits go live immediately — no redeploy needed.
       </p>
 
       <form action={saveSiteContent} className="mt-8 flex flex-col gap-8">
@@ -46,6 +46,32 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Weekly AI note
+          </legend>
+          <p className="text-xs text-muted">
+            Regenerated automatically every Monday via Claude. Edit it
+            directly here, or regenerate it on demand — regenerating
+            ignores whatever&apos;s typed below and doesn&apos;t need Save.
+          </p>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Current note
+            <textarea
+              name="weekly_ai_insight"
+              rows={2}
+              defaultValue={content.weekly_ai_insight}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <button
+            formAction={regenerateWeeklyInsight}
+            className="self-start rounded-sm border border-teal px-4 py-2 text-sm font-semibold text-teal"
+          >
+            Regenerate now
+          </button>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             About page
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">
@@ -62,6 +88,44 @@ export default async function AdminSiteContentPage() {
             <input
               name="about_skills"
               defaultValue={content.about_skills}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Contact page
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Intro text
+            <textarea
+              name="contact_intro"
+              rows={2}
+              defaultValue={content.contact_intro}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Contact email
+            <input
+              name="contact_email"
+              type="email"
+              defaultValue={content.contact_email}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Footer
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Tagline (next to the copyright line)
+            <input
+              name="footer_tagline"
+              defaultValue={content.footer_tagline}
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>

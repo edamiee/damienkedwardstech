@@ -3,21 +3,31 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
-  const [{ count: postCount }, { count: paperCount }, { count: viewerCount }, { count: projectCount }] =
-    await Promise.all([
-      supabase.from("posts").select("id", { count: "exact", head: true }),
-      supabase.from("papers").select("id", { count: "exact", head: true }),
-      supabase
-        .from("project_viewer_invites")
-        .select("email", { count: "exact", head: true }),
-      supabase.from("site_projects").select("id", { count: "exact", head: true }),
-    ]);
+  const [
+    { count: postCount },
+    { count: paperCount },
+    { count: viewerCount },
+    { count: projectCount },
+    { count: navCount },
+    { count: serviceCount },
+  ] = await Promise.all([
+    supabase.from("posts").select("id", { count: "exact", head: true }),
+    supabase.from("papers").select("id", { count: "exact", head: true }),
+    supabase
+      .from("project_viewer_invites")
+      .select("email", { count: "exact", head: true }),
+    supabase.from("site_projects").select("id", { count: "exact", head: true }),
+    supabase.from("nav_links").select("id", { count: "exact", head: true }),
+    supabase.from("home_services").select("id", { count: "exact", head: true }),
+  ]);
 
   const sections = [
     { href: "/admin/posts", label: "Blog posts", count: postCount },
     { href: "/admin/papers", label: "Writing / documents", count: paperCount },
     { href: "/admin/viewers", label: "Project viewer invites", count: viewerCount },
     { href: "/admin/projects", label: "Gated projects", count: projectCount },
+    { href: "/admin/nav", label: "Navigation links", count: navCount },
+    { href: "/admin/services", label: '"What I do" cards', count: serviceCount },
   ];
 
   return (
@@ -29,9 +39,10 @@ export default async function AdminDashboard() {
         className="mt-6 flex items-center justify-between rounded-sm border border-line bg-surface px-5 py-4 hover:border-teal"
       >
         <div>
-          <p className="font-medium">Homepage &amp; About content</p>
+          <p className="font-medium">Site content</p>
           <p className="mt-0.5 text-sm text-muted">
-            Edit the hero headline, subheading, and About page copy.
+            Homepage hero, weekly AI note, About page, Contact page, and
+            footer tagline.
           </p>
         </div>
         <span className="text-teal">Edit →</span>

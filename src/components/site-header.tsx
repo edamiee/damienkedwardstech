@@ -1,13 +1,7 @@
 import Link from "next/link";
+import type { NavLink } from "@/lib/nav-links";
 
-const links = [
-  { href: "/about", label: "About" },
-  { href: "/writing", label: "Writing" },
-  { href: "/projects", label: "Projects" },
-  { href: "/contact", label: "Contact" },
-];
-
-export function SiteHeader() {
+export function SiteHeader({ links }: { links: NavLink[] }) {
   return (
     <header className="border-b border-line">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
@@ -17,11 +11,11 @@ export function SiteHeader() {
         <nav className="flex items-center gap-6 text-sm">
           {links.map((link) => (
             <Link
-              key={link.href}
+              key={link.id}
               href={link.href}
               className="text-teal hover:opacity-80"
             >
-              {link.label === "Projects" ? `${link.label} ⚑` : link.label}
+              {link.href === "/projects" ? `${link.label} ⚑` : link.label}
             </Link>
           ))}
         </nav>

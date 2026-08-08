@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { getLatestAiNews } from "@/lib/ai-feed";
 import { getSiteContent } from "@/lib/site-content";
+import { getHomeServices } from "@/lib/home-services";
 import { TerrainHero } from "@/components/terrain-hero";
 
 export default async function HomePage() {
-  const [aiNews, content] = await Promise.all([
+  const [aiNews, content, services] = await Promise.all([
     getLatestAiNews(5),
     getSiteContent(),
+    getHomeServices(),
   ]);
 
   return (
@@ -51,26 +53,22 @@ export default async function HomePage() {
         </span>
       </section>
 
+      <section className="border-l-2 border-teal py-8 pl-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+          Note of the week
+        </p>
+        <p className="mt-2 max-w-[55ch] font-display text-lg italic leading-snug text-fg">
+          {content.weekly_ai_insight}
+        </p>
+      </section>
+
       <section className="py-14">
         <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
           What I do
         </h2>
         <div className="grid gap-6 sm:grid-cols-3">
-          {[
-            {
-              title: "Data pipelines",
-              body: "Ingestion, transformation, and orchestration that hold up under real production load.",
-            },
-            {
-              title: "LLM integration",
-              body: "Wiring Claude and other models into products as features, not demos.",
-            },
-            {
-              title: "Applied AI features",
-              body: "The interface layer on top — the part your users and customers actually touch.",
-            },
-          ].map((item) => (
-            <div key={item.title}>
+          {services.map((item) => (
+            <div key={item.id}>
               <h3 className="font-display text-lg">{item.title}</h3>
               <p className="mt-1.5 text-sm text-muted">{item.body}</p>
             </div>

@@ -1,12 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSiteContent } from "@/lib/site-content";
 
 export default async function ProjectsIndexPage() {
   const supabase = await createClient();
-  const { data: projects } = await supabase
-    .from("site_projects")
-    .select("name, description, url")
-    .eq("visible", true)
-    .order("sort_order", { ascending: true });
+  const [{ data: projects }, content] = await Promise.all([
+    supabase
+      .from("site_projects")
+      .select("name, description, url")
+      .eq("visible", true)
+      .order("sort_order", { ascending: true }),
+    getSiteContent(),
+  ]);
 
   return (
     <div className="mx-auto max-w-2xl">
@@ -14,6 +18,17 @@ export default async function ProjectsIndexPage() {
       <h1 className="mt-2 text-xl">
         access granted<span className="cursor" />
       </h1>
+
+      {content.projects_github_url && (
+        <a
+          href={content.projects_github_url}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 inline-flex items-center gap-2 text-sm text-term-fg hover:text-term-cursor"
+        >
+          [ github ] →
+        </a>
+      )}
 
       <p className="mt-8 text-xs uppercase tracking-[0.2em] text-term-fg-dim">
         ── projects ──

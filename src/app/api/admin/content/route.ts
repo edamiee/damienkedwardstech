@@ -22,9 +22,10 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //
 // { "type": "site_content", "key": "about_body", "value": "..." }
 //   -> upserts public.site_content by key. Valid keys: see SITE_CONTENT_DEFAULTS
-//      in src/lib/site-content.ts (home_eyebrow, home_heading, home_subheading,
-//      weekly_ai_insight, about_body, about_skills, resume_url, footer_tagline,
-//      contact_intro, contact_email, contact_linkedin).
+//      in src/lib/site-content.ts (site_name, home_eyebrow, home_heading,
+//      home_subheading, weekly_ai_insight, about_body, about_skills, resume_url,
+//      footer_tagline, contact_intro, contact_email, contact_linkedin,
+//      projects_github_url).
 //
 // { "type": "nav_link", "id": "...", "label": "...", "href": "...",
 //   "sort_order": 0, "visible": true }

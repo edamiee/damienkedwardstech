@@ -14,6 +14,36 @@ export default async function AdminSiteContentPage() {
       <form action={saveSiteContent} className="mt-8 flex flex-col gap-8">
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Site identity
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Name (header, footer, and browser tab title)
+            <input
+              name="site_name"
+              defaultValue={content.site_name}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Gated projects page
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            GitHub URL (leave blank to hide the link)
+            <input
+              name="projects_github_url"
+              type="url"
+              placeholder="https://github.com/…"
+              defaultValue={content.projects_github_url}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Homepage hero
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

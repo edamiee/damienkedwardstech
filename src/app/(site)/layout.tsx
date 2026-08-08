@@ -8,9 +8,9 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <SiteHeader links={links} />
+      <SiteHeader links={links} name={content.site_name} />
       <main className="flex-1">{children}</main>
-      <SiteFooter tagline={content.footer_tagline} />
+      <SiteFooter name={content.site_name} tagline={content.footer_tagline} />
     </div>
   );
 }

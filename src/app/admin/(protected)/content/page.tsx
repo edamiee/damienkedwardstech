@@ -115,6 +115,16 @@ export default async function AdminSiteContentPage() {
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            LinkedIn URL (leave blank to hide the button)
+            <input
+              name="contact_linkedin"
+              type="url"
+              placeholder="https://www.linkedin.com/in/…"
+              defaultValue={content.contact_linkedin}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

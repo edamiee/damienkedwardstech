@@ -34,6 +34,17 @@ export default async function ProtectedAdminLayout({
     redirect("/admin/login?error=not_admin");
   }
 
+  const sections = [
+    { href: "/admin", label: "Dashboard" },
+    { href: "/admin/content", label: "Site content" },
+    { href: "/admin/posts", label: "Posts" },
+    { href: "/admin/papers", label: "Writing / docs" },
+    { href: "/admin/nav", label: "Navigation" },
+    { href: "/admin/services", label: '"What I do"' },
+    { href: "/admin/projects", label: "Gated projects" },
+    { href: "/admin/viewers", label: "Viewer invites" },
+  ];
+
   return (
     <div className="min-h-screen bg-bg text-fg">
       <header className="flex flex-col gap-3 border-b border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
@@ -47,6 +58,13 @@ export default async function ProtectedAdminLayout({
           <LogoutButton />
         </div>
       </header>
+      <nav className="flex flex-wrap gap-x-5 gap-y-2 border-b border-line bg-surface px-4 py-3 text-sm sm:px-6">
+        {sections.map((s) => (
+          <Link key={s.href} href={s.href} className="text-teal hover:underline">
+            {s.label}
+          </Link>
+        ))}
+      </nav>
       <main className="p-4 sm:p-6">{children}</main>
     </div>
   );

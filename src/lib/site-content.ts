@@ -20,6 +20,7 @@ export const SITE_CONTENT_DEFAULTS = {
   contact_intro:
     "Open to freelance and contract AI/data engineering work, and to full-time roles. The fastest way to reach me is email.",
   contact_email: "damien.k.edwards@gmail.com",
+  contact_linkedin: "",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

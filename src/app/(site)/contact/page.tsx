@@ -9,12 +9,24 @@ export default async function ContactPage() {
       <p className="mt-4 max-w-[50ch] text-[15.5px] text-muted">
         {content.contact_intro}
       </p>
-      <a
-        href={`mailto:${content.contact_email}`}
-        className="mt-6 inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
-      >
-        {content.contact_email}
-      </a>
+      <div className="mt-6 flex flex-wrap gap-4">
+        <a
+          href={`mailto:${content.contact_email}`}
+          className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
+        >
+          {content.contact_email}
+        </a>
+        {content.contact_linkedin && (
+          <a
+            href={content.contact_linkedin}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 rounded-sm border border-line px-5 py-2.5 text-sm font-semibold"
+          >
+            LinkedIn ↗
+          </a>
+        )}
+      </div>
     </div>
   );
 }

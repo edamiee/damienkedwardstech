@@ -63,7 +63,7 @@ export default async function HomePage() {
         {hermesActivity && (
           <span className="inline-flex items-center gap-2 text-muted">
             <span className="inline-block h-2.5 w-2.5 rounded-full bg-teal-soft" />
-            Last published by Hermes —{" "}
+            Last published by Damien&apos;s agent that runs the site —{" "}
             <Link href={hermesActivity.href} className="text-teal underline">
               {hermesActivity.title}
             </Link>

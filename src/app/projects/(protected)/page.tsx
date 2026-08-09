@@ -24,19 +24,20 @@ export default async function ProjectsIndexPage() {
           <p className="text-xs uppercase tracking-[0.2em] text-term-fg-dim">
             ── github repositories ──
           </p>
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
+          <ul className="mt-3 divide-y divide-term-fg-dim">
             {githubLinks.map((link) => (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-term-fg hover:text-term-cursor"
-              >
-                [ {link.label} ] →
-              </a>
+              <li key={link.id} className="py-3">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-term-fg hover:text-term-cursor"
+                >
+                  [ {link.label} ] →
+                </a>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       )}
 

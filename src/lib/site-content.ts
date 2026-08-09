@@ -25,7 +25,6 @@ export const SITE_CONTENT_DEFAULTS = {
     "Open to freelance and contract AI/data engineering work, and to full-time roles. The fastest way to reach me is email.",
   contact_email: "damien.k.edwards@gmail.com",
   contact_linkedin: "",
-  projects_github_url: "",
   chat_enabled: "true",
   chat_header: "Ask about Damien's work",
   chat_subheader: "Answers from published posts & case studies",

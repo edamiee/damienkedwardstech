@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ProjectsLoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -15,6 +18,26 @@ export default function ProjectsLoginPage() {
     setLoading(true);
 
     const supabase = createClient();
+
+    // Anyone with a password already set (i.e. the admin account) can sign
+    // straight in instead of waiting on a magic-link email. Invited viewers
+    // never have a password, so they leave it blank and fall through to
+    // the OTP link — same behavior as before.
+    if (password) {
+      const { error: passwordError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      setLoading(false);
+      if (passwordError) {
+        setError(passwordError.message);
+        return;
+      }
+      router.push("/projects");
+      router.refresh();
+      return;
+    }
+
     const { error: otpError } = await supabase.auth.signInWithOtp({
       email,
       options: {
@@ -39,8 +62,8 @@ export default function ProjectsLoginPage() {
           sign in to continue<span className="cursor" />
         </h1>
         <p className="mt-2 text-sm opacity-80">
-          Enter the email you were invited with — you&apos;ll get a sign-in
-          link.
+          Have a password? Enter it below to sign in directly. Otherwise
+          leave it blank and you&apos;ll get a sign-in link by email.
         </p>
 
         {sent ? (
@@ -58,13 +81,20 @@ export default function ProjectsLoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               className="border-term-fg-dim bg-term-bg text-term-fg rounded-sm border px-3 py-2 text-sm"
             />
+            <input
+              type="password"
+              placeholder="password (optional)"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="border-term-fg-dim bg-term-bg text-term-fg rounded-sm border px-3 py-2 text-sm"
+            />
             {error && <p className="text-term-alert text-sm">{error}</p>}
             <button
               type="submit"
               disabled={loading}
               className="rounded-sm border border-current px-4 py-2 text-sm font-semibold disabled:opacity-60"
             >
-              {loading ? "sending…" : "send link"}
+              {loading ? "signing in…" : password ? "sign in" : "send link"}
             </button>
           </form>
         )}

@@ -43,6 +43,7 @@ export default async function ProtectedAdminLayout({
     { href: "/admin/nav", label: "Navigation" },
     { href: "/admin/services", label: '"What I do"' },
     { href: "/admin/projects", label: "Gated projects" },
+    { href: "/admin/github-links", label: "GitHub repos" },
     { href: "/admin/viewers", label: "Viewer invites" },
     { href: "/admin/subscribers", label: "Subscribers" },
     { href: "/admin/chat-index", label: "Chat index" },

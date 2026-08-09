@@ -118,22 +118,6 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
-            Gated projects page
-          </legend>
-          <label className="flex flex-col gap-1.5 text-sm">
-            GitHub URL (leave blank to hide the link)
-            <input
-              name="projects_github_url"
-              type="url"
-              placeholder="https://github.com/…"
-              defaultValue={content.projects_github_url}
-              className="rounded-sm border border-line bg-surface px-3 py-2"
-            />
-          </label>
-        </fieldset>
-
-        <fieldset className="flex flex-col gap-3">
-          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Homepage hero
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

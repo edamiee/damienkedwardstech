@@ -1,15 +1,15 @@
 import { createClient } from "@/lib/supabase/server";
-import { getSiteContent } from "@/lib/site-content";
+import { getGithubLinks } from "@/lib/github-links";
 
 export default async function ProjectsIndexPage() {
   const supabase = await createClient();
-  const [{ data: projects }, content] = await Promise.all([
+  const [{ data: projects }, githubLinks] = await Promise.all([
     supabase
       .from("site_projects")
       .select("name, description, url, image_url")
       .eq("visible", true)
       .order("sort_order", { ascending: true }),
-    getSiteContent(),
+    getGithubLinks(),
   ]);
 
   return (
@@ -19,15 +19,20 @@ export default async function ProjectsIndexPage() {
         access granted<span className="cursor" />
       </h1>
 
-      {content.projects_github_url && (
-        <a
-          href={content.projects_github_url}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-4 inline-flex items-center gap-2 text-sm text-term-fg hover:text-term-cursor"
-        >
-          [ github ] →
-        </a>
+      {githubLinks.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+          {githubLinks.map((link) => (
+            <a
+              key={link.id}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 text-sm text-term-fg hover:text-term-cursor"
+            >
+              [ {link.label} ] →
+            </a>
+          ))}
+        </div>
       )}
 
       <p className="mt-8 text-xs uppercase tracking-[0.2em] text-term-fg-dim">

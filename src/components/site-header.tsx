@@ -1,14 +1,18 @@
 import Link from "next/link";
 import type { NavLink } from "@/lib/nav-links";
+import { MobileNav } from "./mobile-nav";
 
 export function SiteHeader({ links, name }: { links: NavLink[]; name: string }) {
   return (
-    <header className="border-b border-line">
+    <header className="relative border-b border-line">
       <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
-        <Link href="/" className="font-display text-lg font-bold tracking-tight">
+        <Link
+          href="/"
+          className="truncate font-display text-base font-bold tracking-tight sm:text-lg"
+        >
           {name}
         </Link>
-        <nav className="flex items-center gap-6 text-sm">
+        <nav className="hidden items-center gap-6 text-sm sm:flex">
           {links.map((link) => (
             <Link
               key={link.id}
@@ -19,6 +23,7 @@ export function SiteHeader({ links, name }: { links: NavLink[]; name: string }) 
             </Link>
           ))}
         </nav>
+        <MobileNav links={links} />
       </div>
     </header>
   );

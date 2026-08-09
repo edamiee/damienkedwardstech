@@ -15,8 +15,8 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 // { "type": "post", "title": "...", "body_markdown": "...", "excerpt": "...",
 //   "published": true, "source": "hermes" }
 //   -> upserts public.posts by slug (derived from title). "source" defaults
-//      to "agent" if omitted; set it to "hermes" specifically so the
-//      homepage's "Last published by Hermes" line picks it up.
+//      to "agent" if omitted; set it to "hermes" or "agent" so the
+//      homepage's agent-activity line picks it up.
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -35,7 +35,7 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //      in src/lib/site-content.ts (site_name, home_eyebrow, home_heading,
 //      home_subheading, now_line, weekly_ai_insight, about_body, about_skills,
 //      resume_url, footer_tagline, contact_intro, contact_email,
-//      contact_linkedin, projects_github_url, chat_enabled ("true"/"false"),
+//      contact_linkedin, chat_enabled ("true"/"false"),
 //      chat_header, chat_subheader, chat_example_question,
 //      newsletter_capture_enabled, newsletter_sending_enabled ("true"/"false"),
 //      newsletter_from_email).
@@ -53,6 +53,12 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 //   "description": "...", "image_url": "...", "visible": true }
 //   -> upserts public.site_projects by slug (derived from name) if no id
 //      given, otherwise updates by id
+//
+// { "type": "github_link", "id": "...", "label": "...", "url": "...",
+//   "sort_order": 0, "visible": true }
+//   -> updates public.github_links by id if id given, otherwise inserts.
+//      Shown on the gated /projects page — add one per repo you want
+//      linked there, no limit on how many.
 //
 // Posts/papers/case studies/projects upsert by slug, so posting the same
 // title/name again updates that entry instead of creating a duplicate.
@@ -125,6 +131,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ nav_link: data });
   }
 
+  if (type === "github_link") {
+    const id = body.id as string | undefined;
+    const label = body.label as string;
+    const url = body.url as string;
+    if (!id && (!label || !url)) {
+      return NextResponse.json(
+        { error: "label and url are required to create a github link" },
+        { status: 400 }
+      );
+    }
+    const payload: Record<string, unknown> = {};
+    if (label !== undefined) payload.label = label;
+    if (url !== undefined) payload.url = url;
+    if (body.sort_order !== undefined) payload.sort_order = Number(body.sort_order);
+    if (body.visible !== undefined) payload.visible = Boolean(body.visible);
+
+    const query = id
+      ? supabase.from("github_links").update(payload).eq("id", id)
+      : supabase.from("github_links").insert(payload);
+    const { data, error } = await query.select().single();
+
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ github_link: data });
+  }
+
   if (type === "service") {
     const id = body.id as string | undefined;
     const title = body.title as string;
@@ -188,7 +219,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error:
-          "type must be one of 'post', 'paper', 'case_study', 'site_content', 'nav_link', 'service', 'project'",
+          "type must be one of 'post', 'paper', 'case_study', 'site_content', 'nav_link', 'service', 'project', 'github_link'",
       },
       { status: 400 }
     );

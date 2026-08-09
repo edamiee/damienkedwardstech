@@ -12,6 +12,8 @@ import { formatRelativeTime } from "@/lib/format-relative-time";
 // plain content. Not worth generalizing into a per-entry config field for
 // a single, one-off integration.
 const PIPELINE_METRICS_SLUG = "a-dbt-semantic-layer-over-my-own-github-activity";
+const PIPELINE_DASHBOARD_IMAGE_URL =
+  "https://hntcwtddauuazloxifnr.supabase.co/storage/v1/object/public/post-images/0e289ada-38dd-4c32-a4da-b87acc1efb27.png";
 
 export const revalidate = 60;
 
@@ -174,6 +176,15 @@ export default async function BuildLogEntryPage({
             )}
           </div>
         </div>
+      )}
+
+      {slug === PIPELINE_METRICS_SLUG && (
+        // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, not worth remotePatterns config
+        <img
+          src={PIPELINE_DASHBOARD_IMAGE_URL}
+          alt="The GitHub activity pipeline's Lightdash dashboard, showing total commits, active repos, and PR/issue metrics"
+          className="mt-6 w-full rounded-sm border border-line"
+        />
       )}
 
       {cs.project_url && (

@@ -7,6 +7,7 @@ const SOURCES = [
   { value: "research_agent", label: "Research agent" },
   { value: "dev_log_agent", label: "Dev-log agent" },
   { value: "telegram_agent", label: "Telegram agent" },
+  { value: "mcp_agent", label: "MCP agent" },
 ];
 
 export default async function AdminAuditLogPage({

@@ -6,7 +6,8 @@ export type AuditSource =
   | "site_agent"
   | "research_agent"
   | "dev_log_agent"
-  | "telegram_agent";
+  | "telegram_agent"
+  | "mcp_agent";
 
 // Fire-and-forget-ish: awaited so ordering is predictable, but a logging
 // failure is swallowed rather than thrown — an audit trail write should

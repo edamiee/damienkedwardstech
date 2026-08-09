@@ -90,6 +90,72 @@ Response: `{ url: "https://.../post-images/<uuid>.<ext>" }`.
 
 ---
 
+## MCP server
+
+### `POST /api/mcp`
+
+Remote MCP server (Streamable HTTP transport, stateless — a fresh server
+instance per request, so no client-side session cleanup is required). Point
+any MCP-speaking client or LLM at this URL to give it tools for this site.
+
+**Auth:** none required for the public tier; `Authorization: Bearer
+<ADMIN_API_SECRET>` unlocks the admin tier. Unauthenticated callers never
+see the admin tools in `tools/list` — they don't just fail to call them, the
+tools are absent from discovery entirely.
+
+| Tier | Tools | Notes |
+|---|---|---|
+| Public (always available) | `search_content`, `get_case_study_stats`, `get_availability` | Read-only, safe for any client |
+| Admin (bearer-gated) | `list_site_content`, `update_site_content`, `add_testimonial`, `add_service` | Same tool set + executor as the Telegram admin agent (`src/lib/admin-agent-tools.ts`); writes logged to `content_audit_log` with source `"mcp_agent"` |
+
+Built with `@modelcontextprotocol/server` v2 (`createMcpHandler` +
+`McpServer`), which negotiates protocol era per request — modern
+(2026-07-28) clients get the envelope-based exchange, older clients
+(2025-era, most current MCP clients as of this writing) get an old-school
+stateless fallback automatically. Either way, no server-side session state
+persists between requests, which is what makes this safe to run on Vercel's
+serverless functions.
+
+Quick test with `curl`:
+
+```bash
+curl -s https://damienkedwards.tech/api/mcp \
+  -H "content-type: application/json" -H "accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+```
+
+**Connecting a client:**
+
+- **Claude Desktop / Claude Code** — add to the client's MCP config
+  (Claude Desktop: Settings → Connectors → Add custom connector, or edit
+  `claude_desktop_config.json` directly; Claude Code: `claude mcp add
+  --transport http damienkedwardstech https://damienkedwards.tech/api/mcp`):
+  ```json
+  {
+    "mcpServers": {
+      "damienkedwardstech": { "type": "http", "url": "https://damienkedwards.tech/api/mcp" }
+    }
+  }
+  ```
+  For the admin tier, add a header:
+  ```json
+  {
+    "mcpServers": {
+      "damienkedwardstech": {
+        "type": "http",
+        "url": "https://damienkedwards.tech/api/mcp",
+        "headers": { "Authorization": "Bearer <ADMIN_API_SECRET>" }
+      }
+    }
+  }
+  ```
+- **Any other MCP client** (Cursor, Windsurf, ChatGPT connectors, a custom
+  script using `@modelcontextprotocol/sdk`'s client) — the same URL and
+  optional bearer header work identically; this is a standard Streamable
+  HTTP MCP server with no custom auth scheme beyond a normal bearer token.
+
+---
+
 ## Agent / admin-tooling routes
 
 ### `POST /api/telegram/webhook`
@@ -202,6 +268,7 @@ CSV export of the subscribers table (`email,source,created_at`).
 | Pattern | Used by | Mechanism |
 |---|---|---|
 | Static bearer secret | `/api/admin/content` | `Authorization: Bearer <ADMIN_API_SECRET>` — for non-browser callers (agents/scripts) |
+| Static bearer secret, optional/tiered | `/api/mcp` | Same `ADMIN_API_SECRET`, but only required to unlock the admin tool tier — the public tools work unauthenticated |
 | Supabase session cookie | `/api/admin/draft-post`, `/api/admin/upload-image`, `/admin/subscribers/export`, all `/admin/*` pages | `requireAdmin()` — checks a logged-in session against `public.admins` |
 | Cron secret | `/api/cron/weekly-insight` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
 | Telegram secret token + chat-id allowlist | `/api/telegram/webhook` | Header match + numeric chat id match; anyone else gets a silent 200 |

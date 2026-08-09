@@ -69,6 +69,7 @@ export async function GET() {
   lines.push("");
   lines.push(`Full site map: ${BASE_URL}/sitemap.xml`);
   lines.push(`API spec (what an agent can *do* here, not just read): ${BASE_URL}/openapi.json`);
+  lines.push(`MCP server (same tools, for MCP clients): ${BASE_URL}/api/mcp`);
 
   return new Response(lines.join("\n"), {
     headers: { "content-type": "text/plain; charset=utf-8" },

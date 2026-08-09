@@ -2,7 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ToolDefinition } from "@/lib/anthropic";
 import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
-import { logContentChange } from "@/lib/audit-log";
+import { logContentChange, type AuditSource } from "@/lib/audit-log";
 
 const SITE_CONTENT_KEYS = Object.keys(SITE_CONTENT_DEFAULTS);
 
@@ -61,7 +61,8 @@ export const ADMIN_AGENT_TOOLS: ToolDefinition[] = [
 
 export async function executeAdminAgentTool(
   name: string,
-  input: Record<string, unknown>
+  input: Record<string, unknown>,
+  source: AuditSource = "telegram_agent"
 ): Promise<string> {
   const supabase = createAdminClient();
 
@@ -90,11 +91,11 @@ export async function executeAdminAgentTool(
     if (error) return `Error: ${error.message}`;
 
     await logContentChange({
-      source: "telegram_agent",
+      source,
       action: "site_content.update",
       entity_type: "site_content",
       entity_id: key,
-      summary: `Updated ${key} via Telegram`,
+      summary: `Updated ${key} via ${source}`,
     });
     return `Updated ${key}.`;
   }
@@ -112,11 +113,11 @@ export async function executeAdminAgentTool(
     if (error) return `Error: ${error.message}`;
 
     await logContentChange({
-      source: "telegram_agent",
+      source,
       action: "testimonial.create",
       entity_type: "testimonial",
       entity_id: data?.id ?? null,
-      summary: `Added testimonial from ${input.author_name} via Telegram`,
+      summary: `Added testimonial from ${input.author_name} via ${source}`,
     });
     return "Testimonial added.";
   }
@@ -133,11 +134,11 @@ export async function executeAdminAgentTool(
     if (error) return `Error: ${error.message}`;
 
     await logContentChange({
-      source: "telegram_agent",
+      source,
       action: "service.create",
       entity_type: "service",
       entity_id: data?.id ?? null,
-      summary: `Added service card "${input.title}" via Telegram`,
+      summary: `Added service card "${input.title}" via ${source}`,
     });
     return "Service card added.";
   }

@@ -1,75 +1,17 @@
 import Link from "next/link";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { embedOne } from "@/lib/voyage";
+import { searchContent, type SearchResult } from "@/lib/content-search";
 
 export const dynamic = "force-dynamic";
-
-type MatchRow = {
-  source_type: string;
-  title: string;
-  url_path: string;
-  chunk_text: string;
-  similarity: number;
-};
-
-type Result = {
-  title: string;
-  url_path: string;
-  snippet: string;
-  kind: string;
-  gated: boolean;
-};
-
-const KIND_LABELS: Record<string, string> = {
-  post: "Post",
-  paper: "Document",
-  case_study: "Case study",
-  project: "Gated project",
-};
-
-const SIMILARITY_THRESHOLD = 0.3;
-
-async function search(query: string): Promise<Result[]> {
-  const supabase = createAdminClient();
-  const queryEmbedding = await embedOne(query, "query");
-  const { data, error } = await supabase.rpc("match_content_embeddings", {
-    query_embedding: queryEmbedding,
-    match_count: 12,
-  });
-
-  if (error) {
-    console.error("search failed", error);
-    return [];
-  }
-
-  const matches = (data ?? []) as MatchRow[];
-  const seen = new Set<string>();
-  const results: Result[] = [];
-
-  for (const m of matches) {
-    if (m.similarity < SIMILARITY_THRESHOLD || seen.has(m.url_path + m.title)) continue;
-    seen.add(m.url_path + m.title);
-    results.push({
-      title: m.title,
-      url_path: m.url_path,
-      snippet: m.chunk_text.slice(0, 220),
-      kind: KIND_LABELS[m.source_type] ?? m.source_type,
-      gated: m.source_type === "project",
-    });
-  }
-
-  return results;
-}
 
 export default async function SearchPage({ searchParams }: PageProps<"/search">) {
   const { q } = await searchParams;
   const query = typeof q === "string" ? q.trim() : "";
 
-  let results: Result[] = [];
+  let results: SearchResult[] = [];
   let searchFailed = false;
   if (query) {
     try {
-      results = await search(query);
+      results = await searchContent(query);
     } catch (err) {
       console.error("search page failed", err);
       searchFailed = true;

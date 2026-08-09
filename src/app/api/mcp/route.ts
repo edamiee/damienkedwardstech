@@ -49,11 +49,11 @@ const factory: McpServerFactory = async (ctx) => {
     {
       title: "Search site content",
       description:
-        "Semantic search over everything published on damienkedwards.tech — posts, papers, case studies, and gated-project teasers. Returns titles, URLs, and short snippets ranked by relevance to the query.",
+        "Semantic search over everything published on damienkedwards.tech — posts, papers, case studies, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
       inputSchema: z.object({ query: z.string().describe("What to search for, in natural language.") }),
     },
     async ({ query }) => {
-      const results = await searchContent(query);
+      const results = await searchContent(query, 12, 600);
       if (results.length === 0) {
         return { content: [{ type: "text", text: "No matches." }] };
       }

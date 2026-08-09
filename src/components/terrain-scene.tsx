@@ -129,12 +129,21 @@ function Terrain({ color, lineColor }: { color: string; lineColor: string }) {
   );
 }
 
-export function TerrainScene({ color, lineColor }: { color: string; lineColor: string }) {
+export function TerrainScene({
+  color,
+  lineColor,
+  onReady,
+}: {
+  color: string;
+  lineColor: string;
+  onReady?: () => void;
+}) {
   return (
     <Canvas
       camera={{ position: [0, 3.4, 8], fov: 42 }}
       gl={{ antialias: true, alpha: true }}
       dpr={[1, 1.75]}
+      onCreated={() => onReady?.()}
     >
       <ambientLight intensity={0.6} />
       <directionalLight position={[3, 5, 2]} intensity={0.5} />

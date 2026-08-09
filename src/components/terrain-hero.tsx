@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import dynamic from "next/dynamic";
 
 const TerrainScene = dynamic(
@@ -32,6 +32,12 @@ function getServerSnapshot() {
 // as a midpoint that stays legible against both the light and dark grounds.
 export function TerrainHero() {
   const shouldRender = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  // Canvas's onCreated (not component mount) is the true "first frame is on
+  // screen" signal — the dynamic import alone can take a beat on a slow
+  // connection, and gating the fade-in and hint on it (rather than firing
+  // both the moment this component mounts) keeps the hint from silently
+  // counting down, and possibly vanishing, before there's anything to hint at.
+  const [ready, setReady] = useState(false);
 
   if (!shouldRender) return null;
 
@@ -40,10 +46,14 @@ export function TerrainHero() {
       className="pointer-events-auto absolute inset-y-0 right-0 hidden w-[48%] lg:block"
       aria-hidden="true"
     >
-      <TerrainScene color="#4f9b8f" lineColor="#c9714a" />
-      <span className="hero-hint pointer-events-none absolute bottom-8 right-8 rounded-full border border-line bg-surface/80 px-3 py-1 text-xs uppercase tracking-[0.1em] text-muted backdrop-blur-sm">
-        drag to explore
-      </span>
+      <div className={`h-full transition-opacity duration-700 ease-out ${ready ? "opacity-100" : "opacity-0"}`}>
+        <TerrainScene color="#4f9b8f" lineColor="#c9714a" onReady={() => setReady(true)} />
+      </div>
+      {ready && (
+        <span className="hero-hint pointer-events-none absolute bottom-8 right-8 rounded-full border border-line bg-surface/80 px-3 py-1 text-xs uppercase tracking-[0.1em] text-muted backdrop-blur-sm">
+          move to explore
+        </span>
+      )}
     </div>
   );
 }

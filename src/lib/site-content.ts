@@ -35,6 +35,9 @@ export const SITE_CONTENT_DEFAULTS = {
   newsletter_sending_enabled: "false",
   newsletter_from_email: "",
   testimonials_enabled: "false",
+  business_inquiry_enabled: "false",
+  business_inquiry_intro:
+    "A few extra details up front help me get back to you with something useful instead of a round of clarifying questions.",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

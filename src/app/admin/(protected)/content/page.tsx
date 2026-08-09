@@ -300,6 +300,39 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Business inquiries
+          </legend>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="business_inquiry_enabled"
+              defaultChecked={content.business_inquiry_enabled === "true"}
+              className="h-4 w-4 accent-teal"
+            />
+            Ask project type, budget, and timeline on the contact form
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Note shown above those fields
+            <textarea
+              name="business_inquiry_intro"
+              rows={2}
+              defaultValue={content.business_inquiry_intro}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <p className="text-xs text-muted">
+            Off by default — the contact form stays a plain name/email/message
+            form until this is on. Messages submitted this way are tagged
+            &quot;Business inquiry&quot; at{" "}
+            <a href="/admin/contact-messages" className="text-teal hover:underline">
+              /admin/contact-messages
+            </a>
+            .
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Footer
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

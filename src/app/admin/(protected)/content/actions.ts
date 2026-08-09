@@ -22,6 +22,7 @@ const CHECKBOX_KEYS: SiteContentKey[] = [
   "newsletter_capture_enabled",
   "newsletter_sending_enabled",
   "testimonials_enabled",
+  "business_inquiry_enabled",
 ];
 
 export async function saveSiteContent(formData: FormData) {

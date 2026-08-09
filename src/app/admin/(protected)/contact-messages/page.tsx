@@ -4,7 +4,7 @@ export default async function AdminContactMessagesPage() {
   const supabase = await createClient();
   const { data: messages } = await supabase
     .from("contact_messages")
-    .select("id, name, email, message, created_at")
+    .select("id, name, email, message, created_at, source, project_type, budget_range, timeline")
     .order("created_at", { ascending: false });
 
   return (
@@ -29,6 +29,21 @@ export default async function AdminContactMessagesPage() {
                 })}
               </span>
             </div>
+            {m.source === "business_inquiry" && (
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                <span className="rounded-sm bg-surface px-1.5 py-0.5 font-data text-[10px] uppercase tracking-[0.06em] text-teal">
+                  Business inquiry
+                </span>
+                {[m.project_type, m.budget_range, m.timeline].filter(Boolean).map((detail) => (
+                  <span
+                    key={detail}
+                    className="rounded-sm bg-surface px-1.5 py-0.5 font-data text-[10px] text-muted"
+                  >
+                    {detail}
+                  </span>
+                ))}
+              </div>
+            )}
             <p className="mt-2 whitespace-pre-line text-sm text-fg">{m.message}</p>
           </li>
         ))}

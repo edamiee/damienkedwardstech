@@ -42,7 +42,10 @@ export default async function ContactPage() {
       <p className="mt-10 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
         Or send a message directly
       </p>
-      <ContactForm />
+      <ContactForm
+        businessInquiryEnabled={content.business_inquiry_enabled === "true"}
+        businessInquiryIntro={content.business_inquiry_intro}
+      />
     </div>
   );
 }

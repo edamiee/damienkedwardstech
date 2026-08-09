@@ -8,7 +8,7 @@ import { extractHeadings, renderMarkdownWithHeadingIds } from "@/lib/markdown";
 export const revalidate = 60;
 
 const SELECT =
-  "id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published, preview_token, series, series_order";
+  "id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published, preview_token, series, series_order, is_site_post";
 
 export default async function WritingPostPage({
   params,
@@ -82,6 +82,11 @@ export default async function WritingPostPage({
         <p className="mb-4 inline-block rounded-sm border border-rust bg-surface px-3 py-1.5 text-xs font-semibold text-rust">
           Draft preview — not publicly visible yet
         </p>
+      )}
+      {post.is_site_post && (
+        <span className="font-data text-[10.5px] uppercase tracking-[0.08em] text-teal">
+          Site note
+        </span>
       )}
       {post.published_at && (
         <p className="font-data text-[11.5px] text-muted">

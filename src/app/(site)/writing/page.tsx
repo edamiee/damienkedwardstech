@@ -15,6 +15,7 @@ type WritingItem = {
   tags: string[];
   readingMinutes: number | null;
   series: string | null;
+  isSitePost: boolean;
 };
 
 export default async function WritingIndexPage({ searchParams }: PageProps<"/writing">) {
@@ -26,7 +27,9 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
   const [{ data: posts }, { data: papers }] = await Promise.all([
     supabase
       .from("posts")
-      .select("slug, title, excerpt, cover_image_url, tags, reading_minutes, series, published_at")
+      .select(
+        "slug, title, excerpt, cover_image_url, tags, reading_minutes, series, published_at, is_site_post"
+      )
       .eq("published", true)
       .or(liveFilter()),
     supabase
@@ -47,6 +50,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
       tags: post.tags ?? [],
       readingMinutes: post.reading_minutes,
       series: post.series,
+      isSitePost: post.is_site_post,
     })),
     ...(papers ?? []).map((paper) => ({
       kind: "paper" as const,
@@ -59,6 +63,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
       tags: [],
       readingMinutes: null,
       series: null,
+      isSitePost: false,
     })),
   ].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
@@ -120,6 +125,9 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
                 <span>
                   <span className="font-data text-[10.5px] uppercase tracking-[0.08em] text-rust">
                     {item.kind === "post" ? "Post" : "Document"}
+                    {item.isSitePost && (
+                      <span className="text-teal"> · Site note</span>
+                    )}
                   </span>
                   <span className="mt-1 block font-display text-lg group-hover:text-teal">
                     {item.title}

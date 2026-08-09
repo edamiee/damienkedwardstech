@@ -114,50 +114,66 @@ function CardGrid({ items }: { items: TitleDetail[] }) {
   );
 }
 
-// A condensed visual companion to the detailed card sections below it —
-// names only, no descriptions, so it reads at a glance. Flex-col by
-// default, flipping to a horizontal row at lg — each column's own content
-// is a single child (not mixed text + elements) so it can't hit the
-// anonymous-flex-item wrapping bug the homepage's status pills had.
-function FlowDiagram({ sourceNames, surfaceNames }: { sourceNames: string[]; surfaceNames: string[] }) {
+// A condensed visual companion to the detailed card sections below it — a
+// three-stage summary (counts only, not names) rather than a second copy
+// of the lists those cards already show, so it stays short regardless of
+// how it wraps. Goes horizontal at sm (640px) rather than lg (1024px) —
+// at the old lg threshold, "narrow enough to stack" covered most laptop
+// windows with any sidebar open, and the previous 5-item-per-column
+// version was tall enough there for the floating chat button to overlap it.
+function FlowStage({
+  eyebrow,
+  eyebrowColor,
+  lines,
+  emphasized,
+}: {
+  eyebrow: string;
+  eyebrowColor: "rust" | "teal";
+  lines: string[];
+  emphasized?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-sm border bg-ground px-4 py-4 text-center ${
+        emphasized ? "border-2 border-teal" : "border-line"
+      }`}
+    >
+      <p
+        className={`font-data text-[10.5px] uppercase tracking-[0.08em] ${
+          eyebrowColor === "rust" ? "text-rust" : "text-teal"
+        }`}
+      >
+        {eyebrow}
+      </p>
+      {lines.map((line) => (
+        <p key={line} className="mt-1 text-[13.5px] font-semibold text-fg">
+          {line}
+        </p>
+      ))}
+    </div>
+  );
+}
+
+function FlowArrow() {
+  return (
+    <div className="flex items-center justify-center py-1 text-line sm:px-1 sm:py-0">
+      <span className="font-data text-lg sm:hidden">↓</span>
+      <span className="hidden font-data text-lg sm:inline">→</span>
+    </div>
+  );
+}
+
+function FlowDiagram({ sourceCount, surfaceCount }: { sourceCount: number; surfaceCount: number }) {
   return (
     <div
       aria-hidden="true"
-      className="mt-8 flex flex-col items-stretch gap-3 rounded-sm border border-line bg-surface p-5 lg:flex-row lg:items-center lg:gap-0"
+      className="mt-8 grid grid-cols-1 items-center gap-2 rounded-sm border border-line bg-surface p-6 sm:grid-cols-[1fr_auto_1fr_auto_1fr]"
     >
-      <div className="flex-1">
-        <p className="font-data text-[10.5px] uppercase tracking-[0.08em] text-rust">Sources</p>
-        <ul className="mt-2 flex flex-col gap-1 text-[13px] text-fg">
-          {sourceNames.map((name) => (
-            <li key={name}>{name}</li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="flex items-center justify-center px-2 py-1 text-line lg:py-0">
-        <span className="font-data text-base lg:hidden">↓</span>
-        <span className="hidden font-data text-base lg:inline">→</span>
-      </div>
-
-      <div className="rounded-sm border border-teal bg-ground px-4 py-3 text-center lg:w-[15ch]">
-        <p className="font-data text-[10.5px] uppercase tracking-[0.08em] text-teal">Core</p>
-        <p className="mt-1 text-[13px] font-semibold text-fg">Postgres</p>
-        <p className="text-[13px] font-semibold text-fg">+ audit log</p>
-      </div>
-
-      <div className="flex items-center justify-center px-2 py-1 text-line lg:py-0">
-        <span className="font-data text-base lg:hidden">↓</span>
-        <span className="hidden font-data text-base lg:inline">→</span>
-      </div>
-
-      <div className="flex-1">
-        <p className="font-data text-[10.5px] uppercase tracking-[0.08em] text-rust">Surfaces</p>
-        <ul className="mt-2 flex flex-col gap-1 text-[13px] text-fg">
-          {surfaceNames.map((name) => (
-            <li key={name}>{name}</li>
-          ))}
-        </ul>
-      </div>
+      <FlowStage eyebrow="Sources" eyebrowColor="rust" lines={[`${sourceCount} paths in`, "people & agents"]} />
+      <FlowArrow />
+      <FlowStage eyebrow="Core" eyebrowColor="teal" lines={["Postgres", "+ audit log"]} emphasized />
+      <FlowArrow />
+      <FlowStage eyebrow="Surfaces" eyebrowColor="rust" lines={[`${surfaceCount} ways out`, "visitors & agents"]} />
     </div>
   );
 }
@@ -178,10 +194,7 @@ export default async function HowItWorksPage() {
       </h1>
       <p className="mt-5 max-w-[62ch] text-[15.5px] text-muted">{content.how_it_works_intro}</p>
 
-      <FlowDiagram
-        sourceNames={sources.map((s) => s.title)}
-        surfaceNames={surfaces.map((s) => s.title)}
-      />
+      <FlowDiagram sourceCount={sources.length} surfaceCount={surfaces.length} />
 
       <div className="mt-14">
         <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">

@@ -33,6 +33,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true });
   }
 
+  // TEMPORARY — remove once TELEGRAM_ADMIN_CHAT_ID is confirmed correct.
+  console.log("telegram webhook incoming", { chatId, text });
+
   // Anyone can find and message a public bot — silently drop anyone who
   // isn't the allowlisted admin chat, no reply and no tool access, so a
   // stranger can't probe the assistant or spend API credits.

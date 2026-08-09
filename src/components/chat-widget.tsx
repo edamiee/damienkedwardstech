@@ -57,7 +57,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
   }
 
   return (
-    <div className="fixed bottom-5 right-5 z-50">
+    <div className="chat-widget-launcher fixed bottom-5 right-5 z-50">
       {open && (
         <div className="mb-3 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2.5rem)] flex-col overflow-hidden rounded-sm border border-line bg-surface shadow-xl">
           <div className="flex items-center justify-between border-b border-line px-4 py-3">

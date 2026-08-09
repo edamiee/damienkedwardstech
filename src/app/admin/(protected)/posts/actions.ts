@@ -28,6 +28,8 @@ export async function savePost(formData: FormData) {
   const published = formData.get("published") === "on";
   const publishAtRaw = String(formData.get("publish_at") ?? "").trim();
   const publishAt = publishAtRaw ? new Date(publishAtRaw).toISOString() : null;
+  const series = String(formData.get("series") ?? "").trim() || null;
+  const seriesOrder = Number(formData.get("series_order") ?? 0);
 
   const payload = {
     title,
@@ -36,6 +38,8 @@ export async function savePost(formData: FormData) {
     body_markdown: bodyMarkdown,
     cover_image_url: coverImageUrl,
     tags,
+    series,
+    series_order: seriesOrder,
     reading_minutes: computeReadingMinutes(bodyMarkdown),
     published,
     published_at: published ? publishAt || new Date().toISOString() : null,

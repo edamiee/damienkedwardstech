@@ -14,6 +14,7 @@ type WritingItem = {
   coverImageUrl: string | null;
   tags: string[];
   readingMinutes: number | null;
+  series: string | null;
 };
 
 export default async function WritingIndexPage({ searchParams }: PageProps<"/writing">) {
@@ -25,7 +26,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
   const [{ data: posts }, { data: papers }] = await Promise.all([
     supabase
       .from("posts")
-      .select("slug, title, excerpt, cover_image_url, tags, reading_minutes, published_at")
+      .select("slug, title, excerpt, cover_image_url, tags, reading_minutes, series, published_at")
       .eq("published", true)
       .or(liveFilter()),
     supabase
@@ -45,6 +46,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
       coverImageUrl: post.cover_image_url,
       tags: post.tags ?? [],
       readingMinutes: post.reading_minutes,
+      series: post.series,
     })),
     ...(papers ?? []).map((paper) => ({
       kind: "paper" as const,
@@ -56,6 +58,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
       coverImageUrl: null,
       tags: [],
       readingMinutes: null,
+      series: null,
     })),
   ].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
@@ -121,6 +124,9 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
                   <span className="mt-1 block font-display text-lg group-hover:text-teal">
                     {item.title}
                   </span>
+                  {item.series && (
+                    <span className="mt-0.5 block text-[11.5px] text-teal">{item.series}</span>
+                  )}
                   {item.blurb && (
                     <span className="mt-1 block text-sm text-muted">{item.blurb}</span>
                   )}

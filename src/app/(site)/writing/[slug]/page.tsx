@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { marked } from "marked";
 import { createClient } from "@/lib/supabase/server";
 import { getRelatedContent } from "@/lib/related-content";
 import { liveFilter } from "@/lib/publish-filter";
+import { extractHeadings, renderMarkdownWithHeadingIds } from "@/lib/markdown";
 
 export const revalidate = 60;
 
 const SELECT =
-  "id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published, preview_token";
+  "id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published, preview_token, series, series_order";
 
 export default async function WritingPostPage({
   params,
@@ -42,10 +42,25 @@ export default async function WritingPostPage({
 
   if (!post) notFound();
 
-  const [html, related] = await Promise.all([
-    marked.parse(post.body_markdown),
+  const [html, related, seriesPosts] = await Promise.all([
+    renderMarkdownWithHeadingIds(post.body_markdown),
     isPreview ? Promise.resolve([]) : getRelatedContent("post", post.id),
+    post.series && !isPreview
+      ? supabase
+          .from("posts")
+          .select("slug, title, series_order")
+          .eq("series", post.series)
+          .eq("published", true)
+          .or(liveFilter())
+          .order("series_order", { ascending: true })
+          .then((r) => r.data ?? [])
+      : Promise.resolve([]),
   ]);
+  const headings = extractHeadings(post.body_markdown);
+  const seriesIndex = seriesPosts.findIndex((p) => p.slug === slug);
+  const seriesPrev = seriesIndex > 0 ? seriesPosts[seriesIndex - 1] : null;
+  const seriesNext =
+    seriesIndex >= 0 && seriesIndex < seriesPosts.length - 1 ? seriesPosts[seriesIndex + 1] : null;
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -93,6 +108,27 @@ export default async function WritingPostPage({
           ))}
         </div>
       )}
+      {post.series && seriesPosts.length > 1 && (
+        <div className="mt-6 rounded-sm border border-line bg-surface px-4 py-3 text-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            {post.series} — Part {seriesIndex + 1} of {seriesPosts.length}
+          </p>
+          <div className="mt-2 flex flex-wrap items-baseline justify-between gap-3 text-[13.5px]">
+            {seriesPrev ? (
+              <Link href={`/writing/${seriesPrev.slug}`} className="text-teal hover:underline">
+                ← {seriesPrev.title}
+              </Link>
+            ) : (
+              <span />
+            )}
+            {seriesNext && (
+              <Link href={`/writing/${seriesNext.slug}`} className="text-teal hover:underline">
+                {seriesNext.title} →
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
       {post.cover_image_url && (
         // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, not worth remotePatterns config
         <img
@@ -101,8 +137,22 @@ export default async function WritingPostPage({
           className="mt-6 max-h-[420px] w-full rounded-sm border border-line object-cover"
         />
       )}
+      {headings.length > 1 && (
+        <nav className="mt-8 rounded-sm border border-line bg-surface p-4 text-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">Contents</p>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {headings.map((h) => (
+              <li key={h.id} className={h.level === 3 ? "pl-4" : ""}>
+                <a href={`#${h.id}`} className="text-muted hover:text-teal">
+                  {h.text}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      )}
       <div
-        className="prose prose-neutral mt-8 max-w-[65ch] text-[15.5px] leading-relaxed [&_a]:text-teal [&_h2]:font-display [&_h2]:text-xl [&_h2]:mt-8 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5"
+        className="prose prose-neutral mt-8 max-w-[65ch] text-[15.5px] leading-relaxed [&_a]:text-teal [&_h2]:font-display [&_h2]:text-xl [&_h2]:mt-8 [&_h3]:font-display [&_h3]:text-lg [&_h3]:mt-6 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5"
         dangerouslySetInnerHTML={{ __html: html }}
       />
 

@@ -15,7 +15,15 @@ export default async function CaseStudiesIndexPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
-      <h1 className="font-display text-3xl">Case studies</h1>
+      <div className="flex items-baseline justify-between gap-4">
+        <h1 className="font-display text-3xl">Case studies</h1>
+        <a
+          href="/case-studies/feed.xml"
+          className="whitespace-nowrap font-data text-[11.5px] text-muted hover:text-teal"
+        >
+          RSS ↗
+        </a>
+      </div>
       <p className="mt-2 max-w-[55ch] text-sm text-muted">
         Real problems, the approach taken, and what happened — the fuller
         story behind the project list.

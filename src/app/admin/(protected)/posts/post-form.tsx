@@ -12,6 +12,8 @@ type Post = {
   body_markdown: string;
   cover_image_url: string | null;
   tags: string[] | null;
+  series: string | null;
+  series_order: number;
   published: boolean;
   publish_at: string | null;
   preview_token: string;
@@ -104,6 +106,27 @@ export function PostForm({ post }: { post?: Post }) {
           className="rounded-sm border border-line bg-surface px-3 py-2"
         />
       </label>
+
+      <div className="flex flex-wrap gap-3">
+        <label className="flex flex-1 min-w-[220px] flex-col gap-1.5 text-sm">
+          Series name (optional — groups multi-part posts with prev/next links)
+          <input
+            name="series"
+            defaultValue={post?.series ?? ""}
+            placeholder="Building an AI Agent"
+            className="rounded-sm border border-line bg-surface px-3 py-2"
+          />
+        </label>
+        <label className="flex w-28 flex-col gap-1.5 text-sm">
+          Order in series
+          <input
+            name="series_order"
+            type="number"
+            defaultValue={post?.series_order ?? 0}
+            className="rounded-sm border border-line bg-surface px-3 py-2"
+          />
+        </label>
+      </div>
 
       <div className="flex flex-col gap-1.5 text-sm">
         Cover image (shown at the top of the post and on the Writing index)

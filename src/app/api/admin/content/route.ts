@@ -24,7 +24,9 @@ import { computeReadingMinutes } from "@/lib/reading-time";
 //      automatically from body_markdown. "publish_at" is an optional ISO
 //      timestamp — if set (and published is true), the post stays hidden
 //      from every public listing/feed/index until that time, then goes
-//      live on its own with no further action needed.
+//      live on its own with no further action needed. "series" is an
+//      optional string — posts sharing the same series get prev/next
+//      navigation between them, ordered by "series_order" (default 0).
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -256,6 +258,8 @@ export async function POST(request: NextRequest) {
           body_markdown: body.body_markdown,
           cover_image_url: body.cover_image_url ?? null,
           tags: Array.isArray(body.tags) ? body.tags : [],
+          series: body.series ?? null,
+          series_order: body.series_order ?? 0,
           reading_minutes: computeReadingMinutes(body.body_markdown),
           published,
           published_at: published ? body.publish_at ?? new Date().toISOString() : null,

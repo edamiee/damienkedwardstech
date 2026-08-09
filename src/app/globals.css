@@ -128,6 +128,33 @@ body {
   }
 }
 
+/* Print — mainly for case studies (share/save as PDF for a recruiter or
+   client), but applies site-wide since posts benefit the same way. Forces
+   light, high-contrast colors regardless of the screen theme and drops
+   anything that's purely a screen affordance (nav, chat launcher, sign-in
+   gating copy). */
+@media print {
+  header,
+  footer,
+  .chat-widget-launcher {
+    display: none !important;
+  }
+
+  body {
+    background: #ffffff;
+    color: #1a1a1a;
+  }
+
+  a {
+    color: #1a1a1a;
+    text-decoration: underline;
+  }
+
+  .prose a {
+    color: #1a1a1a;
+  }
+}
+
 /* One-shot hint on the 3D hero — tells first-time visitors it's live and
    draggable before it fades, since the terrain otherwise reads as a static
    graphic until something touches it. */

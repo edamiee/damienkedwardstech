@@ -19,8 +19,9 @@ type WritingItem = {
 };
 
 export default async function WritingIndexPage({ searchParams }: PageProps<"/writing">) {
-  const { tag } = await searchParams;
+  const { tag, scope } = await searchParams;
   const activeTag = typeof tag === "string" ? tag : null;
+  const activeScope = scope === "site" || scope === "other" ? scope : "all";
 
   const supabase = await createClient();
 
@@ -68,7 +69,21 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
   ].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
   const allTags = Array.from(new Set(allItems.flatMap((i) => i.tags))).sort();
-  const items = activeTag ? allItems.filter((i) => i.tags.includes(activeTag)) : allItems;
+  const scoped =
+    activeScope === "all"
+      ? allItems
+      : allItems.filter((i) => i.isSitePost === (activeScope === "site"));
+  const items = activeTag ? scoped.filter((i) => i.tags.includes(activeTag)) : scoped;
+
+  const buildHref = (next: { tag?: string | null; scope?: "all" | "site" | "other" }) => {
+    const params = new URLSearchParams();
+    const nextTag = next.tag !== undefined ? next.tag : activeTag;
+    const nextScope = next.scope !== undefined ? next.scope : activeScope;
+    if (nextTag) params.set("tag", nextTag);
+    if (nextScope !== "all") params.set("scope", nextScope);
+    const qs = params.toString();
+    return qs ? `/writing?${qs}` : "/writing";
+  };
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
@@ -86,12 +101,28 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
         linked out from wherever they&apos;re hosted.
       </p>
 
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        {(["all", "site", "other"] as const).map((s) => (
+          <Link
+            key={s}
+            href={buildHref({ scope: s })}
+            className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
+              s === activeScope
+                ? "border-teal bg-teal text-ground"
+                : "border-line bg-surface text-muted hover:text-teal"
+            }`}
+          >
+            {s === "all" ? "All" : s === "site" ? "About this site" : "Other topics"}
+          </Link>
+        ))}
+      </div>
+
       {allTags.length > 0 && (
-        <div className="mt-6 flex flex-wrap items-center gap-2">
+        <div className="mt-3 flex flex-wrap items-center gap-2">
           {allTags.map((t) => (
             <Link
               key={t}
-              href={t === activeTag ? "/writing" : `/writing?tag=${encodeURIComponent(t)}`}
+              href={buildHref({ tag: t === activeTag ? null : t })}
               className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
                 t === activeTag
                   ? "border-teal bg-teal text-ground"
@@ -166,7 +197,11 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
         ))}
         {items.length === 0 && (
           <li className="py-5 text-sm text-muted">
-            {activeTag ? `Nothing tagged "${activeTag}" yet.` : "Nothing published yet — check back soon."}
+            {activeTag
+              ? `Nothing tagged "${activeTag}" yet.`
+              : activeScope !== "all"
+                ? "Nothing here yet."
+                : "Nothing published yet — check back soon."}
           </li>
         )}
       </ul>

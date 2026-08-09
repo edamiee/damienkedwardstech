@@ -278,7 +278,7 @@ const spec = {
       post: {
         summary: "MCP server (Streamable HTTP) — tools for this site",
         description:
-          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) require an adminBearer token, and are absent from tools/list entirely when it's missing or wrong. See docs/API.md for client setup (Claude Desktop, Claude Code, etc.).",
+          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) require an adminBearer token, and are absent from tools/list entirely when it's missing or wrong. search_content accepts an optional site_only boolean to restrict results to posts about the site itself. See docs/API.md for client setup (Claude Desktop, Claude Code, etc.).",
         responses: { "200": { description: "JSON-RPC 2.0 response (MCP protocol), streamed as text/event-stream." } },
       },
     },

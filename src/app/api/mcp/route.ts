@@ -50,10 +50,18 @@ const factory: McpServerFactory = async (ctx) => {
       title: "Search site content",
       description:
         "Semantic search over everything published on damienkedwards.tech — posts, papers, build log entries, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
-      inputSchema: z.object({ query: z.string().describe("What to search for, in natural language.") }),
+      inputSchema: z.object({
+        query: z.string().describe("What to search for, in natural language."),
+        site_only: z
+          .boolean()
+          .optional()
+          .describe(
+            "If true, restrict results to posts about damienkedwardstech/the arcade itself, excluding posts on other topics."
+          ),
+      }),
     },
-    async ({ query }) => {
-      const results = await searchContent(query, 12, 600);
+    async ({ query, site_only }) => {
+      const results = await searchContent(query, 12, 600, site_only ?? false);
       if (results.length === 0) {
         return { content: [{ type: "text", text: "No matches." }] };
       }

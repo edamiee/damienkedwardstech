@@ -105,7 +105,7 @@ tools are absent from discovery entirely.
 
 | Tier | Tools | Notes |
 |---|---|---|
-| Public (always available) | `search_content`, `get_build_log_stats`, `get_availability` | Read-only, safe for any client |
+| Public (always available) | `search_content`, `get_build_log_stats`, `get_availability` | Read-only, safe for any client. `search_content` takes an optional `site_only` boolean to restrict results to posts about damienkedwardstech itself. |
 | Admin (bearer-gated) | `list_site_content`, `update_site_content`, `add_testimonial`, `add_service` | Same tool set + executor as the Telegram admin agent (`src/lib/admin-agent-tools.ts`); writes logged to `content_audit_log` with source `"mcp_agent"` |
 
 Built with `@modelcontextprotocol/server` v2 (`createMcpHandler` +

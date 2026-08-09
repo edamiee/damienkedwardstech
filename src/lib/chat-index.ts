@@ -10,6 +10,7 @@ type EmbeddingRow = {
   title: string;
   url_path: string;
   chunk_text: string;
+  is_site_post: boolean;
 };
 
 const DELETE_ALL_FILTER = "00000000-0000-0000-0000-000000000000";
@@ -27,7 +28,7 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
     await Promise.all([
       supabase
         .from("posts")
-        .select("id, slug, title, body_markdown")
+        .select("id, slug, title, body_markdown, is_site_post")
         .eq("published", true)
         .or(liveFilter()),
       supabase.from("papers").select("id, title, description, url").eq("published", true),
@@ -49,6 +50,7 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         title: post.title,
         url_path: `/writing/${post.slug}`,
         chunk_text: chunk,
+        is_site_post: post.is_site_post,
       });
     }
   }
@@ -62,6 +64,7 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         title: paper.title,
         url_path: paper.url,
         chunk_text: text,
+        is_site_post: false,
       });
     }
   }
@@ -75,6 +78,7 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         title: cs.title,
         url_path: `/build-log/${cs.slug}`,
         chunk_text: chunk,
+        is_site_post: false,
       });
     }
   }
@@ -93,6 +97,7 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         title: project.name,
         url_path: "/projects",
         chunk_text: text,
+        is_site_post: false,
       });
     }
   }

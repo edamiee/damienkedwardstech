@@ -7,6 +7,7 @@ type MatchRow = {
   title: string;
   url_path: string;
   chunk_text: string;
+  is_site_post: boolean;
   similarity: number;
 };
 
@@ -31,16 +32,20 @@ const SIMILARITY_THRESHOLD = 0.3;
 // semantic search over published content via pgvector. snippetLength
 // defaults to the compact web list's size; MCP callers pass a longer one
 // since there's no layout to keep tidy and fuller context is more useful.
+// siteOnly restricts results to content flagged is_site_post (posts about
+// this site itself) — since that's a small slice of the index, we over-fetch
+// from the RPC before filtering down to matchCount.
 export async function searchContent(
   query: string,
   matchCount = 12,
-  snippetLength = 220
+  snippetLength = 220,
+  siteOnly = false
 ): Promise<SearchResult[]> {
   const supabase = createAdminClient();
   const queryEmbedding = await embedOne(query, "query");
   const { data, error } = await supabase.rpc("match_content_embeddings", {
     query_embedding: queryEmbedding,
-    match_count: matchCount,
+    match_count: siteOnly ? matchCount * 4 : matchCount,
   });
 
   if (error) {
@@ -53,6 +58,8 @@ export async function searchContent(
   const results: SearchResult[] = [];
 
   for (const m of matches) {
+    if (results.length >= matchCount) break;
+    if (siteOnly && !m.is_site_post) continue;
     if (m.similarity < SIMILARITY_THRESHOLD || seen.has(m.url_path + m.title)) continue;
     seen.add(m.url_path + m.title);
     results.push({

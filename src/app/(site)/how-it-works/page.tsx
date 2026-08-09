@@ -310,22 +310,22 @@ export default async function HowItWorksPage() {
         </ul>
       </div>
 
-      <div className="mt-10 rounded-sm border border-line bg-surface p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">
-          A related, separate project
-        </p>
-        <p className="mt-2 max-w-[58ch] text-[14.5px] text-muted">
-          Not part of this site&apos;s own architecture above, but built the same way — a
-          standalone repo with a real ingest → dbt → semantic layer → BI pipeline over my own
-          GitHub activity, deliberately decoupled from damienkedwardstech&apos;s codebase.
-        </p>
-        <Link
-          href="/build-log/a-dbt-semantic-layer-over-my-own-github-activity"
-          className="mt-3 inline-block text-[15px] text-fg hover:text-teal"
-        >
-          A dbt Semantic Layer Over My Own GitHub Activity →
-        </Link>
-      </div>
+      {content.how_it_works_related_link_slug && (
+        <div className="mt-10 rounded-sm border border-line bg-surface p-6">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            A related, separate project
+          </p>
+          <p className="mt-2 max-w-[58ch] text-[14.5px] text-muted">
+            {content.how_it_works_related_body}
+          </p>
+          <Link
+            href={`/build-log/${content.how_it_works_related_link_slug}`}
+            className="mt-3 inline-block text-[15px] text-fg hover:text-teal"
+          >
+            {content.how_it_works_related_link_title} →
+          </Link>
+        </div>
+      )}
     </div>
   );
 }

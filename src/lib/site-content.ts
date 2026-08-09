@@ -60,6 +60,10 @@ export const SITE_CONTENT_DEFAULTS = {
     "Telegram Bot API\n" +
     "GitHub REST API\n" +
     "Resend — transactional email",
+  how_it_works_related_body:
+    "Not part of this site's own architecture above, but built the same way — a standalone repo with a real ingest → dbt → semantic layer → BI pipeline over my own GitHub activity, deliberately decoupled from damienkedwardstech's codebase.",
+  how_it_works_related_link_title: "A dbt Semantic Layer Over My Own GitHub Activity",
+  how_it_works_related_link_slug: "a-dbt-semantic-layer-over-my-own-github-activity",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

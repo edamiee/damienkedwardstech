@@ -100,6 +100,8 @@ export const openApiSpec = {
               "newsletter_sending_enabled", "newsletter_from_email", "testimonials_enabled",
               "business_inquiry_enabled", "business_inquiry_intro", "how_it_works_intro",
               "how_it_works_sources", "how_it_works_surfaces", "how_it_works_stack",
+              "how_it_works_related_body", "how_it_works_related_link_title",
+              "how_it_works_related_link_slug",
             ],
           },
           value: { type: "string" },

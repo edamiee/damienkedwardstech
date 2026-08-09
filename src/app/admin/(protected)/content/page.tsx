@@ -383,6 +383,31 @@ export default async function AdminSiteContentPage() {
             </a>
             .
           </p>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;A related, separate project&quot; callout — body text
+            <textarea
+              name="how_it_works_related_body"
+              rows={3}
+              defaultValue={content.how_it_works_related_body}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Link text
+            <input
+              name="how_it_works_related_link_title"
+              defaultValue={content.how_it_works_related_link_title}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Build log slug it links to (leave blank to hide the whole callout)
+            <input
+              name="how_it_works_related_link_slug"
+              defaultValue={content.how_it_works_related_link_slug}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

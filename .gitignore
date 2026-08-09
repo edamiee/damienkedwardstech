@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# supabase (local CLI link state — project ref, cached pooler connection)
+supabase/.temp
+
 # local Claude Code settings (machine-specific permissions)
 .claude/settings.local.json
 

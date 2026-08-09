@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Too many requests — try again in a minute." }, { status: 429 });
   }
 
-  let body: { message?: string };
+  let body: { message?: string; history?: { role?: string; text?: string }[] };
   try {
     body = await request.json();
   } catch {
@@ -128,6 +128,19 @@ export async function POST(request: NextRequest) {
   if (message.length > 500) {
     return NextResponse.json({ error: "message is too long (500 char max)" }, { status: 400 });
   }
+
+  // Client-supplied prior turns — needed so a follow-up like "yes, go
+  // ahead" after notify_damien asks to confirm actually has something to
+  // confirm. Capped and length-limited since it's untrusted input from the
+  // visitor's own browser (worst case it can only steer this same
+  // request's tool calls, not escalate beyond what those tools already do).
+  const history = (body.history ?? [])
+    .slice(-10)
+    .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.text === "string")
+    .map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: (m.text as string).slice(0, 2000),
+    }));
 
   const supabase = createAdminClient();
 
@@ -177,6 +190,7 @@ export async function POST(request: NextRequest) {
       executeTool: (name, input) => executeChatTool(supabase, content, name, input),
       maxTokens: 400,
       maxTurns: 3,
+      history,
     });
     return NextResponse.json({ answer: answer.trim(), sources });
   } catch (err) {

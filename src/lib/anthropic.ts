@@ -132,6 +132,7 @@ export async function runClaudeToolLoop({
   executeTool,
   maxTokens,
   maxTurns = 4,
+  history = [],
 }: {
   system: string;
   userPrompt: string;
@@ -139,8 +140,10 @@ export async function runClaudeToolLoop({
   executeTool: (name: string, input: Record<string, unknown>) => Promise<string>;
   maxTokens: number;
   maxTurns?: number;
+  history?: { role: "user" | "assistant"; content: string }[];
 }): Promise<string> {
   const messages: { role: "user" | "assistant"; content: unknown }[] = [
+    ...history,
     { role: "user", content: userPrompt },
   ];
 

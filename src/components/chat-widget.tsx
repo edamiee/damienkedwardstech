@@ -30,6 +30,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
     const question = input.trim();
     if (!question || pending) return;
 
+    const history = messages.map(({ role, text }) => ({ role, text }));
     setMessages((prev) => [...prev, { role: "user", text: question }]);
     setInput("");
     setPending(true);
@@ -38,7 +39,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message: question }),
+        body: JSON.stringify({ message: question, history }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Request failed");

@@ -11,15 +11,20 @@ type WritingItem = {
   href: string;
   external: boolean;
   coverImageUrl: string | null;
+  tags: string[];
+  readingMinutes: number | null;
 };
 
-export default async function WritingIndexPage() {
+export default async function WritingIndexPage({ searchParams }: PageProps<"/writing">) {
+  const { tag } = await searchParams;
+  const activeTag = typeof tag === "string" ? tag : null;
+
   const supabase = await createClient();
 
   const [{ data: posts }, { data: papers }] = await Promise.all([
     supabase
       .from("posts")
-      .select("slug, title, excerpt, cover_image_url, published_at")
+      .select("slug, title, excerpt, cover_image_url, tags, reading_minutes, published_at")
       .eq("published", true),
     supabase
       .from("papers")
@@ -27,7 +32,7 @@ export default async function WritingIndexPage() {
       .eq("published", true),
   ]);
 
-  const items: WritingItem[] = [
+  const allItems: WritingItem[] = [
     ...(posts ?? []).map((post) => ({
       kind: "post" as const,
       title: post.title,
@@ -36,6 +41,8 @@ export default async function WritingIndexPage() {
       href: `/writing/${post.slug}`,
       external: false,
       coverImageUrl: post.cover_image_url,
+      tags: post.tags ?? [],
+      readingMinutes: post.reading_minutes,
     })),
     ...(papers ?? []).map((paper) => ({
       kind: "paper" as const,
@@ -45,8 +52,13 @@ export default async function WritingIndexPage() {
       href: paper.url,
       external: true,
       coverImageUrl: null,
+      tags: [],
+      readingMinutes: null,
     })),
   ].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+
+  const allTags = Array.from(new Set(allItems.flatMap((i) => i.tags))).sort();
+  const items = activeTag ? allItems.filter((i) => i.tags.includes(activeTag)) : allItems;
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
@@ -63,6 +75,24 @@ export default async function WritingIndexPage() {
         Posts written here, and longer documents — research notes, guides —
         linked out from wherever they&apos;re hosted.
       </p>
+
+      {allTags.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          {allTags.map((t) => (
+            <Link
+              key={t}
+              href={t === activeTag ? "/writing" : `/writing?tag=${encodeURIComponent(t)}`}
+              className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
+                t === activeTag
+                  ? "border-teal bg-teal text-bg"
+                  : "border-line bg-surface text-muted hover:text-teal"
+              }`}
+            >
+              {t}
+            </Link>
+          ))}
+        </div>
+      )}
 
       <ul className="mt-10 divide-y divide-line">
         {items.map((item) => (
@@ -92,6 +122,18 @@ export default async function WritingIndexPage() {
                   {item.blurb && (
                     <span className="mt-1 block text-sm text-muted">{item.blurb}</span>
                   )}
+                  {item.tags.length > 0 && (
+                    <span className="mt-1.5 flex flex-wrap gap-1.5">
+                      {item.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-sm bg-surface px-1.5 py-0.5 text-[10.5px] text-muted"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </span>
+                  )}
                 </span>
               </span>
               <span className="whitespace-nowrap font-data text-[11.5px] text-muted">
@@ -101,12 +143,15 @@ export default async function WritingIndexPage() {
                     year: "numeric",
                     month: "short",
                   })}
+                {item.readingMinutes && ` · ${item.readingMinutes} min`}
               </span>
             </Link>
           </li>
         ))}
         {items.length === 0 && (
-          <li className="py-5 text-sm text-muted">Nothing published yet — check back soon.</li>
+          <li className="py-5 text-sm text-muted">
+            {activeTag ? `Nothing tagged "${activeTag}" yet.` : "Nothing published yet — check back soon."}
+          </li>
         )}
       </ul>
     </div>

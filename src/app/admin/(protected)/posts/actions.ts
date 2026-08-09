@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
+import { computeReadingMinutes } from "@/lib/reading-time";
 
 function slugify(title: string) {
   return title
@@ -20,6 +21,10 @@ export async function savePost(formData: FormData) {
   const excerpt = String(formData.get("excerpt") ?? "").trim() || null;
   const bodyMarkdown = String(formData.get("body_markdown") ?? "");
   const coverImageUrl = String(formData.get("cover_image_url") ?? "").trim() || null;
+  const tags = String(formData.get("tags") ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
   const published = formData.get("published") === "on";
 
   const payload = {
@@ -28,6 +33,8 @@ export async function savePost(formData: FormData) {
     excerpt,
     body_markdown: bodyMarkdown,
     cover_image_url: coverImageUrl,
+    tags,
+    reading_minutes: computeReadingMinutes(bodyMarkdown),
     published,
     published_at: published ? new Date().toISOString() : null,
     updated_at: new Date().toISOString(),

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
+import { computeReadingMinutes } from "@/lib/reading-time";
 
 // Remote content endpoint — for the Hermes agent (or any authenticated
 // script/agent) to update the site without going through the /admin UI.
@@ -13,12 +14,14 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 // Body shape depends on "type":
 //
 // { "type": "post", "title": "...", "body_markdown": "...", "excerpt": "...",
-//   "cover_image_url": "...", "published": true, "source": "hermes" }
+//   "cover_image_url": "...", "tags": ["..."], "published": true, "source": "hermes" }
 //   -> upserts public.posts by slug (derived from title). "source" defaults
 //      to "agent" if omitted; set it to "hermes" or "agent" so the
 //      homepage's agent-activity line picks it up. "cover_image_url" is
 //      optional — must already be a hosted URL (this endpoint doesn't accept
 //      file uploads; use the admin editor at /admin/posts to upload one).
+//      "tags" is optional (defaults to none); reading time is computed
+//      automatically from body_markdown.
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -246,6 +249,8 @@ export async function POST(request: NextRequest) {
           excerpt: body.excerpt ?? null,
           body_markdown: body.body_markdown,
           cover_image_url: body.cover_image_url ?? null,
+          tags: Array.isArray(body.tags) ? body.tags : [],
+          reading_minutes: computeReadingMinutes(body.body_markdown),
           published,
           published_at: published ? new Date().toISOString() : null,
           source: body.source ?? "agent",

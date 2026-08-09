@@ -1,5 +1,7 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getRelatedContent } from "@/lib/related-content";
 
 export const revalidate = 60;
 
@@ -11,13 +13,15 @@ export default async function CaseStudyPage({
   const { data: cs } = await supabase
     .from("case_studies")
     .select(
-      "title, summary, problem, approach, outcome, stack, project_url, published_at, published"
+      "id, title, summary, problem, approach, outcome, stack, project_url, published_at, published"
     )
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();
 
   if (!cs) notFound();
+
+  const related = await getRelatedContent("case_study", cs.id);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -96,6 +100,23 @@ export default async function CaseStudyPage({
           </section>
         ))}
       </div>
+
+      {related.length > 0 && (
+        <div className="mt-14 border-t border-line pt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Related
+          </p>
+          <ul className="mt-4 flex flex-col gap-3">
+            {related.map((r) => (
+              <li key={r.url_path + r.title}>
+                <Link href={r.url_path} className="text-[15px] hover:text-teal">
+                  {r.title}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </article>
   );
 }

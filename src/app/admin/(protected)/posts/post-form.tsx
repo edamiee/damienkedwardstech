@@ -9,6 +9,7 @@ type Post = {
   excerpt: string | null;
   body_markdown: string;
   cover_image_url: string | null;
+  tags: string[] | null;
   published: boolean;
 };
 
@@ -87,6 +88,15 @@ export function PostForm({ post }: { post?: Post }) {
         <input
           name="excerpt"
           defaultValue={post?.excerpt ?? ""}
+          className="rounded-sm border border-line bg-surface px-3 py-2"
+        />
+      </label>
+      <label className="flex flex-col gap-1.5 text-sm">
+        Tags (comma-separated)
+        <input
+          name="tags"
+          defaultValue={post?.tags?.join(", ") ?? ""}
+          placeholder="data engineering, LLMs"
           className="rounded-sm border border-line bg-surface px-3 py-2"
         />
       </label>

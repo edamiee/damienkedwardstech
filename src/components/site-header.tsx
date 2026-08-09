@@ -1,11 +1,21 @@
 import Link from "next/link";
 import type { NavLink } from "@/lib/nav-links";
+import type { SiteIndexItem } from "@/lib/site-index";
 import { MobileNav } from "./mobile-nav";
+import { CommandPalette } from "./command-palette";
 
-export function SiteHeader({ links, name }: { links: NavLink[]; name: string }) {
+export function SiteHeader({
+  links,
+  name,
+  siteIndex,
+}: {
+  links: NavLink[];
+  name: string;
+  siteIndex: SiteIndexItem[];
+}) {
   return (
     <header className="relative border-b border-line">
-      <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
+      <div className="mx-auto flex max-w-4xl items-center justify-between gap-3 px-6 py-5">
         <Link
           href="/"
           className="truncate font-display text-base font-bold tracking-tight sm:text-lg"
@@ -23,7 +33,10 @@ export function SiteHeader({ links, name }: { links: NavLink[]; name: string }) 
             </Link>
           ))}
         </nav>
-        <MobileNav links={links} />
+        <div className="flex items-center gap-2">
+          <CommandPalette items={siteIndex} />
+          <MobileNav links={links} />
+        </div>
       </div>
     </header>
   );

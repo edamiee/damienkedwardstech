@@ -1,4 +1,5 @@
 import { getSiteContent } from "@/lib/site-content";
+import { ContactForm } from "@/components/contact-form";
 
 export default async function ContactPage() {
   const content = await getSiteContent();
@@ -37,6 +38,11 @@ export default async function ContactPage() {
           </a>
         )}
       </div>
+
+      <p className="mt-10 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+        Or send a message directly
+      </p>
+      <ContactForm />
     </div>
   );
 }

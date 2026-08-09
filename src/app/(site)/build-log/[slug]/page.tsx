@@ -4,6 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getRelatedContent } from "@/lib/related-content";
 import { liveFilter } from "@/lib/publish-filter";
 import type { Stat } from "@/lib/parse-stats";
+import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
+import { formatRelativeTime } from "@/lib/format-relative-time";
+
+// The one entry this live-queried section applies to — a distinct build
+// log entry gets to reach into a live data source, everything else stays
+// plain content. Not worth generalizing into a per-entry config field for
+// a single, one-off integration.
+const PIPELINE_METRICS_SLUG = "a-dbt-semantic-layer-over-my-own-github-activity";
 
 export const revalidate = 60;
 
@@ -42,7 +50,10 @@ export default async function BuildLogEntryPage({
 
   if (!cs) notFound();
 
-  const related = isPreview ? [] : await getRelatedContent("build_log", cs.id);
+  const [related, pipelineMetrics] = await Promise.all([
+    isPreview ? Promise.resolve([]) : getRelatedContent("build_log", cs.id),
+    slug === PIPELINE_METRICS_SLUG ? getPipelineActivityMetrics() : Promise.resolve(null),
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -111,6 +122,57 @@ export default async function BuildLogEntryPage({
               <p className="mt-1 text-[12.5px] text-muted">{stat.label}</p>
             </div>
           ))}
+        </div>
+      )}
+
+      {pipelineMetrics && (
+        <div className="mt-8 rounded-sm border border-teal bg-surface p-5">
+          <p className="font-data text-[11.5px] font-semibold uppercase tracking-[0.06em] text-teal">
+            Live from the pipeline
+          </p>
+          <p className="mt-1.5 max-w-[58ch] text-[13px] text-muted">
+            Queried from the same Postgres marts this entry describes, on every page load — not a
+            snapshot pasted in once.
+            {pipelineMetrics.lastIngestedAt &&
+              ` Last ingested ${formatRelativeTime(pipelineMetrics.lastIngestedAt)}.`}
+          </p>
+          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+            {[
+              { label: "Commits", value: pipelineMetrics.totalCommits.toLocaleString() },
+              { label: "Active repos", value: pipelineMetrics.activeRepos.toLocaleString() },
+              { label: "Pull requests", value: pipelineMetrics.totalPrs.toLocaleString() },
+              {
+                label: "PR merge rate",
+                value: formatRate(pipelineMetrics.mergedPrs, pipelineMetrics.totalPrs),
+              },
+              { label: "Issues", value: pipelineMetrics.totalIssues.toLocaleString() },
+              {
+                label: "Issue close rate",
+                value: formatRate(pipelineMetrics.closedIssues, pipelineMetrics.totalIssues),
+              },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <p className="font-display text-2xl text-teal">{stat.value}</p>
+                <p className="mt-0.5 text-[11.5px] text-muted">{stat.label}</p>
+              </div>
+            ))}
+            {pipelineMetrics.avgPrCycleTimeHours !== null && (
+              <div>
+                <p className="font-display text-2xl text-teal">
+                  {formatHours(pipelineMetrics.avgPrCycleTimeHours)}
+                </p>
+                <p className="mt-0.5 text-[11.5px] text-muted">Avg PR cycle time</p>
+              </div>
+            )}
+            {pipelineMetrics.avgIssueCloseHours !== null && (
+              <div>
+                <p className="font-display text-2xl text-teal">
+                  {formatHours(pipelineMetrics.avgIssueCloseHours)}
+                </p>
+                <p className="mt-0.5 text-[11.5px] text-muted">Avg time to close</p>
+              </div>
+            )}
+          </div>
         </div>
       )}
 

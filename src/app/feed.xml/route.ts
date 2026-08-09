@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteContent } from "@/lib/site-content";
+import { liveFilter } from "@/lib/publish-filter";
 
 const BASE_URL = "https://damienkedwards.tech";
 
@@ -22,6 +23,7 @@ export async function GET() {
     .from("posts")
     .select("title, slug, excerpt, published_at")
     .eq("published", true)
+    .or(liveFilter())
     .order("published_at", { ascending: false })
     .limit(50);
 

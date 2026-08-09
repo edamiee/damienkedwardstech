@@ -21,7 +21,10 @@ import { computeReadingMinutes } from "@/lib/reading-time";
 //      optional — must already be a hosted URL (this endpoint doesn't accept
 //      file uploads; use the admin editor at /admin/posts to upload one).
 //      "tags" is optional (defaults to none); reading time is computed
-//      automatically from body_markdown.
+//      automatically from body_markdown. "publish_at" is an optional ISO
+//      timestamp — if set (and published is true), the post stays hidden
+//      from every public listing/feed/index until that time, then goes
+//      live on its own with no further action needed.
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -29,10 +32,13 @@ import { computeReadingMinutes } from "@/lib/reading-time";
 //
 // { "type": "case_study", "title": "...", "summary": "...", "problem": "...",
 //   "approach": "...", "outcome": "...", "stack": "...", "project_url": "...",
+//   "stats": [{"value": "40%", "label": "faster ingestion"}],
 //   "published": true, "source": "hermes" }
 //   -> upserts public.case_studies by slug (derived from title).
 //      project_url is optional — omit it for work with nothing public to
-//      link to (e.g. an internal agent or tool). "source" works the same
+//      link to (e.g. an internal agent or tool). "stats" is optional
+//      (defaults to none) and renders as pull-quote callouts. "publish_at"
+//      works the same as on posts (see above). "source" works the same
 //      as on posts, defaulting to "agent".
 //
 // { "type": "site_content", "key": "about_body", "value": "..." }
@@ -252,7 +258,8 @@ export async function POST(request: NextRequest) {
           tags: Array.isArray(body.tags) ? body.tags : [],
           reading_minutes: computeReadingMinutes(body.body_markdown),
           published,
-          published_at: published ? new Date().toISOString() : null,
+          published_at: published ? body.publish_at ?? new Date().toISOString() : null,
+          publish_at: body.publish_at ?? null,
           source: body.source ?? "agent",
           updated_at: new Date().toISOString(),
         },
@@ -300,9 +307,11 @@ export async function POST(request: NextRequest) {
         approach: body.approach ?? null,
         outcome: body.outcome ?? null,
         stack: body.stack ?? null,
+        stats: Array.isArray(body.stats) ? body.stats : [],
         project_url: body.project_url ?? null,
         published,
-        published_at: published ? new Date().toISOString() : null,
+        published_at: published ? body.publish_at ?? new Date().toISOString() : null,
+        publish_at: body.publish_at ?? null,
         source: body.source ?? "agent",
         updated_at: new Date().toISOString(),
       },

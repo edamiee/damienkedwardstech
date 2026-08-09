@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { liveFilter } from "@/lib/publish-filter";
 
 export const alt = "Post";
 export const size = { width: 1200, height: 630 };
@@ -13,6 +14,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     .select("title")
     .eq("slug", slug)
     .eq("published", true)
+    .or(liveFilter())
     .maybeSingle();
 
   const title = post?.title ?? "Writing";

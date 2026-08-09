@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { liveFilter } from "@/lib/publish-filter";
 
 export const revalidate = 60;
 
@@ -25,7 +26,8 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
     supabase
       .from("posts")
       .select("slug, title, excerpt, cover_image_url, tags, reading_minutes, published_at")
-      .eq("published", true),
+      .eq("published", true)
+      .or(liveFilter()),
     supabase
       .from("papers")
       .select("slug, title, description, url, published_at")

@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { liveFilter } from "@/lib/publish-filter";
 
 export type HermesActivity = {
   title: string;
@@ -21,6 +22,7 @@ export const getLatestHermesActivity = cache(async (): Promise<HermesActivity | 
       .from("posts")
       .select("title, slug, updated_at")
       .eq("published", true)
+      .or(liveFilter())
       .in("source", AGENT_SOURCES)
       .order("updated_at", { ascending: false })
       .limit(1),
@@ -28,6 +30,7 @@ export const getLatestHermesActivity = cache(async (): Promise<HermesActivity | 
       .from("case_studies")
       .select("title, slug, updated_at")
       .eq("published", true)
+      .or(liveFilter())
       .in("source", AGENT_SOURCES)
       .order("updated_at", { ascending: false })
       .limit(1),

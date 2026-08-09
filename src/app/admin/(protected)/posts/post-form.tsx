@@ -2,15 +2,19 @@
 
 import { useRef, useState } from "react";
 import { savePost, deletePost } from "./actions";
+import { toDatetimeLocalValue } from "@/lib/datetime-input";
 
 type Post = {
   id: string;
+  slug: string;
   title: string;
   excerpt: string | null;
   body_markdown: string;
   cover_image_url: string | null;
   tags: string[] | null;
   published: boolean;
+  publish_at: string | null;
+  preview_token: string;
 };
 
 async function uploadImage(file: File): Promise<string> {
@@ -164,6 +168,23 @@ export function PostForm({ post }: { post?: Post }) {
         <input type="checkbox" name="published" defaultChecked={post?.published} />
         Published
       </label>
+      <label className="flex flex-col gap-1.5 text-sm">
+        Publish at (optional — leave blank to publish immediately once checked above)
+        <input
+          type="datetime-local"
+          name="publish_at"
+          defaultValue={toDatetimeLocalValue(post?.publish_at)}
+          className="rounded-sm border border-line bg-surface px-3 py-2"
+        />
+      </label>
+      {post && !post.published && (
+        <p className="text-xs text-muted">
+          Draft preview link:{" "}
+          <span className="font-data text-teal">
+            /writing/{post.slug}?preview={post.preview_token}
+          </span>
+        </p>
+      )}
       <div className="flex items-center gap-3">
         <button
           type="submit"

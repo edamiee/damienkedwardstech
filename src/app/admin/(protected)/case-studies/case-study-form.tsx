@@ -1,15 +1,21 @@
 import { saveCaseStudy, deleteCaseStudy } from "./actions";
+import { formatStats, type Stat } from "@/lib/parse-stats";
+import { toDatetimeLocalValue } from "@/lib/datetime-input";
 
 type CaseStudy = {
   id: string;
+  slug: string;
   title: string;
   summary: string | null;
   problem: string | null;
   approach: string | null;
   outcome: string | null;
   stack: string | null;
+  stats: Stat[] | null;
   project_url: string | null;
   published: boolean;
+  publish_at: string | null;
+  preview_token: string;
 };
 
 export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
@@ -69,6 +75,16 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
         />
       </label>
       <label className="flex flex-col gap-1.5 text-sm">
+        Impact stats (one per line, &quot;VALUE | LABEL&quot; — shown as pull-quotes)
+        <textarea
+          name="stats_input"
+          rows={3}
+          placeholder={"40% | faster ingestion\n3x | more citations surfaced"}
+          defaultValue={formatStats(caseStudy?.stats)}
+          className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-sm"
+        />
+      </label>
+      <label className="flex flex-col gap-1.5 text-sm">
         Project link (optional — leave blank if there&apos;s nothing public to link to)
         <input
           name="project_url"
@@ -82,6 +98,23 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
         <input type="checkbox" name="published" defaultChecked={caseStudy?.published} />
         Published
       </label>
+      <label className="flex flex-col gap-1.5 text-sm">
+        Publish at (optional — leave blank to publish immediately once checked above)
+        <input
+          type="datetime-local"
+          name="publish_at"
+          defaultValue={toDatetimeLocalValue(caseStudy?.publish_at)}
+          className="rounded-sm border border-line bg-surface px-3 py-2"
+        />
+      </label>
+      {caseStudy && !caseStudy.published && (
+        <p className="text-xs text-muted">
+          Draft preview link:{" "}
+          <span className="font-data text-teal">
+            /case-studies/{caseStudy.slug}?preview={caseStudy.preview_token}
+          </span>
+        </p>
+      )}
       <div className="flex items-center gap-3">
         <button
           type="submit"

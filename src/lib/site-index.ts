@@ -1,5 +1,6 @@
 import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { liveFilter } from "@/lib/publish-filter";
 
 export type SiteIndexItem = { id: string; title: string; href: string; kind: string };
 
@@ -9,6 +10,7 @@ const STATIC_PAGES: SiteIndexItem[] = [
   { id: "page-writing", title: "Writing", href: "/writing", kind: "Page" },
   { id: "page-case-studies", title: "Case studies", href: "/case-studies", kind: "Page" },
   { id: "page-projects", title: "Projects (sign in)", href: "/projects", kind: "Page" },
+  { id: "page-newsletter", title: "Newsletter archive", href: "/newsletter", kind: "Page" },
   { id: "page-contact", title: "Contact", href: "/contact", kind: "Page" },
   { id: "page-search", title: "Search", href: "/search", kind: "Page" },
 ];
@@ -19,8 +21,12 @@ const STATIC_PAGES: SiteIndexItem[] = [
 export const getSiteIndex = cache(async (): Promise<SiteIndexItem[]> => {
   const supabase = await createClient();
   const [{ data: posts }, { data: caseStudies }, { data: papers }] = await Promise.all([
-    supabase.from("posts").select("id, title, slug").eq("published", true),
-    supabase.from("case_studies").select("id, title, slug").eq("published", true),
+    supabase.from("posts").select("id, title, slug").eq("published", true).or(liveFilter()),
+    supabase
+      .from("case_studies")
+      .select("id, title, slug")
+      .eq("published", true)
+      .or(liveFilter()),
     supabase.from("papers").select("id, title, url").eq("published", true),
   ]);
 

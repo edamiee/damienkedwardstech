@@ -143,6 +143,28 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Testimonials
+          </legend>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="testimonials_enabled"
+              defaultChecked={content.testimonials_enabled === "true"}
+              className="h-4 w-4 accent-teal"
+            />
+            Show the testimonials section on the homepage
+          </label>
+          <p className="text-xs text-muted">
+            Off by default. Add quotes at{" "}
+            <a href="/admin/testimonials" className="text-teal hover:underline">
+              /admin/testimonials
+            </a>{" "}
+            — the section only renders once this is on and at least one is visible.
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Homepage hero
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

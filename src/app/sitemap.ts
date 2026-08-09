@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { liveFilter } from "@/lib/publish-filter";
 
 const BASE_URL = "https://damienkedwards.tech";
 
@@ -7,8 +8,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = createAdminClient();
 
   const [{ data: posts }, { data: caseStudies }] = await Promise.all([
-    supabase.from("posts").select("slug, updated_at").eq("published", true),
-    supabase.from("case_studies").select("slug, updated_at").eq("published", true),
+    supabase.from("posts").select("slug, updated_at").eq("published", true).or(liveFilter()),
+    supabase
+      .from("case_studies")
+      .select("slug, updated_at")
+      .eq("published", true)
+      .or(liveFilter()),
   ]);
 
   const staticRoutes: MetadataRoute.Sitemap = [

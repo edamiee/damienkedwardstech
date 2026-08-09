@@ -9,7 +9,9 @@ export default async function EditCaseStudyPage({
   const supabase = await createClient();
   const { data: caseStudy } = await supabase
     .from("case_studies")
-    .select("id, title, summary, problem, approach, outcome, stack, project_url, published")
+    .select(
+      "id, slug, title, summary, problem, approach, outcome, stack, stats, project_url, published, publish_at, preview_token"
+    )
     .eq("id", id)
     .maybeSingle();
 

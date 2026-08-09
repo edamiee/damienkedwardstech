@@ -34,6 +34,7 @@ export const SITE_CONTENT_DEFAULTS = {
   newsletter_capture_enabled: "false",
   newsletter_sending_enabled: "false",
   newsletter_from_email: "",
+  testimonials_enabled: "false",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

@@ -120,6 +120,10 @@ export function CommandPalette({ items }: { items: SiteIndexItem[] }) {
                 <li className="px-4 py-3 text-sm text-muted">No matches.</li>
               )}
             </ul>
+            <p className="border-t border-line px-4 py-2 text-[10.5px] text-muted">
+              ↑↓ navigate · Enter go · Esc close · press{" "}
+              <span className="font-data">?</span> elsewhere for all shortcuts
+            </p>
           </div>
         </div>
       )}

@@ -3,6 +3,7 @@ import type { NavLink } from "@/lib/nav-links";
 import type { SiteIndexItem } from "@/lib/site-index";
 import { MobileNav } from "./mobile-nav";
 import { CommandPalette } from "./command-palette";
+import { ShortcutsHelp } from "./shortcuts-help";
 
 export function SiteHeader({
   links,
@@ -35,6 +36,7 @@ export function SiteHeader({
         </nav>
         <div className="flex items-center gap-2">
           <CommandPalette items={siteIndex} />
+          <ShortcutsHelp />
           <MobileNav links={links} />
         </div>
       </div>

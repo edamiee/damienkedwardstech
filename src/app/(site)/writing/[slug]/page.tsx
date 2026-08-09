@@ -3,26 +3,48 @@ import { notFound } from "next/navigation";
 import { marked } from "marked";
 import { createClient } from "@/lib/supabase/server";
 import { getRelatedContent } from "@/lib/related-content";
+import { liveFilter } from "@/lib/publish-filter";
 
 export const revalidate = 60;
 
+const SELECT =
+  "id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published, preview_token";
+
 export default async function WritingPostPage({
   params,
+  searchParams,
 }: PageProps<"/writing/[slug]">) {
   const { slug } = await params;
+  const { preview } = await searchParams;
   const supabase = await createClient();
-  const { data: post } = await supabase
+
+  let { data: post } = await supabase
     .from("posts")
-    .select("id, title, body_markdown, cover_image_url, tags, reading_minutes, published_at, published")
+    .select(SELECT)
     .eq("slug", slug)
     .eq("published", true)
+    .or(liveFilter())
     .maybeSingle();
+
+  let isPreview = false;
+  if (!post && typeof preview === "string" && preview) {
+    const { data: draft } = await supabase
+      .from("posts")
+      .select(SELECT)
+      .eq("slug", slug)
+      .eq("preview_token", preview)
+      .maybeSingle();
+    if (draft) {
+      post = draft;
+      isPreview = true;
+    }
+  }
 
   if (!post) notFound();
 
   const [html, related] = await Promise.all([
     marked.parse(post.body_markdown),
-    getRelatedContent("post", post.id),
+    isPreview ? Promise.resolve([]) : getRelatedContent("post", post.id),
   ]);
 
   const jsonLd = {
@@ -41,6 +63,11 @@ export default async function WritingPostPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {isPreview && (
+        <p className="mb-4 inline-block rounded-sm border border-rust bg-surface px-3 py-1.5 text-xs font-semibold text-rust">
+          Draft preview — not publicly visible yet
+        </p>
+      )}
       {post.published_at && (
         <p className="font-data text-[11.5px] text-muted">
           {new Date(post.published_at).toLocaleDateString(undefined, {

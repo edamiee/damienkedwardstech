@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { liveFilter } from "@/lib/publish-filter";
 
 export const revalidate = 60;
 
@@ -9,6 +10,7 @@ export default async function CaseStudiesIndexPage() {
     .from("case_studies")
     .select("slug, title, summary, stack, published_at")
     .eq("published", true)
+    .or(liveFilter())
     .order("sort_order", { ascending: true });
 
   return (

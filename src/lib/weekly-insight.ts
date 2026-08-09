@@ -10,10 +10,13 @@ export async function generateWeeklyInsight(): Promise<string> {
 }
 
 export async function saveWeeklyInsight(supabase: SupabaseClient, text: string) {
-  await supabase
-    .from("site_content")
-    .upsert(
-      { key: "weekly_ai_insight", value: text, updated_at: new Date().toISOString() },
-      { onConflict: "key" }
-    );
+  await Promise.all([
+    supabase
+      .from("site_content")
+      .upsert(
+        { key: "weekly_ai_insight", value: text, updated_at: new Date().toISOString() },
+        { onConflict: "key" }
+      ),
+    supabase.from("weekly_insights").insert({ content: text }),
+  ]);
 }

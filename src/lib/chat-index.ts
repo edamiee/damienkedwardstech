@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { embedTexts } from "@/lib/voyage";
 import { chunkText } from "@/lib/chunk-text";
+import { liveFilter } from "@/lib/publish-filter";
 
 type EmbeddingRow = {
   source_type: "post" | "paper" | "case_study" | "project";
@@ -24,12 +25,17 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
 
   const [{ data: posts }, { data: papers }, { data: caseStudies }, { data: projects }] =
     await Promise.all([
-      supabase.from("posts").select("id, slug, title, body_markdown").eq("published", true),
+      supabase
+        .from("posts")
+        .select("id, slug, title, body_markdown")
+        .eq("published", true)
+        .or(liveFilter()),
       supabase.from("papers").select("id, title, description, url").eq("published", true),
       supabase
         .from("case_studies")
         .select("id, slug, title, summary, problem, approach, outcome")
-        .eq("published", true),
+        .eq("published", true)
+        .or(liveFilter()),
       supabase.from("site_projects").select("id, name, description").eq("visible", true),
     ]);
 

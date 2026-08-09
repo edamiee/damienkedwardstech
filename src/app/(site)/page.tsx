@@ -3,6 +3,7 @@ import { getLatestAiNews } from "@/lib/ai-feed";
 import { getSiteContent } from "@/lib/site-content";
 import { getHomeServices } from "@/lib/home-services";
 import { getLatestHermesActivity } from "@/lib/hermes-activity";
+import { getTestimonials } from "@/lib/testimonials";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import { TerrainHero } from "@/components/terrain-hero";
 import { NewsletterForm } from "@/components/newsletter-form";
@@ -14,6 +15,9 @@ export default async function HomePage() {
     getHomeServices(),
     getLatestHermesActivity(),
   ]);
+
+  const testimonials =
+    content.testimonials_enabled === "true" ? await getTestimonials() : [];
 
   return (
     <div className="mx-auto max-w-4xl px-6">
@@ -95,6 +99,27 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {testimonials.length > 0 && (
+        <section className="border-t border-line py-14">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+            What people say
+          </h2>
+          <div className="grid gap-8 sm:grid-cols-2">
+            {testimonials.map((t) => (
+              <blockquote key={t.id} className="border-l-2 border-teal pl-5">
+                <p className="font-display text-lg italic leading-snug text-fg">
+                  &ldquo;{t.quote}&rdquo;
+                </p>
+                <footer className="mt-3 text-sm text-muted">
+                  {t.author_name}
+                  {t.author_title && `, ${t.author_title}`}
+                </footer>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+      )}
 
       {aiNews.length > 0 && (
         <section className="border-t border-line py-14">

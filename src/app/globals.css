@@ -11,11 +11,15 @@
   --bg: #f1ecdf;
   --surface: #f8f4e9;
   --fg: #2a2620;
-  --muted: #746f5e;
+  /* muted/rust darkened from their original #746f5e/#b65c38 — both sat
+     just under 4.5:1 against --bg (WCAG AA for normal text), and both are
+     used at small sizes (dates, eyebrow labels, error text) that don't
+     qualify for the relaxed 3:1 large-text threshold. Same hue, ~4.5:1+. */
+  --muted: #6a6555;
   --line: #cdbfa0;
   --teal: #1f5c56;
   --teal-soft: #a9c6be;
-  --rust: #b65c38;
+  --rust: #a6522f;
   color-scheme: light dark;
 }
 
@@ -47,11 +51,11 @@
   --bg: #f1ecdf;
   --surface: #f8f4e9;
   --fg: #2a2620;
-  --muted: #746f5e;
+  --muted: #6a6555;
   --line: #cdbfa0;
   --teal: #1f5c56;
   --teal-soft: #a9c6be;
-  --rust: #b65c38;
+  --rust: #a6522f;
 }
 
 /* Phosphor Terminal tokens — a single committed dark world (see block

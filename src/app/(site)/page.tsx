@@ -55,23 +55,27 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="flex flex-wrap items-center gap-6 rounded-sm border border-line bg-surface px-6 py-4 text-[12.5px]">
-        <span className="inline-flex items-center gap-2 text-muted">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-teal" />
-          Published work — open to everyone
+      <section className="flex flex-wrap items-start gap-6 rounded-sm border border-line bg-surface px-6 py-4 text-[12.5px]">
+        <span className="inline-flex items-start gap-2 text-muted">
+          <span className="mt-[5px] inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-teal" />
+          <span>Published work — open to everyone</span>
         </span>
-        <span className="inline-flex items-center gap-2 text-muted">
-          <span className="inline-block h-2.5 w-2.5 rounded-full bg-rust" />
-          {content.uncharted_heading} — <Link href="/projects" className="text-rust underline">sign in</Link> {content.uncharted_body}
+        <span className="inline-flex items-start gap-2 text-muted">
+          <span className="mt-[5px] inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-rust" />
+          <span>
+            {content.uncharted_heading} — <Link href="/projects" className="text-rust underline">sign in</Link> {content.uncharted_body}
+          </span>
         </span>
         {hermesActivity && (
-          <span className="inline-flex items-center gap-2 text-muted">
-            <span className="inline-block h-2.5 w-2.5 rounded-full bg-teal-soft" />
-            Last published by Damien&apos;s agent that runs the site —{" "}
-            <Link href={hermesActivity.href} className="text-teal underline">
-              {hermesActivity.title}
-            </Link>
-            , {formatRelativeTime(hermesActivity.updatedAt)}
+          <span className="inline-flex items-start gap-2 text-muted">
+            <span className="mt-[5px] inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-teal-soft" />
+            <span>
+              Last published by Damien&apos;s agent that runs the site —{" "}
+              <Link href={hermesActivity.href} className="text-teal underline">
+                {hermesActivity.title}
+              </Link>
+              , {formatRelativeTime(hermesActivity.updatedAt)}
+            </span>
           </span>
         )}
       </section>

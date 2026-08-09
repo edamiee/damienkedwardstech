@@ -14,8 +14,16 @@ export default async function SiteLayout({ children }: LayoutProps<"/">) {
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
+      <a
+        href="#main-content"
+        className="sr-only rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50"
+      >
+        Skip to content
+      </a>
       <SiteHeader links={links} name={content.site_name} siteIndex={siteIndex} />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">
+        {children}
+      </main>
       <SiteFooter name={content.site_name} tagline={content.footer_tagline} />
       {content.chat_enabled !== "false" && (
         <ChatWidget

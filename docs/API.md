@@ -27,7 +27,7 @@ Body shape depends on `"type"`:
 
 | `type` | Upserts | Key | Notes |
 |---|---|---|---|
-| `post` | `posts` (by slug, derived from `title`) | `title` | `body_markdown` required. `cover_image_url` optional (must already be hosted — this endpoint doesn't accept file uploads). `tags: string[]` optional. `reading_minutes` computed automatically. `publish_at` (ISO timestamp) optionally delays visibility until that time. `series` + `series_order` optionally group multi-part posts. `source` defaults to `"agent"` — set to `"hermes"`/`"agent"` so the homepage's agent-activity line picks it up. |
+| `post` | `posts` (by slug, derived from `title`) | `title` | `body_markdown` required. `cover_image_url` optional (must already be hosted — this endpoint doesn't accept file uploads). `tags: string[]` optional. `reading_minutes` computed automatically. `publish_at` (ISO timestamp) optionally delays visibility until that time. `series` + `series_order` optionally group multi-part posts. `is_site_post` (boolean, default `false`) flags posts about the site itself vs. other topics. `source` defaults to `"agent"` — set to `"hermes"`/`"agent"` so the homepage's agent-activity line picks it up. |
 | `paper` | `papers` (by slug) | `title` | `url` required (external link, not hosted). |
 | `build_log` | `case_studies` (by slug) | `title` | `project_url` optional — omit for internal work with nothing public to link to. `stats: [{value, label}]` optional, renders as pull-quote callouts. `publish_at`/`source` work the same as on posts. `"case_study"` is accepted as a legacy alias for `"build_log"`. |
 | `site_content` | `site_content` (by key) | `key` | See [Site content keys](#site-content-keys) below. |

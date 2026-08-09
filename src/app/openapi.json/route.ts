@@ -51,6 +51,7 @@ const spec = {
           tags: { type: "array", items: { type: "string" } },
           series: { type: "string" },
           series_order: { type: "integer", default: 0 },
+          is_site_post: { type: "boolean", default: false, description: "Flags posts about damienkedwardstech/the arcade itself vs. other topics." },
           published: { type: "boolean", default: false },
           publish_at: { type: "string", format: "date-time", description: "Delays visibility until this time, everywhere on the site, without further action." },
           source: { type: "string", default: "agent", description: "e.g. \"hermes\" or \"agent\" — drives the homepage's agent-activity line." },

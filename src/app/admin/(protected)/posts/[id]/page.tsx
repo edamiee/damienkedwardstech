@@ -10,7 +10,7 @@ export default async function EditPostPage({
   const { data: post } = await supabase
     .from("posts")
     .select(
-      "id, slug, title, excerpt, body_markdown, cover_image_url, tags, series, series_order, published, publish_at, preview_token"
+      "id, slug, title, excerpt, body_markdown, cover_image_url, tags, series, series_order, is_site_post, published, publish_at, preview_token"
     )
     .eq("id", id)
     .maybeSingle();

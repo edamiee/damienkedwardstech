@@ -61,6 +61,9 @@ export async function saveAgentDraftPost(
       body_markdown: draft.body_markdown,
       tags: Array.isArray(draft.tags) ? draft.tags : [],
       reading_minutes: computeReadingMinutes(draft.body_markdown),
+      // The dev-log agent only ever writes "what shipped" posts about this
+      // site; the research agent writes about whatever topic it's given.
+      is_site_post: auditSource === "dev_log_agent",
       published: false,
       source: "agent",
       updated_at: new Date().toISOString(),

@@ -3,12 +3,17 @@ import { createClient } from "@/lib/supabase/server";
 import { draftPostWithAgent } from "./actions";
 
 export default async function AdminPostsPage({ searchParams }: PageProps<"/admin/posts">) {
-  const { agent_error: agentError } = await searchParams;
+  const { agent_error: agentError, scope } = await searchParams;
+  const activeScope = typeof scope === "string" ? scope : null;
+
   const supabase = await createClient();
-  const { data: posts } = await supabase
+  let query = supabase
     .from("posts")
-    .select("id, title, slug, published, published_at, source")
+    .select("id, title, slug, published, published_at, source, is_site_post")
     .order("updated_at", { ascending: false });
+  if (activeScope === "site") query = query.eq("is_site_post", true);
+  if (activeScope === "other") query = query.eq("is_site_post", false);
+  const { data: posts } = await query;
 
   return (
     <div className="mx-auto max-w-3xl">
@@ -52,15 +57,42 @@ export default async function AdminPostsPage({ searchParams }: PageProps<"/admin
         )}
       </form>
 
-      <ul className="mt-6 divide-y divide-line">
+      <div className="mt-6 flex flex-wrap items-center gap-2">
+        {[
+          { value: null, label: "All" },
+          { value: "site", label: "Site" },
+          { value: "other", label: "Other" },
+        ].map((s) => (
+          <Link
+            key={s.label}
+            href={s.value ? `/admin/posts?scope=${s.value}` : "/admin/posts"}
+            className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
+              activeScope === s.value
+                ? "border-teal bg-teal text-ground"
+                : "border-line bg-surface text-muted hover:text-teal"
+            }`}
+          >
+            {s.label}
+          </Link>
+        ))}
+      </div>
+
+      <ul className="mt-4 divide-y divide-line">
         {(posts ?? []).map((post) => (
           <li key={post.id} className="flex items-center justify-between py-4">
             <div>
               <Link href={`/admin/posts/${post.id}`} className="font-medium hover:text-teal">
                 {post.title}
               </Link>
-              <p className="mt-0.5 text-xs text-muted">
-                {post.published ? "Published" : "Draft"} · via {post.source}
+              <p className="mt-0.5 flex items-center gap-2 text-xs text-muted">
+                <span>
+                  {post.published ? "Published" : "Draft"} · via {post.source}
+                </span>
+                {post.is_site_post && (
+                  <span className="rounded-sm bg-surface px-1.5 py-0.5 font-data text-[10px] uppercase tracking-[0.06em] text-teal">
+                    Site
+                  </span>
+                )}
               </p>
             </div>
             <Link href={`/admin/posts/${post.id}`} className="text-sm text-teal">

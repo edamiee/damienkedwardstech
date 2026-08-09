@@ -14,6 +14,7 @@ type Post = {
   tags: string[] | null;
   series: string | null;
   series_order: number;
+  is_site_post: boolean;
   published: boolean;
   publish_at: string | null;
   preview_token: string;
@@ -187,6 +188,10 @@ export function PostForm({ post }: { post?: Post }) {
 
       {uploadError && <p className="text-xs text-rust">{uploadError}</p>}
 
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="is_site_post" defaultChecked={post?.is_site_post} />
+        About this site (vs. other topics — shown as a badge and filterable in the posts list)
+      </label>
       <label className="flex items-center gap-2 text-sm">
         <input type="checkbox" name="published" defaultChecked={post?.published} />
         Published

@@ -28,6 +28,10 @@ import { logContentChange } from "@/lib/audit-log";
 //      live on its own with no further action needed. "series" is an
 //      optional string — posts sharing the same series get prev/next
 //      navigation between them, ordered by "series_order" (default 0).
+//      "is_site_post" (boolean, default false) flags posts that are about
+//      damienkedwardstech/the arcade itself (dev-log "what shipped" style
+//      writing) vs. other topics — shown as a badge and filterable in
+//      /admin/posts.
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -332,6 +336,7 @@ export async function POST(request: NextRequest) {
           tags: Array.isArray(body.tags) ? body.tags : [],
           series: body.series ?? null,
           series_order: body.series_order ?? 0,
+          is_site_post: body.is_site_post ?? false,
           reading_minutes: computeReadingMinutes(body.body_markdown),
           published,
           published_at: published ? body.publish_at ?? new Date().toISOString() : null,

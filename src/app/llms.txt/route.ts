@@ -67,6 +67,7 @@ export async function GET() {
   if (content.contact_linkedin) lines.push(`- LinkedIn: ${content.contact_linkedin}`);
   lines.push(`- Contact page: ${BASE_URL}/contact`);
   lines.push("");
+  lines.push(`How this site is built (agents, MCP, audit log): ${BASE_URL}/how-it-works`);
   lines.push(`Full site map: ${BASE_URL}/sitemap.xml`);
   lines.push(`API spec (what an agent can *do* here, not just read): ${BASE_URL}/openapi.json`);
   lines.push(`MCP server (same tools, for MCP clients): ${BASE_URL}/api/mcp`);

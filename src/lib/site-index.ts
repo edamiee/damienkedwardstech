@@ -9,6 +9,7 @@ const STATIC_PAGES: SiteIndexItem[] = [
   { id: "page-about", title: "About", href: "/about", kind: "Page" },
   { id: "page-writing", title: "Writing", href: "/writing", kind: "Page" },
   { id: "page-build-log", title: "Build log", href: "/build-log", kind: "Page" },
+  { id: "page-how-it-works", title: "How this site works", href: "/how-it-works", kind: "Page" },
   { id: "page-projects", title: "Projects (sign in)", href: "/projects", kind: "Page" },
   { id: "page-newsletter", title: "Newsletter archive", href: "/newsletter", kind: "Page" },
   { id: "page-contact", title: "Contact", href: "/contact", kind: "Page" },

@@ -38,6 +38,28 @@ export const SITE_CONTENT_DEFAULTS = {
   business_inquiry_enabled: "false",
   business_inquiry_intro:
     "A few extra details up front help me get back to you with something useful instead of a round of clarifying questions.",
+  how_it_works_intro:
+    "Most of the words on this site were typed by a person. A growing share of them weren't — a handful of Claude-powered agents write and publish here directly, through the same front door as everything else. This page is the map: where content comes from, what happens to it on the way in, and how it gets found again.",
+  how_it_works_sources:
+    "Site Agent | A Telegram bot (@dames81_bot) with full write access — posts, build log entries, site copy — over a plain HTTP endpoint.\n" +
+    "Admin Agent | A second, separate Telegram bot behind a webhook. Narrower tool set, and only replies to one allowlisted chat — anyone else is silently ignored.\n" +
+    "MCP clients | Claude Desktop, Claude Code, or any other MCP-speaking tool, connected straight to this site's own MCP server.\n" +
+    "Scheduled agents | A research-and-draft agent, a GitHub activity digest, a content-health checker, and a weekly note generator — each a bounded Claude tool loop.\n" +
+    "Admin UI | Damien, signed in at /admin — the fallback for anything the agents above don't do, like image uploads or deleting things.",
+  how_it_works_surfaces:
+    "Public pages | Server-rendered straight from Postgres — no build-time regeneration needed to go live.\n" +
+    "Chat widget | pgvector search feeds Claude only what's actually published; answers are grounded and cited, never hallucinated.\n" +
+    "/search | The same semantic search as the chat widget, as a plain results page.\n" +
+    "MCP server | The same search, plus availability and build-log stats, exposed as tools any MCP client can call — no auth needed for the public tier.\n" +
+    "Feeds | /llms.txt, /sitemap.xml, two RSS feeds, and /openapi.json — for the visitors that don't run JS.",
+  how_it_works_stack:
+    "Next.js 16 (App Router, Vercel)\n" +
+    "Supabase — Postgres + pgvector\n" +
+    "Anthropic Claude — agents, chat, weekly note\n" +
+    "Voyage AI — embeddings\n" +
+    "Telegram Bot API\n" +
+    "GitHub REST API\n" +
+    "Resend — transactional email",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

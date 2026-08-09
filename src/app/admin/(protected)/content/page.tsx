@@ -334,6 +334,59 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            How this site works page
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Intro paragraph
+            <textarea
+              name="how_it_works_intro"
+              rows={3}
+              defaultValue={content.how_it_works_intro}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;Five ways content gets in&quot; cards — one per line, as{" "}
+            <code className="font-data">Title | detail</code>
+            <textarea
+              name="how_it_works_sources"
+              rows={6}
+              defaultValue={content.how_it_works_sources}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;How it gets found again&quot; cards — same{" "}
+            <code className="font-data">Title | detail</code> format
+            <textarea
+              name="how_it_works_surfaces"
+              rows={6}
+              defaultValue={content.how_it_works_surfaces}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;Built with&quot; stack list — one item per line
+            <textarea
+              name="how_it_works_stack"
+              rows={7}
+              defaultValue={content.how_it_works_stack}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
+          <p className="text-xs text-muted">
+            The flow diagram and the build-log links at the bottom of the page
+            pull their labels from the cards above automatically — edit those,
+            not the diagram directly. See{" "}
+            <a href="/how-it-works" target="_blank" rel="noreferrer" className="text-teal hover:underline">
+              /how-it-works ↗
+            </a>
+            .
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Footer
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

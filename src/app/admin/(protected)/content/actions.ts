@@ -11,6 +11,7 @@ function revalidatePublicPages() {
   revalidatePath("/");
   revalidatePath("/about");
   revalidatePath("/contact");
+  revalidatePath("/how-it-works");
   revalidatePath("/", "layout");
 }
 

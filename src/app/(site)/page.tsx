@@ -58,7 +58,7 @@ export default async function HomePage() {
         </span>
         <span className="inline-flex items-center gap-2 text-muted">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-rust" />
-          Uncharted — <Link href="/projects" className="text-rust underline">sign in</Link> to see project work, including the Arcade game
+          {content.uncharted_heading} — <Link href="/projects" className="text-rust underline">sign in</Link> {content.uncharted_body}
         </span>
         {hermesActivity && (
           <span className="inline-flex items-center gap-2 text-muted">

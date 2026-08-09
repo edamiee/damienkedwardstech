@@ -10,6 +10,7 @@ type WritingItem = {
   date: string | null;
   href: string;
   external: boolean;
+  coverImageUrl: string | null;
 };
 
 export default async function WritingIndexPage() {
@@ -18,7 +19,7 @@ export default async function WritingIndexPage() {
   const [{ data: posts }, { data: papers }] = await Promise.all([
     supabase
       .from("posts")
-      .select("slug, title, excerpt, published_at")
+      .select("slug, title, excerpt, cover_image_url, published_at")
       .eq("published", true),
     supabase
       .from("papers")
@@ -34,6 +35,7 @@ export default async function WritingIndexPage() {
       date: post.published_at,
       href: `/writing/${post.slug}`,
       external: false,
+      coverImageUrl: post.cover_image_url,
     })),
     ...(papers ?? []).map((paper) => ({
       kind: "paper" as const,
@@ -42,6 +44,7 @@ export default async function WritingIndexPage() {
       date: paper.published_at,
       href: paper.url,
       external: true,
+      coverImageUrl: null,
     })),
   ].sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
@@ -68,18 +71,28 @@ export default async function WritingIndexPage() {
               href={item.href}
               target={item.external ? "_blank" : undefined}
               rel={item.external ? "noreferrer" : undefined}
-              className="group flex items-baseline justify-between gap-4"
+              className="group flex items-center justify-between gap-4"
             >
-              <span>
-                <span className="font-data text-[10.5px] uppercase tracking-[0.08em] text-rust">
-                  {item.kind === "post" ? "Post" : "Document"}
-                </span>
-                <span className="mt-1 block font-display text-lg group-hover:text-teal">
-                  {item.title}
-                </span>
-                {item.blurb && (
-                  <span className="mt-1 block text-sm text-muted">{item.blurb}</span>
+              <span className="flex items-center gap-4">
+                {item.coverImageUrl && (
+                  // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, not worth remotePatterns config
+                  <img
+                    src={item.coverImageUrl}
+                    alt=""
+                    className="h-14 w-14 shrink-0 rounded-sm border border-line object-cover"
+                  />
                 )}
+                <span>
+                  <span className="font-data text-[10.5px] uppercase tracking-[0.08em] text-rust">
+                    {item.kind === "post" ? "Post" : "Document"}
+                  </span>
+                  <span className="mt-1 block font-display text-lg group-hover:text-teal">
+                    {item.title}
+                  </span>
+                  {item.blurb && (
+                    <span className="mt-1 block text-sm text-muted">{item.blurb}</span>
+                  )}
+                </span>
               </span>
               <span className="whitespace-nowrap font-data text-[11.5px] text-muted">
                 {item.external ? "↗ " : ""}

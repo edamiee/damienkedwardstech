@@ -19,6 +19,7 @@ export async function savePost(formData: FormData) {
   const title = String(formData.get("title") ?? "").trim();
   const excerpt = String(formData.get("excerpt") ?? "").trim() || null;
   const bodyMarkdown = String(formData.get("body_markdown") ?? "");
+  const coverImageUrl = String(formData.get("cover_image_url") ?? "").trim() || null;
   const published = formData.get("published") === "on";
 
   const payload = {
@@ -26,6 +27,7 @@ export async function savePost(formData: FormData) {
     slug: slugify(title),
     excerpt,
     body_markdown: bodyMarkdown,
+    cover_image_url: coverImageUrl,
     published,
     published_at: published ? new Date().toISOString() : null,
     updated_at: new Date().toISOString(),

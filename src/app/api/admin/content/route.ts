@@ -13,10 +13,12 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 // Body shape depends on "type":
 //
 // { "type": "post", "title": "...", "body_markdown": "...", "excerpt": "...",
-//   "published": true, "source": "hermes" }
+//   "cover_image_url": "...", "published": true, "source": "hermes" }
 //   -> upserts public.posts by slug (derived from title). "source" defaults
 //      to "agent" if omitted; set it to "hermes" or "agent" so the
-//      homepage's agent-activity line picks it up.
+//      homepage's agent-activity line picks it up. "cover_image_url" is
+//      optional — must already be a hosted URL (this endpoint doesn't accept
+//      file uploads; use the admin editor at /admin/posts to upload one).
 //
 // { "type": "paper", "title": "...", "url": "...", "description": "...",
 //   "published": true }
@@ -33,7 +35,8 @@ import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 // { "type": "site_content", "key": "about_body", "value": "..." }
 //   -> upserts public.site_content by key. Valid keys: see SITE_CONTENT_DEFAULTS
 //      in src/lib/site-content.ts (site_name, home_eyebrow, home_heading,
-//      home_subheading, now_line, weekly_ai_insight, about_body, about_skills,
+//      home_subheading, now_line, uncharted_heading, uncharted_body,
+//      weekly_ai_insight, about_body, about_skills,
 //      resume_url, footer_tagline, contact_intro, contact_email,
 //      contact_linkedin, chat_enabled ("true"/"false"),
 //      chat_header, chat_subheader, chat_example_question,
@@ -242,6 +245,7 @@ export async function POST(request: NextRequest) {
           title,
           excerpt: body.excerpt ?? null,
           body_markdown: body.body_markdown,
+          cover_image_url: body.cover_image_url ?? null,
           published,
           published_at: published ? new Date().toISOString() : null,
           source: body.source ?? "agent",

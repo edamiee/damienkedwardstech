@@ -11,7 +11,7 @@ export default async function WritingPostPage({
   const supabase = await createClient();
   const { data: post } = await supabase
     .from("posts")
-    .select("title, body_markdown, published_at, published")
+    .select("title, body_markdown, cover_image_url, published_at, published")
     .eq("slug", slug)
     .eq("published", true)
     .maybeSingle();
@@ -46,6 +46,14 @@ export default async function WritingPostPage({
         </p>
       )}
       <h1 className="mt-2 font-display text-3xl">{post.title}</h1>
+      {post.cover_image_url && (
+        // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, not worth remotePatterns config
+        <img
+          src={post.cover_image_url}
+          alt=""
+          className="mt-6 max-h-[420px] w-full rounded-sm border border-line object-cover"
+        />
+      )}
       <div
         className="prose prose-neutral mt-8 max-w-[65ch] text-[15.5px] leading-relaxed [&_a]:text-teal [&_h2]:font-display [&_h2]:text-xl [&_h2]:mt-8 [&_p]:mt-4 [&_ul]:mt-4 [&_ul]:list-disc [&_ul]:pl-5"
         dangerouslySetInnerHTML={{ __html: html }}

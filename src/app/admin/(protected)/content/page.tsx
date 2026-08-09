@@ -28,6 +28,31 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            Status bar
+          </legend>
+          <p className="text-xs text-muted">
+            The &quot;Uncharted&quot; line under the hero, next to the sign-in link.
+          </p>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Label
+            <input
+              name="uncharted_heading"
+              defaultValue={content.uncharted_heading}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Text (shown after the &quot;sign in&quot; link)
+            <input
+              name="uncharted_body"
+              defaultValue={content.uncharted_body}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Chat widget
           </legend>
           <label className="flex items-center gap-2 text-sm">

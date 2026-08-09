@@ -13,6 +13,8 @@ export const SITE_CONTENT_DEFAULTS = {
   home_subheading:
     "I'm Damien Edwards, a freelance AI & data engineer — data pipelines, LLM integrations, and the applied AI features built on top of them. Available for contract and full-time engagements.",
   now_line: "",
+  uncharted_heading: "Uncharted",
+  uncharted_body: "to see project work, including the Arcade game",
   weekly_ai_insight:
     "Checks back every Monday — this note is written fresh each week by Claude and hasn't run yet.",
   about_body:

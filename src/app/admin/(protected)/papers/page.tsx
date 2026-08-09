@@ -28,19 +28,19 @@ export default async function AdminPapersPage() {
               <input
                 name="title"
                 defaultValue={paper.title}
-                className="rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+                className="rounded-sm border border-line bg-ground px-3 py-2 text-sm"
               />
               <input
                 name="url"
                 defaultValue={paper.url}
-                className="rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+                className="rounded-sm border border-line bg-ground px-3 py-2 text-sm"
               />
             </div>
             <input
               name="description"
               defaultValue={paper.description ?? ""}
               placeholder="One-line description"
-              className="rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+              className="rounded-sm border border-line bg-ground px-3 py-2 text-sm"
             />
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm">
@@ -49,7 +49,7 @@ export default async function AdminPapersPage() {
               </label>
               <button
                 type="submit"
-                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-bg"
+                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-ground"
               >
                 Save
               </button>

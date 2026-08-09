@@ -14,7 +14,7 @@ export default async function AdminPostsPage() {
         <h1 className="font-display text-2xl">Blog posts</h1>
         <Link
           href="/admin/posts/new"
-          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
         >
           New post
         </Link>

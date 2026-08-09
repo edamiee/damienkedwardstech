@@ -94,7 +94,7 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
         />
         <button
           type="submit"
-          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
         >
           Search
         </button>

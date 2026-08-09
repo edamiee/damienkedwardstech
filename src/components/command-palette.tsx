@@ -86,7 +86,7 @@ export function CommandPalette({ items }: { items: SiteIndexItem[] }) {
           onClick={() => setOpen(false)}
         >
           <div
-            className="w-full max-w-lg rounded-sm border border-line bg-bg shadow-lg"
+            className="w-full max-w-lg rounded-sm border border-line bg-ground shadow-lg"
             onClick={(e) => e.stopPropagation()}
           >
             <input

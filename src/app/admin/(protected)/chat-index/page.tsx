@@ -31,7 +31,7 @@ export default async function AdminChatIndexPage({
         <form action={reindexAction} className="mt-4">
           <button
             type="submit"
-            className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+            className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
           >
             Rebuild index now
           </button>

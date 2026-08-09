@@ -40,7 +40,7 @@ export function ShortcutsHelp() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="w-full max-w-sm rounded-sm border border-line bg-bg p-5 shadow-lg"
+        className="w-full max-w-sm rounded-sm border border-line bg-ground p-5 shadow-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <p className="text-xs font-semibold uppercase tracking-[0.1em] text-teal">

@@ -20,7 +20,7 @@ export function NewsletterForm() {
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex items-center gap-2 rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground disabled:opacity-60"
       >
         {pending ? "Adding…" : "Get the weekly note"}
       </button>

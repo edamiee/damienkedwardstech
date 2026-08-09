@@ -40,7 +40,7 @@ export function ContactForm() {
         <button
           type="submit"
           disabled={pending}
-          className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-ground disabled:opacity-60"
         >
           {pending ? "Sending…" : "Send message"}
         </button>

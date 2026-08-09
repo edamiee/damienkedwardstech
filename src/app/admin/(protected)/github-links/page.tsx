@@ -30,18 +30,18 @@ export default async function AdminGithubLinksPage() {
             <input
               name="label"
               defaultValue={link.label}
-              className="w-32 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+              className="w-32 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
             />
             <input
               name="url"
               defaultValue={link.url}
-              className="flex-1 min-w-[200px] rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+              className="flex-1 min-w-[200px] rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
             />
             <input
               name="sort_order"
               type="number"
               defaultValue={link.sort_order}
-              className="w-20 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+              className="w-20 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
             />
             <label className="flex items-center gap-1.5 text-sm">
               <input type="checkbox" name="visible" defaultChecked={link.visible} />
@@ -49,7 +49,7 @@ export default async function AdminGithubLinksPage() {
             </label>
             <button
               type="submit"
-              className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-bg"
+              className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-ground"
             >
               Save
             </button>

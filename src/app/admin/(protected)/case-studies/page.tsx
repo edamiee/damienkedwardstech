@@ -14,7 +14,7 @@ export default async function AdminCaseStudiesPage() {
         <h1 className="font-display text-2xl">Case studies</h1>
         <Link
           href="/admin/case-studies/new"
-          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
         >
           New case study
         </Link>

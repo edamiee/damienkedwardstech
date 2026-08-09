@@ -29,13 +29,13 @@ export default async function AdminServicesPage() {
               <input
                 name="title"
                 defaultValue={service.title}
-                className="w-48 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+                className="w-48 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
               />
               <input
                 name="sort_order"
                 type="number"
                 defaultValue={service.sort_order}
-                className="w-20 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+                className="w-20 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
               />
               <label className="flex items-center gap-1.5 text-sm">
                 <input type="checkbox" name="visible" defaultChecked={service.visible} />
@@ -46,12 +46,12 @@ export default async function AdminServicesPage() {
               name="body"
               rows={2}
               defaultValue={service.body}
-              className="rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+              className="rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
             />
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-bg"
+                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-ground"
               >
                 Save
               </button>

@@ -25,7 +25,7 @@ export function MobileNav({ links }: { links: NavLink[] }) {
       </button>
 
       {open && (
-        <nav className="absolute inset-x-0 top-full z-50 border-b border-line bg-bg px-6 py-4 shadow-lg">
+        <nav className="absolute inset-x-0 top-full z-50 border-b border-line bg-ground px-6 py-4 shadow-lg">
           <ul className="flex flex-col gap-4 text-sm">
             {links.map((link) => (
               <li key={link.id}>

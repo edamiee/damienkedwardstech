@@ -86,7 +86,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
               href={t === activeTag ? "/writing" : `/writing?tag=${encodeURIComponent(t)}`}
               className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
                 t === activeTag
-                  ? "border-teal bg-teal text-bg"
+                  ? "border-teal bg-teal text-ground"
                   : "border-line bg-surface text-muted hover:text-teal"
               }`}
             >

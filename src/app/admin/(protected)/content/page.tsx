@@ -314,7 +314,7 @@ export default async function AdminSiteContentPage() {
 
         <button
           type="submit"
-          className="self-start rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
+          className="self-start rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-ground"
         >
           Save
         </button>

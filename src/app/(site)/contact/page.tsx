@@ -13,7 +13,7 @@ export default async function ContactPage() {
       <div className="mt-6 flex flex-wrap gap-4">
         <a
           href={`mailto:${content.contact_email}`}
-          className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
+          className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-ground"
         >
           {content.contact_email}
         </a>

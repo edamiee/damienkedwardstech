@@ -34,19 +34,19 @@ export default async function AdminTestimonialsPage() {
                 name="author_name"
                 defaultValue={t.author_name}
                 placeholder="Name"
-                className="w-40 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+                className="w-40 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
               />
               <input
                 name="author_title"
                 defaultValue={t.author_title ?? ""}
                 placeholder="Title / company"
-                className="w-52 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+                className="w-52 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
               />
               <input
                 name="sort_order"
                 type="number"
                 defaultValue={t.sort_order}
-                className="w-20 rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+                className="w-20 rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
               />
               <label className="flex items-center gap-1.5 text-sm">
                 <input type="checkbox" name="visible" defaultChecked={t.visible} />
@@ -57,12 +57,12 @@ export default async function AdminTestimonialsPage() {
               name="quote"
               rows={2}
               defaultValue={t.quote}
-              className="rounded-sm border border-line bg-bg px-2 py-1.5 text-sm"
+              className="rounded-sm border border-line bg-ground px-2 py-1.5 text-sm"
             />
             <div className="flex items-center gap-3">
               <button
                 type="submit"
-                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-bg"
+                className="rounded-sm bg-teal px-3 py-1.5 text-sm font-semibold text-ground"
               >
                 Save
               </button>

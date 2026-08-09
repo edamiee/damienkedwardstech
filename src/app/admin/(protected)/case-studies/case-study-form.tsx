@@ -118,7 +118,7 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
       <div className="flex items-center gap-3">
         <button
           type="submit"
-          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
         >
           Save
         </button>

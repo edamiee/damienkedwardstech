@@ -41,7 +41,7 @@ export default async function HomePage() {
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/writing"
-              className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-bg"
+              className="inline-flex items-center gap-2 rounded-sm bg-teal px-5 py-2.5 text-sm font-semibold text-ground"
             >
               Read my writing →
             </Link>

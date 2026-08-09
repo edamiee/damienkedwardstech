@@ -82,7 +82,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
               <div key={i} className={m.role === "user" ? "text-right" : "text-left"}>
                 <span
                   className={`inline-block max-w-[85%] rounded-sm px-3 py-2 text-sm ${
-                    m.role === "user" ? "bg-teal text-bg" : "border border-line bg-bg text-fg"
+                    m.role === "user" ? "bg-teal text-ground" : "border border-line bg-ground text-fg"
                   }`}
                 >
                   {m.text}
@@ -111,12 +111,12 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask a question…"
               maxLength={500}
-              className="flex-1 rounded-sm border border-line bg-bg px-3 py-2 text-sm text-fg placeholder:text-muted focus:border-teal focus:outline-none"
+              className="flex-1 rounded-sm border border-line bg-ground px-3 py-2 text-sm text-fg placeholder:text-muted focus:border-teal focus:outline-none"
             />
             <button
               type="submit"
               disabled={pending || !input.trim()}
-              className="rounded-sm bg-teal px-3 py-2 text-sm font-semibold text-bg disabled:opacity-60"
+              className="rounded-sm bg-teal px-3 py-2 text-sm font-semibold text-ground disabled:opacity-60"
             >
               Send
             </button>
@@ -126,7 +126,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
 
       <button
         onClick={() => setOpen((v) => !v)}
-        className="ml-auto flex items-center gap-2 rounded-full bg-teal px-4 py-3 text-sm font-semibold text-bg shadow-lg"
+        className="ml-auto flex items-center gap-2 rounded-full bg-teal px-4 py-3 text-sm font-semibold text-ground shadow-lg"
       >
         {open ? "Close" : "Ask a question"}
       </button>

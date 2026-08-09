@@ -65,7 +65,12 @@
 }
 
 @theme inline {
-  --color-bg: var(--bg);
+  /* Named "ground" rather than "bg" — Tailwind v4 silently skips
+     bg-bg/text-bg/border-bg (a color token literally named "bg" collides
+     with the bg-* utility prefix, no CSS generated, no build error) — and
+     "base" turned out to collide too (text-base is Tailwind's built-in
+     1rem font-size utility). "ground" doesn't shadow anything. */
+  --color-ground: var(--bg);
   --color-surface: var(--surface);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
@@ -98,8 +103,15 @@ body {
   line-height: 1.5;
 }
 
-a {
-  color: inherit;
+/* In @layer base so Tailwind color utilities (text-teal, text-ground, etc.)
+   can win over this reset on <a> tags. Unlayered CSS always beats ANY
+   @layer content regardless of specificity — written as a bare rule, this
+   silently overrode every colored link/button-as-anchor site-wide, falling
+   back to the parent's inherited color instead. */
+@layer base {
+  a {
+    color: inherit;
+  }
 }
 
 :focus-visible {
@@ -148,8 +160,10 @@ a {
   font-family: "JetBrains Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
-.theme-terminal a {
-  color: inherit;
+@layer base {
+  .theme-terminal a {
+    color: inherit;
+  }
 }
 
 .theme-terminal :focus-visible {

@@ -23,16 +23,16 @@ export default async function AdminViewersPage() {
           type="email"
           placeholder="email@example.com"
           required
-          className="flex-1 rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+          className="flex-1 rounded-sm border border-line bg-ground px-3 py-2 text-sm"
         />
         <input
           name="note"
           placeholder="Note (optional)"
-          className="flex-1 rounded-sm border border-line bg-bg px-3 py-2 text-sm"
+          className="flex-1 rounded-sm border border-line bg-ground px-3 py-2 text-sm"
         />
         <button
           type="submit"
-          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-bg"
+          className="rounded-sm bg-teal px-4 py-2 text-sm font-semibold text-ground"
         >
           Invite
         </button>

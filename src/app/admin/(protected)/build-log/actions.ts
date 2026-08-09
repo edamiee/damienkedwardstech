@@ -13,7 +13,7 @@ function slugify(title: string) {
     .replace(/(^-|-$)/g, "");
 }
 
-export async function saveCaseStudy(formData: FormData) {
+export async function saveBuildLogEntry(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error("Not authorized");
 
@@ -53,18 +53,18 @@ export async function saveCaseStudy(formData: FormData) {
 
   await logContentChange({
     source: "admin_ui",
-    action: id ? "case_study.update" : "case_study.create",
-    entity_type: "case_study",
+    action: id ? "build_log.update" : "build_log.create",
+    entity_type: "build_log",
     entity_id: caseStudyId,
     summary: `${id ? "Updated" : "Created"} "${title}"${published ? " (published)" : ""}`,
   });
 
-  revalidatePath("/admin/case-studies");
-  revalidatePath("/case-studies");
-  redirect("/admin/case-studies");
+  revalidatePath("/admin/build-log");
+  revalidatePath("/build-log");
+  redirect("/admin/build-log");
 }
 
-export async function deleteCaseStudy(formData: FormData) {
+export async function deleteBuildLogEntry(formData: FormData) {
   const admin = await requireAdmin();
   if (!admin) throw new Error("Not authorized");
 
@@ -78,13 +78,13 @@ export async function deleteCaseStudy(formData: FormData) {
 
   await logContentChange({
     source: "admin_ui",
-    action: "case_study.delete",
-    entity_type: "case_study",
+    action: "build_log.delete",
+    entity_type: "build_log",
     entity_id: id,
     summary: `Deleted "${existing?.title ?? id}"`,
   });
 
-  revalidatePath("/admin/case-studies");
-  revalidatePath("/case-studies");
-  redirect("/admin/case-studies");
+  revalidatePath("/admin/build-log");
+  revalidatePath("/build-log");
+  redirect("/admin/build-log");
 }

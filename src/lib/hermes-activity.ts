@@ -44,7 +44,7 @@ export const getLatestHermesActivity = cache(async (): Promise<HermesActivity | 
     })),
     ...(caseStudies ?? []).map((cs) => ({
       title: cs.title,
-      href: `/case-studies/${cs.slug}`,
+      href: `/build-log/${cs.slug}`,
       updatedAt: cs.updated_at as string,
     })),
   ];

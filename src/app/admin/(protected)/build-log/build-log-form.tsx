@@ -1,4 +1,4 @@
-import { saveCaseStudy, deleteCaseStudy } from "./actions";
+import { saveBuildLogEntry, deleteBuildLogEntry } from "./actions";
 import { formatStats, type Stat } from "@/lib/parse-stats";
 import { toDatetimeLocalValue } from "@/lib/datetime-input";
 
@@ -18,9 +18,9 @@ type CaseStudy = {
   preview_token: string;
 };
 
-export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
+export function BuildLogForm({ caseStudy }: { caseStudy?: CaseStudy }) {
   return (
-    <form action={saveCaseStudy} className="flex flex-col gap-4">
+    <form action={saveBuildLogEntry} className="flex flex-col gap-4">
       {caseStudy && <input type="hidden" name="id" value={caseStudy.id} />}
       <label className="flex flex-col gap-1.5 text-sm">
         Title
@@ -32,7 +32,7 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
         />
       </label>
       <label className="flex flex-col gap-1.5 text-sm">
-        Summary (shown on the Case studies index)
+        Summary (shown on the Build log index)
         <input
           name="summary"
           defaultValue={caseStudy?.summary ?? ""}
@@ -111,7 +111,7 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
         <p className="text-xs text-muted">
           Draft preview link:{" "}
           <span className="font-data text-teal">
-            /case-studies/{caseStudy.slug}?preview={caseStudy.preview_token}
+            /build-log/{caseStudy.slug}?preview={caseStudy.preview_token}
           </span>
         </p>
       )}
@@ -124,7 +124,7 @@ export function CaseStudyForm({ caseStudy }: { caseStudy?: CaseStudy }) {
         </button>
         {caseStudy && (
           <button
-            formAction={deleteCaseStudy}
+            formAction={deleteBuildLogEntry}
             className="rounded-sm border border-rust px-4 py-2 text-sm text-rust"
           >
             Delete

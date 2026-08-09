@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
 
   const sections = [
     { href: "/admin/posts", label: "Blog posts", count: postCount },
-    { href: "/admin/case-studies", label: "Case studies", count: caseStudyCount },
+    { href: "/admin/build-log", label: "Build log", count: caseStudyCount },
     { href: "/admin/papers", label: "Writing / documents", count: paperCount },
     { href: "/admin/viewers", label: "Project viewer invites", count: viewerCount },
     { href: "/admin/projects", label: "Gated projects", count: projectCount },

@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CaseStudyForm } from "../case-study-form";
+import { BuildLogForm } from "../build-log-form";
 
-export default async function EditCaseStudyPage({
+export default async function EditBuildLogEntryPage({
   params,
-}: PageProps<"/admin/case-studies/[id]">) {
+}: PageProps<"/admin/build-log/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
   const { data: caseStudy } = await supabase
@@ -19,9 +19,9 @@ export default async function EditCaseStudyPage({
 
   return (
     <div className="mx-auto max-w-3xl">
-      <h1 className="font-display text-2xl">Edit case study</h1>
+      <h1 className="font-display text-2xl">Edit build log entry</h1>
       <div className="mt-6">
-        <CaseStudyForm caseStudy={caseStudy} />
+        <BuildLogForm caseStudy={caseStudy} />
       </div>
     </div>
   );

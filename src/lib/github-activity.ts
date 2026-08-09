@@ -1,4 +1,5 @@
 import "server-only";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type RepoCommit = { repo: string; message: string; date: string };
 
@@ -34,4 +35,21 @@ export async function fetchRecentCommits(repoUrl: string, sinceIso: string): Pro
     message: c.commit.message.split("\n")[0],
     date: c.commit.author.date,
   }));
+}
+
+// Raw, non-summarized commit list across every visible linked repo for the
+// last `days` — powers the Build log page's "What shipped this week"
+// section. Separate from the dev-log agent's draftDevLogWithAgent(), which
+// covers the same window but hands the commits to Claude to write a post;
+// this is a plain display of the same underlying activity, no LLM call.
+export async function getRecentShippedCommits(days = 7): Promise<RepoCommit[]> {
+  const supabase = createAdminClient();
+  const { data: links } = await supabase.from("github_links").select("url").eq("visible", true);
+
+  const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+  const commitLists = await Promise.all(
+    (links ?? []).map((l) => fetchRecentCommits(l.url, since))
+  );
+
+  return commitLists.flat().sort((a, b) => b.date.localeCompare(a.date));
 }

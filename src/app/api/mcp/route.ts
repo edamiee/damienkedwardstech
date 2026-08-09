@@ -10,7 +10,7 @@ import { ADMIN_AGENT_TOOLS, executeAdminAgentTool } from "@/lib/admin-agent-tool
 // tools any MCP-speaking client can use.
 //
 // Two tiers, gated by whether the request carries a valid bearer token:
-//   - Public (always registered): search_content, get_case_study_stats,
+//   - Public (always registered): search_content, get_build_log_stats,
 //     get_availability — read-only, safe for any MCP client to call.
 //   - Admin (only registered when Authorization: Bearer <ADMIN_API_SECRET>
 //     is present and correct): the same curated write tools already used by
@@ -49,7 +49,7 @@ const factory: McpServerFactory = async (ctx) => {
     {
       title: "Search site content",
       description:
-        "Semantic search over everything published on damienkedwards.tech — posts, papers, case studies, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
+        "Semantic search over everything published on damienkedwards.tech — posts, papers, build log entries, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
       inputSchema: z.object({ query: z.string().describe("What to search for, in natural language.") }),
     },
     async ({ query }) => {
@@ -65,11 +65,11 @@ const factory: McpServerFactory = async (ctx) => {
   );
 
   server.registerTool(
-    "get_case_study_stats",
+    "get_build_log_stats",
     {
-      title: "Get case study stats",
+      title: "Get build log stats",
       description:
-        "Get the measurable outcome stats for one of Damien's case studies by its slug (slugs appear at the end of a case study URL, e.g. /case-studies/site-agent -> slug 'site-agent').",
+        "Get the measurable outcome stats for one of Damien's build log entries by its slug (slugs appear at the end of a build log URL, e.g. /build-log/site-agent -> slug 'site-agent').",
       inputSchema: z.object({ slug: z.string() }),
     },
     async ({ slug }) => {
@@ -81,7 +81,7 @@ const factory: McpServerFactory = async (ctx) => {
         .eq("published", true)
         .maybeSingle();
       const stats = (data?.stats ?? []) as { value: string; label: string }[];
-      const text = stats.length === 0 ? "No stats recorded for that case study." : stats.map((s) => `${s.value} ${s.label}`).join("; ");
+      const text = stats.length === 0 ? "No stats recorded for that build log entry." : stats.map((s) => `${s.value} ${s.label}`).join("; ");
       return { content: [{ type: "text", text }] };
     }
   );

@@ -68,10 +68,10 @@ const spec = {
         },
         required: ["type", "title", "url"],
       },
-      CaseStudyPayload: {
+      BuildLogPayload: {
         type: "object",
         properties: {
-          type: { const: "case_study" },
+          type: { const: "build_log", description: "\"case_study\" is also accepted as a legacy alias." },
           title: { type: "string" },
           summary: { type: "string" },
           problem: { type: "string" },
@@ -170,7 +170,7 @@ const spec = {
                 oneOf: [
                   { $ref: "#/components/schemas/PostPayload" },
                   { $ref: "#/components/schemas/PaperPayload" },
-                  { $ref: "#/components/schemas/CaseStudyPayload" },
+                  { $ref: "#/components/schemas/BuildLogPayload" },
                   { $ref: "#/components/schemas/SiteContentPayload" },
                   { $ref: "#/components/schemas/NavLinkPayload" },
                   { $ref: "#/components/schemas/ServicePayload" },
@@ -195,7 +195,7 @@ const spec = {
       post: {
         summary: "Ask the site's RAG chat widget a question",
         description:
-          "Public, rate-limited to 15 requests/60s per IP. Answers are grounded in published content plus a few tools (availability, case-study stats, and notifying the site owner on the visitor's behalf).",
+          "Public, rate-limited to 15 requests/60s per IP. Answers are grounded in published content plus a few tools (availability, build-log stats, and notifying the site owner on the visitor's behalf).",
         requestBody: {
           required: true,
           content: {
@@ -267,8 +267,8 @@ const spec = {
     "/feed.xml": {
       get: { summary: "RSS 2.0 feed of published posts", responses: { "200": { description: "RSS XML", content: { "application/rss+xml": {} } } } },
     },
-    "/case-studies/feed.xml": {
-      get: { summary: "RSS 2.0 feed of published case studies", responses: { "200": { description: "RSS XML", content: { "application/rss+xml": {} } } } },
+    "/build-log/feed.xml": {
+      get: { summary: "RSS 2.0 feed of the build log", responses: { "200": { description: "RSS XML", content: { "application/rss+xml": {} } } } },
     },
     "/llms.txt": {
       get: { summary: "Plain-text content map for AI agents/crawlers", responses: { "200": { description: "Plain text", content: { "text/plain": {} } } } },
@@ -277,7 +277,7 @@ const spec = {
       post: {
         summary: "MCP server (Streamable HTTP) — tools for this site",
         description:
-          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_case_study_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) require an adminBearer token, and are absent from tools/list entirely when it's missing or wrong. See docs/API.md for client setup (Claude Desktop, Claude Code, etc.).",
+          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) require an adminBearer token, and are absent from tools/list entirely when it's missing or wrong. See docs/API.md for client setup (Claude Desktop, Claude Code, etc.).",
         responses: { "200": { description: "JSON-RPC 2.0 response (MCP protocol), streamed as text/event-stream." } },
       },
     },

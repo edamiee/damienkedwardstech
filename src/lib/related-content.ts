@@ -12,7 +12,7 @@ export type RelatedItem = {
 // match_related_content RPC (migration 0009). Fails soft — an unbuilt or
 // stale chat index just means no related section renders, not a broken page.
 export async function getRelatedContent(
-  sourceType: "post" | "case_study",
+  sourceType: "post" | "build_log",
   sourceId: string,
   count = 3
 ): Promise<RelatedItem[]> {

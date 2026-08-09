@@ -13,9 +13,8 @@ function escapeXml(value: string): string {
     .replace(/'/g, "&apos;");
 }
 
-// RSS 2.0 feed of published case studies — separate from /feed.xml (posts)
-// since they're a distinct content type someone might want to follow on
-// their own.
+// RSS 2.0 feed of the build log — separate from /feed.xml (posts) since
+// it's a distinct content type someone might want to follow on its own.
 export async function GET() {
   const supabase = createAdminClient();
   const content = await getSiteContent();
@@ -30,7 +29,7 @@ export async function GET() {
 
   const items = (caseStudies ?? [])
     .map((cs) => {
-      const link = `${BASE_URL}/case-studies/${cs.slug}`;
+      const link = `${BASE_URL}/build-log/${cs.slug}`;
       const pubDate = cs.published_at ? new Date(cs.published_at).toUTCString() : undefined;
       return `  <item>
     <title>${escapeXml(cs.title)}</title>
@@ -45,8 +44,8 @@ export async function GET() {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
 <channel>
-  <title>${escapeXml(content.site_name)} — Case studies</title>
-  <link>${BASE_URL}/case-studies</link>
+  <title>${escapeXml(content.site_name)} — Build log</title>
+  <link>${BASE_URL}/build-log</link>
   <description>${escapeXml(content.home_subheading)}</description>
   <language>en-us</language>
 ${items}

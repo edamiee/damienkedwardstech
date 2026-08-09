@@ -10,10 +10,10 @@ export const revalidate = 60;
 const SELECT =
   "id, title, summary, problem, approach, outcome, stack, stats, project_url, published_at, published, preview_token";
 
-export default async function CaseStudyPage({
+export default async function BuildLogEntryPage({
   params,
   searchParams,
-}: PageProps<"/case-studies/[slug]">) {
+}: PageProps<"/build-log/[slug]">) {
   const { slug } = await params;
   const { preview } = await searchParams;
   const supabase = await createClient();
@@ -42,7 +42,7 @@ export default async function CaseStudyPage({
 
   if (!cs) notFound();
 
-  const related = isPreview ? [] : await getRelatedContent("case_study", cs.id);
+  const related = isPreview ? [] : await getRelatedContent("build_log", cs.id);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -50,7 +50,7 @@ export default async function CaseStudyPage({
     name: cs.title,
     description: cs.summary ?? undefined,
     datePublished: cs.published_at ?? undefined,
-    url: `https://damienkedwards.tech/case-studies/${slug}`,
+    url: `https://damienkedwards.tech/build-log/${slug}`,
     author: { "@type": "Person", name: "Damien Edwards" },
   };
 

@@ -29,14 +29,14 @@ Body shape depends on `"type"`:
 |---|---|---|---|
 | `post` | `posts` (by slug, derived from `title`) | `title` | `body_markdown` required. `cover_image_url` optional (must already be hosted — this endpoint doesn't accept file uploads). `tags: string[]` optional. `reading_minutes` computed automatically. `publish_at` (ISO timestamp) optionally delays visibility until that time. `series` + `series_order` optionally group multi-part posts. `source` defaults to `"agent"` — set to `"hermes"`/`"agent"` so the homepage's agent-activity line picks it up. |
 | `paper` | `papers` (by slug) | `title` | `url` required (external link, not hosted). |
-| `case_study` | `case_studies` (by slug) | `title` | `project_url` optional — omit for internal work with nothing public to link to. `stats: [{value, label}]` optional, renders as pull-quote callouts. `publish_at`/`source` work the same as on posts. |
+| `build_log` | `case_studies` (by slug) | `title` | `project_url` optional — omit for internal work with nothing public to link to. `stats: [{value, label}]` optional, renders as pull-quote callouts. `publish_at`/`source` work the same as on posts. `"case_study"` is accepted as a legacy alias for `"build_log"`. |
 | `site_content` | `site_content` (by key) | `key` | See [Site content keys](#site-content-keys) below. |
 | `nav_link` | `nav_links` (by `id` if given, else insert) | `id` \| new | `label`, `href`, `sort_order`, `visible`. |
 | `service` | `home_services` (by `id` if given, else insert) | `id` \| new | `title`, `body` (card description), `sort_order`, `visible`. |
 | `project` | `site_projects` (by slug from `name`, or `id`) | `id` \| new | `name`, `url`, `description`, `image_url`, `visible`. This is the *gated* projects list — always a teaser, never fully indexed for chat. |
 | `github_link` | `github_links` (by `id` if given, else insert) | `id` \| new | `label`, `url`, `sort_order`, `visible`. Shown on the gated `/projects` page. |
 
-Response: `{ post: {...} }` / `{ case_study: {...} }` / etc. — the upserted
+Response: `{ post: {...} }` / `{ build_log: {...} }` / etc. — the upserted
 row. Errors return `{ error: "..." }` with a 4xx/5xx status.
 
 **Rate limit:** 60 requests/minute, global (not per-IP — every call shares
@@ -105,7 +105,7 @@ tools are absent from discovery entirely.
 
 | Tier | Tools | Notes |
 |---|---|---|
-| Public (always available) | `search_content`, `get_case_study_stats`, `get_availability` | Read-only, safe for any client |
+| Public (always available) | `search_content`, `get_build_log_stats`, `get_availability` | Read-only, safe for any client |
 | Admin (bearer-gated) | `list_site_content`, `update_site_content`, `add_testimonial`, `add_service` | Same tool set + executor as the Telegram admin agent (`src/lib/admin-agent-tools.ts`); writes logged to `content_audit_log` with source `"mcp_agent"` |
 
 Built with `@modelcontextprotocol/server` v2 (`createMcpHandler` +
@@ -180,8 +180,8 @@ curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://damienkedwards.
 ### `POST /api/chat`
 
 The visitor-facing chat widget. RAG over published content (posts, papers,
-case studies, gated-project teasers) via pgvector, plus three tools Claude
-can call mid-conversation: `get_availability`, `get_case_study_stats`,
+build log entries, gated-project teasers) via pgvector, plus three tools
+Claude can call mid-conversation: `get_availability`, `get_build_log_stats`,
 `notify_damien` (writes to `contact_messages`, best-effort emails a
 notification).
 
@@ -230,13 +230,13 @@ All of these are unauthenticated `GET` requests with no request body.
 | Route | Returns |
 |---|---|
 | `/feed.xml` | RSS 2.0 of published posts (≤50, newest first) |
-| `/case-studies/feed.xml` | RSS 2.0 of published case studies (≤50, newest first) |
-| `/llms.txt` | Plain-text site map for AI agents/crawlers — posts, case studies, papers, contact info |
+| `/build-log/feed.xml` | RSS 2.0 of the build log (≤50, newest first) |
+| `/llms.txt` | Plain-text site map for AI agents/crawlers — posts, build log, papers, contact info |
 | `/sitemap.xml` | Standard XML sitemap (Next.js `sitemap.ts`) |
 | `/robots.txt` | Standard robots file |
-| `/opengraph-image`, `/writing/[slug]/opengraph-image`, `/case-studies/[slug]/opengraph-image` | Dynamically generated 1200×630 OG images (`next/og`) |
+| `/opengraph-image`, `/writing/[slug]/opengraph-image`, `/build-log/[slug]/opengraph-image` | Dynamically generated 1200×630 OG images (`next/og`) |
 
-All of the above respect scheduled publishing — a post/case study with a
+All of the above respect scheduled publishing — a post/build-log entry with a
 future `publish_at` won't appear in any of them until that time.
 
 ---

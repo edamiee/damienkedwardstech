@@ -41,7 +41,7 @@ export async function runContentHealthCheck(): Promise<HealthIssue[]> {
         type: "Broken link",
         title: cs.title,
         detail: `Project link didn't respond OK: ${cs.project_url}`,
-        href: `/admin/case-studies/${cs.id}`,
+        href: `/admin/build-log/${cs.id}`,
       });
     }
   });
@@ -52,7 +52,7 @@ export async function runContentHealthCheck(): Promise<HealthIssue[]> {
         type: "No impact stats",
         title: cs.title,
         detail: "No stats recorded — consider adding a pull-quote number.",
-        href: `/admin/case-studies/${cs.id}`,
+        href: `/admin/build-log/${cs.id}`,
       });
     }
   }

@@ -21,7 +21,7 @@ export type SearchResult = {
 const KIND_LABELS: Record<string, string> = {
   post: "Post",
   paper: "Document",
-  case_study: "Case study",
+  build_log: "Build log",
   project: "Gated project",
 };
 

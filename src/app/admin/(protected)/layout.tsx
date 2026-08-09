@@ -38,7 +38,7 @@ export default async function ProtectedAdminLayout({
     { href: "/admin", label: "Dashboard" },
     { href: "/admin/content", label: "Site content" },
     { href: "/admin/posts", label: "Posts" },
-    { href: "/admin/case-studies", label: "Case studies" },
+    { href: "/admin/build-log", label: "Build log" },
     { href: "/admin/papers", label: "Writing / docs" },
     { href: "/admin/nav", label: "Navigation" },
     { href: "/admin/services", label: '"What I do"' },

@@ -46,10 +46,10 @@ export async function GET() {
   if (!posts?.length) lines.push("(nothing published yet)");
   lines.push("");
 
-  lines.push("## Case studies");
+  lines.push("## Build log");
   for (const cs of caseStudies ?? []) {
     const desc = cs.summary ? ` — ${cs.summary}` : "";
-    lines.push(`- [${cs.title}](${BASE_URL}/case-studies/${cs.slug})${desc}`);
+    lines.push(`- [${cs.title}](${BASE_URL}/build-log/${cs.slug})${desc}`);
   }
   if (!caseStudies?.length) lines.push("(nothing published yet)");
   lines.push("");

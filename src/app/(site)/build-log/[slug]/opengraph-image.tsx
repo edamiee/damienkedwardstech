@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { liveFilter } from "@/lib/publish-filter";
 
-export const alt = "Case study";
+export const alt = "Build log";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -17,7 +17,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     .or(liveFilter())
     .maybeSingle();
 
-  const title = cs?.title ?? "Case study";
+  const title = cs?.title ?? "Build log";
 
   return new ImageResponse(
     (
@@ -44,7 +44,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
               display: "flex",
             }}
           >
-            Case study
+            Build log
           </div>
         </div>
         <div

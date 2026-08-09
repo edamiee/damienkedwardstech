@@ -8,7 +8,7 @@ const STATIC_PAGES: SiteIndexItem[] = [
   { id: "page-home", title: "Home", href: "/", kind: "Page" },
   { id: "page-about", title: "About", href: "/about", kind: "Page" },
   { id: "page-writing", title: "Writing", href: "/writing", kind: "Page" },
-  { id: "page-case-studies", title: "Case studies", href: "/case-studies", kind: "Page" },
+  { id: "page-build-log", title: "Build log", href: "/build-log", kind: "Page" },
   { id: "page-projects", title: "Projects (sign in)", href: "/projects", kind: "Page" },
   { id: "page-newsletter", title: "Newsletter archive", href: "/newsletter", kind: "Page" },
   { id: "page-contact", title: "Contact", href: "/contact", kind: "Page" },
@@ -41,8 +41,8 @@ export const getSiteIndex = cache(async (): Promise<SiteIndexItem[]> => {
     ...(caseStudies ?? []).map((c) => ({
       id: `cs-${c.id}`,
       title: c.title,
-      href: `/case-studies/${c.slug}`,
-      kind: "Case study",
+      href: `/build-log/${c.slug}`,
+      kind: "Build log",
     })),
     ...(papers ?? []).map((p) => ({
       id: `paper-${p.id}`,

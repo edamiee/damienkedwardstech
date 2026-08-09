@@ -33,11 +33,12 @@ import { logContentChange } from "@/lib/audit-log";
 //   "published": true }
 //   -> upserts public.papers by slug (derived from title)
 //
-// { "type": "case_study", "title": "...", "summary": "...", "problem": "...",
+// { "type": "build_log", "title": "...", "summary": "...", "problem": "...",
 //   "approach": "...", "outcome": "...", "stack": "...", "project_url": "...",
 //   "stats": [{"value": "40%", "label": "faster ingestion"}],
 //   "published": true, "source": "hermes" }
-//   -> upserts public.case_studies by slug (derived from title).
+//   -> upserts public.case_studies by slug (derived from title). "case_study"
+//      is still accepted as a legacy alias for "build_log".
 //      project_url is optional — omit it for work with nothing public to
 //      link to (e.g. an internal agent or tool). "stats" is optional
 //      (defaults to none) and renders as pull-quote callouts. "publish_at"
@@ -298,11 +299,13 @@ export async function POST(request: NextRequest) {
 
   const { title, published = false } = body;
 
-  if (!title || (type !== "post" && type !== "paper" && type !== "case_study")) {
+  // "case_study" is accepted as a legacy alias for "build_log" — same
+  // table, same shape, just the old wire name from before the rename.
+  if (!title || (type !== "post" && type !== "paper" && type !== "build_log" && type !== "case_study")) {
     return NextResponse.json(
       {
         error:
-          "type must be one of 'post', 'paper', 'case_study', 'site_content', 'nav_link', 'service', 'project', 'github_link'",
+          "type must be one of 'post', 'paper', 'build_log', 'site_content', 'nav_link', 'service', 'project', 'github_link'",
       },
       { status: 400 }
     );
@@ -415,11 +418,11 @@ export async function POST(request: NextRequest) {
 
   await logContentChange({
     source: "site_agent",
-    action: "case_study.upsert",
-    entity_type: "case_study",
+    action: "build_log.upsert",
+    entity_type: "build_log",
     entity_id: data?.id ?? null,
     summary: `Upserted "${title}"${published ? " (published)" : " (draft)"}`,
   });
 
-  return NextResponse.json({ case_study: data });
+  return NextResponse.json({ build_log: data });
 }

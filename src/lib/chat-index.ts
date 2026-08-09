@@ -5,7 +5,7 @@ import { chunkText } from "@/lib/chunk-text";
 import { liveFilter } from "@/lib/publish-filter";
 
 type EmbeddingRow = {
-  source_type: "post" | "paper" | "case_study" | "project";
+  source_type: "post" | "paper" | "build_log" | "project";
   source_id: string;
   title: string;
   url_path: string;
@@ -70,10 +70,10 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
     const text = [cs.summary, cs.problem, cs.approach, cs.outcome].filter(Boolean).join("\n\n");
     for (const chunk of chunkText(text)) {
       rows.push({
-        source_type: "case_study",
+        source_type: "build_log",
         source_id: cs.id,
         title: cs.title,
-        url_path: `/case-studies/${cs.slug}`,
+        url_path: `/build-log/${cs.slug}`,
         chunk_text: chunk,
       });
     }

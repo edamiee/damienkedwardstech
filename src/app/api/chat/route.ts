@@ -6,7 +6,7 @@ import { runClaudeToolLoop, type ToolDefinition } from "@/lib/anthropic";
 import { getSiteContent } from "@/lib/site-content";
 import { saveContactMessage } from "@/lib/contact-notify";
 
-const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and case studies using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, case studies, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_case_study_stats if asked about measurable results from a specific case study, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
+const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and build log using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, build log entries, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_build_log_stats if asked about measurable results from a specific build log entry, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
 
 // Naive in-memory per-IP rate limit — resets on cold start and isn't
 // shared across serverless instances, but it's enough to stop a runaway
@@ -38,9 +38,9 @@ const CHAT_TOOLS: ToolDefinition[] = [
     input_schema: { type: "object", properties: {} },
   },
   {
-    name: "get_case_study_stats",
+    name: "get_build_log_stats",
     description:
-      "Get the measurable outcome stats for a specific case study by its slug (slugs appear in the CONTEXT sources' URLs, e.g. /case-studies/site-agent -> slug 'site-agent').",
+      "Get the measurable outcome stats for a specific build log entry by its slug (slugs appear in the CONTEXT sources' URLs, e.g. /build-log/site-agent -> slug 'site-agent').",
     input_schema: {
       type: "object",
       properties: { slug: { type: "string" } },
@@ -73,7 +73,7 @@ async function executeChatTool(
     return `Now: ${content.now_line || "no status set"}. Contact: ${content.contact_email}.`;
   }
 
-  if (name === "get_case_study_stats") {
+  if (name === "get_build_log_stats") {
     const slug = String(input.slug ?? "").trim();
     const { data } = await supabase
       .from("case_studies")
@@ -82,7 +82,7 @@ async function executeChatTool(
       .eq("published", true)
       .maybeSingle();
     const stats = (data?.stats ?? []) as { value: string; label: string }[];
-    if (stats.length === 0) return "No stats recorded for that case study.";
+    if (stats.length === 0) return "No stats recorded for that build log entry.";
     return stats.map((s) => `${s.value} ${s.label}`).join("; ");
   }
 

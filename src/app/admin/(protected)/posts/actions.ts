@@ -4,6 +4,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
 import { computeReadingMinutes } from "@/lib/reading-time";
+import { callClaudeWithWebSearch } from "@/lib/anthropic";
+import { parseAgentDraft, saveAgentDraftPost } from "@/lib/agent-draft";
 
 function slugify(title: string) {
   return title
@@ -56,6 +58,65 @@ export async function savePost(formData: FormData) {
   revalidatePath("/admin/posts");
   revalidatePath("/writing");
   redirect("/admin/posts");
+}
+
+// Human-in-the-loop research agent: researches the given topic via web
+// search and drafts a full post, saved unpublished so nothing goes out
+// under Damien's name without review. Redirects into the normal editor
+// (with its existing preview-link/publish flow) rather than auto-publishing.
+export async function draftPostWithAgent(formData: FormData) {
+  const admin = await requireAdmin();
+  if (!admin) throw new Error("Not authorized");
+
+  const topic = String(formData.get("topic") ?? "").trim();
+  if (!topic) {
+    redirect(`/admin/posts?agent_error=${encodeURIComponent("Enter a topic first.")}`);
+  }
+
+  const { data: existing } = await admin.supabase
+    .from("posts")
+    .select("title")
+    .order("published_at", { ascending: false })
+    .limit(20);
+  const existingTitles = (existing ?? []).map((p) => p.title).join("; ") || "(none yet)";
+
+  const system = `You are drafting a blog post for damienkedwards.tech, an AI & data engineer's professional site. Write in a plain, direct, technically credible voice — no hype, no marketing fluff, no emoji. Research the given topic using web search, then respond with EXACTLY this format and nothing else — no preamble, and never use XML/HTML citation tags like <cite> anywhere in the output, write cited facts as plain prose instead:
+
+TITLE: <title>
+EXCERPT: <one sentence>
+TAGS: <2-4 lowercase tags, comma-separated>
+BODY:
+<400-800 words of markdown body using ## subheadings, no leading title heading since the title is separate, no "Sources" section — that's appended separately>
+
+Avoid topics already covered here: ${existingTitles}.`;
+
+  let errorMessage: string | null = null;
+  let draft = null as ReturnType<typeof parseAgentDraft> | null;
+  let sources: { url: string; title: string }[] = [];
+
+  try {
+    const result = await callClaudeWithWebSearch(system, `Topic: ${topic}`, 4096, 5);
+    draft = parseAgentDraft(result.text);
+    sources = result.sources;
+  } catch (err) {
+    errorMessage = err instanceof Error ? err.message : "Draft failed.";
+  }
+
+  if (errorMessage || !draft) {
+    redirect(`/admin/posts?agent_error=${encodeURIComponent(errorMessage ?? "Draft failed.")}`);
+  }
+
+  if (sources.length > 0) {
+    draft.body_markdown += `\n\n## Sources\n${sources.map((s) => `- [${s.title}](${s.url})`).join("\n")}`;
+  }
+
+  const inserted = await saveAgentDraftPost(admin.supabase, draft);
+  if (!inserted) {
+    redirect(`/admin/posts?agent_error=${encodeURIComponent("Failed to save draft.")}`);
+  }
+
+  revalidatePath("/admin/posts");
+  redirect(`/admin/posts/${inserted.id}`);
 }
 
 export async function deletePost(formData: FormData) {

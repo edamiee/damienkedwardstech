@@ -1,7 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
-import { saveGithubLink, deleteGithubLink } from "./actions";
+import { saveGithubLink, deleteGithubLink, draftDevLogWithAgent } from "./actions";
 
-export default async function AdminGithubLinksPage() {
+export default async function AdminGithubLinksPage({
+  searchParams,
+}: PageProps<"/admin/github-links">) {
+  const { agent_error: agentError } = await searchParams;
   const supabase = await createClient();
   const { data: links } = await supabase
     .from("github_links")
@@ -18,6 +21,31 @@ export default async function AdminGithubLinksPage() {
         project write-up they belong to, or just a repo worth pointing
         signed-in visitors at.
       </p>
+
+      <form
+        action={draftDevLogWithAgent}
+        className="mt-6 flex flex-col gap-2 rounded-sm border border-dashed border-line p-3"
+      >
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-sm">
+            Have the agent draft a &quot;what I shipped this week&quot; post from
+            recent commits across these repos
+          </p>
+          <button
+            type="submit"
+            className="whitespace-nowrap rounded-sm border border-teal px-3 py-1.5 text-sm font-semibold text-teal"
+          >
+            Draft dev log
+          </button>
+        </div>
+        <p className="text-xs text-muted">
+          Saved as an unpublished draft for review — skips entirely if
+          there&apos;s no commit activity in the last 7 days.
+        </p>
+        {typeof agentError === "string" && (
+          <p className="text-xs text-rust">{agentError}</p>
+        )}
+      </form>
 
       <div className="mt-6 flex flex-col gap-3">
         {(links ?? []).map((link) => (

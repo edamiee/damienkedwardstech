@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { draftPostWithAgent } from "./actions";
 
-export default async function AdminPostsPage() {
+export default async function AdminPostsPage({ searchParams }: PageProps<"/admin/posts">) {
+  const { agent_error: agentError } = await searchParams;
   const supabase = await createClient();
   const { data: posts } = await supabase
     .from("posts")
@@ -19,6 +21,36 @@ export default async function AdminPostsPage() {
           New post
         </Link>
       </div>
+
+      <form
+        action={draftPostWithAgent}
+        className="mt-6 flex flex-col gap-2 rounded-sm border border-dashed border-line p-3"
+      >
+        <label className="flex flex-col gap-1.5 text-sm">
+          Have the agent research and draft a post
+          <div className="flex flex-wrap gap-2">
+            <input
+              name="topic"
+              required
+              placeholder="e.g. vector database indexing tradeoffs"
+              className="flex-1 min-w-[220px] rounded-sm border border-line bg-surface px-3 py-2 text-sm"
+            />
+            <button
+              type="submit"
+              className="rounded-sm border border-teal px-3 py-2 text-sm font-semibold text-teal"
+            >
+              Draft it
+            </button>
+          </div>
+        </label>
+        <p className="text-xs text-muted">
+          Researches the topic via web search and saves an unpublished draft
+          for you to review — nothing goes live automatically.
+        </p>
+        {typeof agentError === "string" && (
+          <p className="text-xs text-rust">{agentError}</p>
+        )}
+      </form>
 
       <ul className="mt-6 divide-y divide-line">
         {(posts ?? []).map((post) => (

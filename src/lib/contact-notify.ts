@@ -2,15 +2,18 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getSiteContent } from "@/lib/site-content";
 import { sendBatchEmails } from "@/lib/resend";
+import { sendTelegramMessage } from "@/lib/telegram";
 
 function escapeHtml(value: string): string {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-// Stores the message (the reliable part) and best-effort emails a
-// notification via Resend — quietly no-ops if it's not configured, so a
-// missing RESEND_API_KEY never blocks the message actually being saved.
-// Shared by the contact form and the chat widget's notify_damien tool.
+// Stores the message (the reliable part), then best-effort notifies via
+// Resend email and — for business inquiries specifically — a Telegram ping
+// to TELEGRAM_ADMIN_CHAT_ID. Each notification is independently optional:
+// a missing RESEND_API_KEY or TELEGRAM_BOT_TOKEN just skips that channel
+// rather than blocking the message from being saved. Shared by the contact
+// form and the chat widget's notify_damien tool.
 export async function saveContactMessage(
   supabase: SupabaseClient,
   {
@@ -42,16 +45,17 @@ export async function saveContactMessage(
   });
   if (error) return { error: error.message };
 
+  const details = [
+    projectType && `Project: ${projectType}`,
+    budgetRange && `Budget: ${budgetRange}`,
+    timeline && `Timeline: ${timeline}`,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   try {
     const content = await getSiteContent();
     if (process.env.RESEND_API_KEY && content.newsletter_from_email) {
-      const details = [
-        projectType && `Project: ${projectType}`,
-        budgetRange && `Budget: ${budgetRange}`,
-        timeline && `Timeline: ${timeline}`,
-      ]
-        .filter(Boolean)
-        .join(" · ");
       await sendBatchEmails([
         {
           from: content.newsletter_from_email,
@@ -65,6 +69,21 @@ export async function saveContactMessage(
     }
   } catch (err) {
     console.error("contact notification email failed", err);
+  }
+
+  if (source === "business_inquiry" && process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_ADMIN_CHAT_ID) {
+    try {
+      const text = [
+        `New business inquiry from ${name} (${email})`,
+        details,
+        message,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+      await sendTelegramMessage(process.env.TELEGRAM_ADMIN_CHAT_ID, text);
+    } catch (err) {
+      console.error("contact notification telegram ping failed", err);
+    }
   }
 
   return { error: null };

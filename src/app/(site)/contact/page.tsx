@@ -10,6 +10,11 @@ export default async function ContactPage() {
       <p className="mt-4 max-w-[50ch] text-[15.5px] text-muted">
         {content.contact_intro}
       </p>
+      {content.now_line && (
+        <p className="mt-3 max-w-[50ch] text-sm text-teal">
+          <span className="font-semibold">Now:</span> {content.now_line}
+        </p>
+      )}
       <div className="mt-6 flex flex-wrap gap-4">
         <a
           href={`mailto:${content.contact_email}`}

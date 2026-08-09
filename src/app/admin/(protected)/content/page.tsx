@@ -327,7 +327,8 @@ export default async function AdminSiteContentPage() {
             <a href="/admin/contact-messages" className="text-teal hover:underline">
               /admin/contact-messages
             </a>
-            .
+            , and — if <code className="font-data">TELEGRAM_BOT_TOKEN</code> is
+            configured — also pinged straight to your Telegram admin chat.
           </p>
         </fieldset>
 

@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 import { computeReadingMinutes } from "@/lib/reading-time";
+import { logContentChange } from "@/lib/audit-log";
 
 // Remote content endpoint — for the Hermes agent (or any authenticated
 // script/agent) to update the site without going through the /admin UI.
@@ -84,11 +85,34 @@ function slugify(title: string) {
     .replace(/(^-|-$)/g, "");
 }
 
+// Global (not per-IP) rate limit — every call carries the same one secret,
+// so the meaningful axis to bound is total write volume, not source
+// address, which a script holding a leaked secret could rotate anyway.
+// Resets on cold start; the goal is capping blast radius, not perfect
+// accounting.
+const RATE_LIMIT = 60; // requests
+const RATE_WINDOW_MS = 60_000;
+let requestTimestamps: number[] = [];
+
+function isRateLimited(): boolean {
+  const now = Date.now();
+  requestTimestamps = requestTimestamps.filter((t) => now - t < RATE_WINDOW_MS);
+  requestTimestamps.push(now);
+  return requestTimestamps.length > RATE_LIMIT;
+}
+
 export async function POST(request: NextRequest) {
   const secret = process.env.ADMIN_API_SECRET;
   const authHeader = request.headers.get("authorization");
   if (!secret || authHeader !== `Bearer ${secret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  if (isRateLimited()) {
+    return NextResponse.json(
+      { error: "Too many requests — try again in a minute." },
+      { status: 429 }
+    );
   }
 
   const body = await request.json();
@@ -117,6 +141,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: "site_content.update",
+      entity_type: "site_content",
+      entity_id: key,
+      summary: `Updated ${key}`,
+    });
+
     return NextResponse.json({ site_content: data });
   }
 
@@ -142,6 +175,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await query.select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: id ? "nav_link.update" : "nav_link.create",
+      entity_type: "nav_link",
+      entity_id: data?.id ?? null,
+      summary: `${id ? "Updated" : "Added"} nav link "${data?.label}"`,
+    });
+
     return NextResponse.json({ nav_link: data });
   }
 
@@ -167,6 +209,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await query.select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: id ? "github_link.update" : "github_link.create",
+      entity_type: "github_link",
+      entity_id: data?.id ?? null,
+      summary: `${id ? "Updated" : "Added"} GitHub link "${data?.label}"`,
+    });
+
     return NextResponse.json({ github_link: data });
   }
 
@@ -192,6 +243,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await query.select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: id ? "service.update" : "service.create",
+      entity_type: "service",
+      entity_id: data?.id ?? null,
+      summary: `${id ? "Updated" : "Added"} service card "${data?.title}"`,
+    });
+
     return NextResponse.json({ service: data });
   }
 
@@ -224,6 +284,15 @@ export async function POST(request: NextRequest) {
     const { data, error } = await query.select().single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: id ? "project.update" : "project.create",
+      entity_type: "project",
+      entity_id: data?.id ?? null,
+      summary: `${id ? "Updated" : "Added"} gated project "${data?.name}"`,
+    });
+
     return NextResponse.json({ project: data });
   }
 
@@ -273,6 +342,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: "post.upsert",
+      entity_type: "post",
+      entity_id: data?.id ?? null,
+      summary: `Upserted "${title}"${published ? " (published)" : " (draft)"}`,
+    });
+
     return NextResponse.json({ post: data });
   }
 
@@ -297,6 +375,15 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+    await logContentChange({
+      source: "site_agent",
+      action: "paper.upsert",
+      entity_type: "paper",
+      entity_id: data?.id ?? null,
+      summary: `Upserted "${title}"${published ? " (published)" : " (draft)"}`,
+    });
+
     return NextResponse.json({ paper: data });
   }
 
@@ -325,5 +412,14 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  await logContentChange({
+    source: "site_agent",
+    action: "case_study.upsert",
+    entity_type: "case_study",
+    entity_id: data?.id ?? null,
+    summary: `Upserted "${title}"${published ? " (published)" : " (draft)"}`,
+  });
+
   return NextResponse.json({ case_study: data });
 }

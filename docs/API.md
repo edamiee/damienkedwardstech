@@ -4,6 +4,12 @@ All routes are relative to `https://damienkedwards.tech`. Anything under
 `/api/admin/*` or `/api/telegram/*` is authenticated — everything else is
 public.
 
+A machine-readable version of the write-side of this doc (everything under
+[Content publishing](#content-publishing)) is published at
+[`/openapi.json`](https://damienkedwards.tech/openapi.json) — the same
+relationship `/llms.txt` has to the site's actual content, but for actions
+instead of pages.
+
 ---
 
 ## Content publishing
@@ -32,6 +38,12 @@ Body shape depends on `"type"`:
 
 Response: `{ post: {...} }` / `{ case_study: {...} }` / etc. — the upserted
 row. Errors return `{ error: "..." }` with a 4xx/5xx status.
+
+**Rate limit:** 60 requests/minute, global (not per-IP — every call shares
+the one secret, so total volume is the meaningful thing to bound). Returns
+429 once exceeded. Every successful write is also recorded in
+`content_audit_log` (source `"site_agent"`), viewable at
+[Admin → Audit log](/admin/audit-log).
 
 #### Site content keys
 

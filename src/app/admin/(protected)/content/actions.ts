@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
 import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
 import { generateWeeklyInsight, saveWeeklyInsight } from "@/lib/weekly-insight";
+import { logContentChange } from "@/lib/audit-log";
 
 function revalidatePublicPages() {
   revalidatePath("/admin/content");
@@ -40,6 +41,14 @@ export async function saveSiteContent(formData: FormData) {
 
   await admin.supabase.from("site_content").upsert(rows, { onConflict: "key" });
 
+  await logContentChange({
+    source: "admin_ui",
+    action: "site_content.update",
+    entity_type: "site_content",
+    entity_id: null,
+    summary: "Updated site content via admin form",
+  });
+
   revalidatePublicPages();
 }
 
@@ -49,6 +58,14 @@ export async function regenerateWeeklyInsight() {
 
   const insight = await generateWeeklyInsight();
   await saveWeeklyInsight(admin.supabase, insight);
+
+  await logContentChange({
+    source: "admin_ui",
+    action: "site_content.update",
+    entity_type: "site_content",
+    entity_id: "weekly_ai_insight",
+    summary: "Regenerated the weekly AI note",
+  });
 
   revalidatePublicPages();
 }

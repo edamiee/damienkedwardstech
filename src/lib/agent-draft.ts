@@ -1,6 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { computeReadingMinutes } from "@/lib/reading-time";
+import { logContentChange, type AuditSource } from "@/lib/audit-log";
 
 export type AgentDraft = {
   title: string;
@@ -48,7 +49,8 @@ export function parseAgentDraft(text: string): AgentDraft {
 // human reviews and explicitly publishes it, nothing goes out on its own.
 export async function saveAgentDraftPost(
   supabase: SupabaseClient,
-  draft: AgentDraft
+  draft: AgentDraft,
+  auditSource: AuditSource
 ): Promise<{ id: string } | null> {
   const { data, error } = await supabase
     .from("posts")
@@ -67,5 +69,14 @@ export async function saveAgentDraftPost(
     .single();
 
   if (error || !data) return null;
+
+  await logContentChange({
+    source: auditSource,
+    action: "post.create",
+    entity_type: "post",
+    entity_id: data.id,
+    summary: `Drafted "${draft.title}" (unpublished)`,
+  });
+
   return data;
 }

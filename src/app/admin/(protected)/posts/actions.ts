@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/require-admin";
 import { computeReadingMinutes } from "@/lib/reading-time";
 import { callClaudeWithWebSearch } from "@/lib/anthropic";
 import { parseAgentDraft, saveAgentDraftPost } from "@/lib/agent-draft";
+import { logContentChange } from "@/lib/audit-log";
 
 function slugify(title: string) {
   return title
@@ -49,11 +50,21 @@ export async function savePost(formData: FormData) {
     updated_at: new Date().toISOString(),
   };
 
+  let postId = id;
   if (id) {
     await admin.supabase.from("posts").update(payload).eq("id", id);
   } else {
-    await admin.supabase.from("posts").insert(payload);
+    const { data } = await admin.supabase.from("posts").insert(payload).select("id").single();
+    postId = data?.id ?? null;
   }
+
+  await logContentChange({
+    source: "admin_ui",
+    action: id ? "post.update" : "post.create",
+    entity_type: "post",
+    entity_id: postId,
+    summary: `${id ? "Updated" : "Created"} "${title}"${published ? " (published)" : ""}`,
+  });
 
   revalidatePath("/admin/posts");
   revalidatePath("/writing");
@@ -110,7 +121,7 @@ Avoid topics already covered here: ${existingTitles}.`;
     draft.body_markdown += `\n\n## Sources\n${sources.map((s) => `- [${s.title}](${s.url})`).join("\n")}`;
   }
 
-  const inserted = await saveAgentDraftPost(admin.supabase, draft);
+  const inserted = await saveAgentDraftPost(admin.supabase, draft, "research_agent");
   if (!inserted) {
     redirect(`/admin/posts?agent_error=${encodeURIComponent("Failed to save draft.")}`);
   }
@@ -124,7 +135,20 @@ export async function deletePost(formData: FormData) {
   if (!admin) throw new Error("Not authorized");
 
   const id = formData.get("id") as string;
+  const { data: existing } = await admin.supabase
+    .from("posts")
+    .select("title")
+    .eq("id", id)
+    .maybeSingle();
   await admin.supabase.from("posts").delete().eq("id", id);
+
+  await logContentChange({
+    source: "admin_ui",
+    action: "post.delete",
+    entity_type: "post",
+    entity_id: id,
+    summary: `Deleted "${existing?.title ?? id}"`,
+  });
 
   revalidatePath("/admin/posts");
   revalidatePath("/writing");

@@ -2,6 +2,7 @@ import "server-only";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { ToolDefinition } from "@/lib/anthropic";
 import { SITE_CONTENT_DEFAULTS, type SiteContentKey } from "@/lib/site-content";
+import { logContentChange } from "@/lib/audit-log";
 
 const SITE_CONTENT_KEYS = Object.keys(SITE_CONTENT_DEFAULTS);
 
@@ -86,24 +87,59 @@ export async function executeAdminAgentTool(
         { key: key as SiteContentKey, value, updated_at: new Date().toISOString() },
         { onConflict: "key" }
       );
-    return error ? `Error: ${error.message}` : `Updated ${key}.`;
+    if (error) return `Error: ${error.message}`;
+
+    await logContentChange({
+      source: "telegram_agent",
+      action: "site_content.update",
+      entity_type: "site_content",
+      entity_id: key,
+      summary: `Updated ${key} via Telegram`,
+    });
+    return `Updated ${key}.`;
   }
 
   if (name === "add_testimonial") {
-    const { error } = await supabase.from("testimonials").insert({
-      author_name: input.author_name,
-      author_title: input.author_title || null,
-      quote: input.quote,
+    const { data, error } = await supabase
+      .from("testimonials")
+      .insert({
+        author_name: input.author_name,
+        author_title: input.author_title || null,
+        quote: input.quote,
+      })
+      .select("id")
+      .single();
+    if (error) return `Error: ${error.message}`;
+
+    await logContentChange({
+      source: "telegram_agent",
+      action: "testimonial.create",
+      entity_type: "testimonial",
+      entity_id: data?.id ?? null,
+      summary: `Added testimonial from ${input.author_name} via Telegram`,
     });
-    return error ? `Error: ${error.message}` : "Testimonial added.";
+    return "Testimonial added.";
   }
 
   if (name === "add_service") {
-    const { error } = await supabase.from("home_services").insert({
-      title: input.title,
-      body: input.body,
+    const { data, error } = await supabase
+      .from("home_services")
+      .insert({
+        title: input.title,
+        body: input.body,
+      })
+      .select("id")
+      .single();
+    if (error) return `Error: ${error.message}`;
+
+    await logContentChange({
+      source: "telegram_agent",
+      action: "service.create",
+      entity_type: "service",
+      entity_id: data?.id ?? null,
+      summary: `Added service card "${input.title}" via Telegram`,
     });
-    return error ? `Error: ${error.message}` : "Service card added.";
+    return "Service card added.";
   }
 
   return `Error: unknown tool "${name}".`;

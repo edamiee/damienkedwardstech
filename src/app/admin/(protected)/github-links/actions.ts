@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/require-admin";
 import { callClaude } from "@/lib/anthropic";
 import { parseAgentDraft, saveAgentDraftPost } from "@/lib/agent-draft";
 import { fetchRecentCommits } from "@/lib/github-activity";
+import { logContentChange } from "@/lib/audit-log";
 
 export async function saveGithubLink(formData: FormData) {
   const admin = await requireAdmin();
@@ -19,11 +20,25 @@ export async function saveGithubLink(formData: FormData) {
     visible: formData.get("visible") === "on",
   };
 
+  let linkId = id;
   if (id) {
     await admin.supabase.from("github_links").update(payload).eq("id", id);
   } else {
-    await admin.supabase.from("github_links").insert(payload);
+    const { data } = await admin.supabase
+      .from("github_links")
+      .insert(payload)
+      .select("id")
+      .single();
+    linkId = data?.id ?? null;
   }
+
+  await logContentChange({
+    source: "admin_ui",
+    action: id ? "github_link.update" : "github_link.create",
+    entity_type: "github_link",
+    entity_id: linkId,
+    summary: `${id ? "Updated" : "Added"} GitHub link "${payload.label}"`,
+  });
 
   revalidatePath("/admin/github-links");
   revalidatePath("/projects");
@@ -80,7 +95,7 @@ BODY:
     redirect(`/admin/github-links?agent_error=${encodeURIComponent(errorMessage ?? "Draft failed.")}`);
   }
 
-  const inserted = await saveAgentDraftPost(admin.supabase, draft);
+  const inserted = await saveAgentDraftPost(admin.supabase, draft, "dev_log_agent");
   if (!inserted) {
     redirect(`/admin/github-links?agent_error=${encodeURIComponent("Failed to save draft.")}`);
   }
@@ -94,7 +109,20 @@ export async function deleteGithubLink(formData: FormData) {
   if (!admin) throw new Error("Not authorized");
 
   const id = formData.get("id") as string;
+  const { data: existing } = await admin.supabase
+    .from("github_links")
+    .select("label")
+    .eq("id", id)
+    .maybeSingle();
   await admin.supabase.from("github_links").delete().eq("id", id);
+
+  await logContentChange({
+    source: "admin_ui",
+    action: "github_link.delete",
+    entity_type: "github_link",
+    entity_id: id,
+    summary: `Deleted GitHub link "${existing?.label ?? id}"`,
+  });
 
   revalidatePath("/admin/github-links");
   revalidatePath("/projects");

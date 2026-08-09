@@ -68,6 +68,7 @@ export async function GET() {
   lines.push(`- Contact page: ${BASE_URL}/contact`);
   lines.push("");
   lines.push(`Full site map: ${BASE_URL}/sitemap.xml`);
+  lines.push(`API spec (what an agent can *do* here, not just read): ${BASE_URL}/openapi.json`);
 
   return new Response(lines.join("\n"), {
     headers: { "content-type": "text/plain; charset=utf-8" },

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/require-admin";
 import { parseStats } from "@/lib/parse-stats";
+import { logContentChange } from "@/lib/audit-log";
 
 function slugify(title: string) {
   return title
@@ -38,11 +39,25 @@ export async function saveCaseStudy(formData: FormData) {
     updated_at: new Date().toISOString(),
   };
 
+  let caseStudyId = id;
   if (id) {
     await admin.supabase.from("case_studies").update(payload).eq("id", id);
   } else {
-    await admin.supabase.from("case_studies").insert(payload);
+    const { data } = await admin.supabase
+      .from("case_studies")
+      .insert(payload)
+      .select("id")
+      .single();
+    caseStudyId = data?.id ?? null;
   }
+
+  await logContentChange({
+    source: "admin_ui",
+    action: id ? "case_study.update" : "case_study.create",
+    entity_type: "case_study",
+    entity_id: caseStudyId,
+    summary: `${id ? "Updated" : "Created"} "${title}"${published ? " (published)" : ""}`,
+  });
 
   revalidatePath("/admin/case-studies");
   revalidatePath("/case-studies");
@@ -54,7 +69,20 @@ export async function deleteCaseStudy(formData: FormData) {
   if (!admin) throw new Error("Not authorized");
 
   const id = formData.get("id") as string;
+  const { data: existing } = await admin.supabase
+    .from("case_studies")
+    .select("title")
+    .eq("id", id)
+    .maybeSingle();
   await admin.supabase.from("case_studies").delete().eq("id", id);
+
+  await logContentChange({
+    source: "admin_ui",
+    action: "case_study.delete",
+    entity_type: "case_study",
+    entity_id: id,
+    summary: `Deleted "${existing?.title ?? id}"`,
+  });
 
   revalidatePath("/admin/case-studies");
   revalidatePath("/case-studies");

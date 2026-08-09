@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
+import { logContentChange } from "@/lib/audit-log";
 
 function slugify(name: string) {
   return name
@@ -30,11 +31,25 @@ export async function saveProject(formData: FormData) {
     visible,
   };
 
+  let projectId = id;
   if (id) {
     await admin.supabase.from("site_projects").update(payload).eq("id", id);
   } else {
-    await admin.supabase.from("site_projects").insert(payload);
+    const { data } = await admin.supabase
+      .from("site_projects")
+      .insert(payload)
+      .select("id")
+      .single();
+    projectId = data?.id ?? null;
   }
+
+  await logContentChange({
+    source: "admin_ui",
+    action: id ? "project.update" : "project.create",
+    entity_type: "project",
+    entity_id: projectId,
+    summary: `${id ? "Updated" : "Added"} gated project "${name}"`,
+  });
 
   revalidatePath("/admin/projects");
   revalidatePath("/projects");
@@ -45,7 +60,20 @@ export async function deleteProject(formData: FormData) {
   if (!admin) throw new Error("Not authorized");
 
   const id = formData.get("id") as string;
+  const { data: existing } = await admin.supabase
+    .from("site_projects")
+    .select("name")
+    .eq("id", id)
+    .maybeSingle();
   await admin.supabase.from("site_projects").delete().eq("id", id);
+
+  await logContentChange({
+    source: "admin_ui",
+    action: "project.delete",
+    entity_type: "project",
+    entity_id: id,
+    summary: `Deleted gated project "${existing?.name ?? id}"`,
+  });
 
   revalidatePath("/admin/projects");
   revalidatePath("/projects");

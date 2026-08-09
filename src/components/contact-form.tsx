@@ -19,6 +19,15 @@ export function ContactForm({
 
   return (
     <form action={formAction} className="mt-10 flex max-w-md flex-col gap-4">
+      {/* Honeypot — off-screen, never visible or reachable by a real
+          visitor. A bot that fills it out gets a fake success below. */}
+      <label
+        className="absolute left-[-9999px] top-auto h-px w-px overflow-hidden"
+        aria-hidden="true"
+      >
+        Leave this field blank
+        <input name="website" tabIndex={-1} autoComplete="off" />
+      </label>
       <label className="flex flex-col gap-1.5 text-sm">
         Name
         <input name="name" required className={SELECT_CLASS} />

@@ -239,7 +239,17 @@ notification).
 }
 
 // Response
-{ "answer": "...", "sources": [{ "title": "...", "url_path": "..." }] }
+{
+  "answer": "...",
+  "sources": [
+    {
+      "title": "...",
+      "url_path": "...",
+      "lastUpdatedBy": "Admin UI",   // optional — which write path last touched this content, per content_audit_log
+      "lastUpdatedAt": "2 days ago"  // optional — omitted alongside lastUpdatedBy if no audit-log entry exists
+    }
+  ]
+}
 ```
 
 Returns 404 if `chat_enabled` is `"false"` in site content; 429 if rate

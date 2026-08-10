@@ -5,7 +5,12 @@ import { useState, useRef, useEffect } from "react";
 type Message = {
   role: "user" | "assistant";
   text: string;
-  sources?: { title: string; url_path: string }[];
+  sources?: {
+    title: string;
+    url_path: string;
+    lastUpdatedBy?: string;
+    lastUpdatedAt?: string;
+  }[];
 };
 
 type ChatWidgetProps = {
@@ -89,15 +94,18 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
                   {m.text}
                 </span>
                 {m.sources && m.sources.length > 0 && (
-                  <div className="mt-1.5 flex flex-wrap gap-2">
+                  <div className="mt-1.5 flex flex-col items-start gap-1">
                     {m.sources.map((s) => (
-                      <a
-                        key={s.url_path}
-                        href={s.url_path}
-                        className="text-[11px] text-teal hover:underline"
-                      >
-                        {s.title} ↗
-                      </a>
+                      <div key={s.url_path} className="flex flex-wrap items-baseline gap-1.5">
+                        <a href={s.url_path} className="text-[11px] text-teal hover:underline">
+                          {s.title} ↗
+                        </a>
+                        {s.lastUpdatedBy && (
+                          <span className="text-[10px] text-muted">
+                            · last touched by {s.lastUpdatedBy} {s.lastUpdatedAt}
+                          </span>
+                        )}
+                      </div>
                     ))}
                   </div>
                 )}

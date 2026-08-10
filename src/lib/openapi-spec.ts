@@ -280,7 +280,12 @@ export const openApiSpec = {
                       type: "array",
                       items: {
                         type: "object",
-                        properties: { title: { type: "string" }, url_path: { type: "string" } },
+                        properties: {
+                          title: { type: "string" },
+                          url_path: { type: "string" },
+                          lastUpdatedBy: { type: "string", description: "Label of the write path that last touched this content (e.g. \"Admin UI\", \"Telegram agent\") — omitted if no audit-log entry is found." },
+                          lastUpdatedAt: { type: "string", description: "Relative time string (e.g. \"2 days ago\") — omitted alongside lastUpdatedBy." },
+                        },
                       },
                     },
                   },

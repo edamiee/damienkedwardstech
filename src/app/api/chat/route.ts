@@ -6,6 +6,8 @@ import { runClaudeToolLoop, type ToolDefinition } from "@/lib/anthropic";
 import { getSiteContent } from "@/lib/site-content";
 import { saveContactMessage } from "@/lib/contact-notify";
 import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
+import { AUDIT_SOURCE_LABELS, type AuditSource } from "@/lib/audit-log";
+import { formatRelativeTime } from "@/lib/format-relative-time";
 
 const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and build log using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, build log entries, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_build_log_stats if asked about measurable results from a specific build log entry, use get_github_activity if asked how active Damien currently is on GitHub or for his real commit/PR/issue numbers, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
 
@@ -26,11 +28,58 @@ function isRateLimited(ip: string): boolean {
 
 type MatchRow = {
   source_type: string;
+  source_id: string;
   title: string;
   url_path: string;
   chunk_text: string;
   similarity: number;
 };
+
+type ChatSource = {
+  title: string;
+  url_path: string;
+  lastUpdatedBy?: string;
+  lastUpdatedAt?: string;
+};
+
+// Looks up the most recent audit-log entry for each matched chunk's owning
+// row, so the widget can show which agent/path last touched the content an
+// answer is grounded in — the same provenance the /agent-activity page
+// surfaces, just scoped to what's actually relevant to this answer.
+async function attachProvenance(
+  supabase: SupabaseClient,
+  sources: (ChatSource & { source_type: string; source_id: string })[]
+): Promise<ChatSource[]> {
+  if (sources.length === 0) return [];
+
+  const entityTypes = [...new Set(sources.map((s) => s.source_type))];
+  const entityIds = [...new Set(sources.map((s) => s.source_id))];
+
+  const { data } = await supabase
+    .from("content_audit_log")
+    .select("source, entity_type, entity_id, created_at")
+    .in("entity_type", entityTypes)
+    .in("entity_id", entityIds)
+    .order("created_at", { ascending: false });
+
+  const latestBySource = new Map<string, { source: AuditSource; created_at: string }>();
+  for (const row of data ?? []) {
+    const key = `${row.entity_type}:${row.entity_id}`;
+    if (!latestBySource.has(key)) {
+      latestBySource.set(key, { source: row.source as AuditSource, created_at: row.created_at });
+    }
+  }
+
+  return sources.map(({ source_type, source_id, ...rest }) => {
+    const provenance = latestBySource.get(`${source_type}:${source_id}`);
+    if (!provenance) return rest;
+    return {
+      ...rest,
+      lastUpdatedBy: AUDIT_SOURCE_LABELS[provenance.source] ?? provenance.source,
+      lastUpdatedAt: formatRelativeTime(provenance.created_at),
+    };
+  });
+}
 
 const CHAT_TOOLS: ToolDefinition[] = [
   {
@@ -165,7 +214,7 @@ export async function POST(request: NextRequest) {
   const supabase = createAdminClient();
 
   let contextBlock = "(no matching content found)";
-  let sources: { title: string; url_path: string }[] = [];
+  let sources: ChatSource[] = [];
 
   try {
     const queryEmbedding = await embedOne(message, "query");
@@ -186,13 +235,21 @@ export async function POST(request: NextRequest) {
         .join("\n\n---\n\n");
 
       const seen = new Set<string>();
-      sources = matches
-        .filter((m) => {
-          if (seen.has(m.url_path)) return false;
-          seen.add(m.url_path);
-          return true;
-        })
-        .map((m) => ({ title: m.title, url_path: m.url_path }));
+      const dedupedMatches = matches.filter((m) => {
+        if (seen.has(m.url_path)) return false;
+        seen.add(m.url_path);
+        return true;
+      });
+
+      sources = await attachProvenance(
+        supabase,
+        dedupedMatches.map((m) => ({
+          title: m.title,
+          url_path: m.url_path,
+          source_type: m.source_type,
+          source_id: m.source_id,
+        }))
+      );
     }
   } catch (err) {
     // Retrieval failing (e.g. index not built yet) shouldn't take the whole

@@ -336,8 +336,76 @@ export const openApiSpec = {
       post: {
         summary: "MCP server (Streamable HTTP) — tools for this site",
         description:
-          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) require an adminBearer token, and are absent from tools/list entirely when it's missing or wrong. search_content accepts an optional site_only boolean to restrict results to posts about the site itself. See docs/API.md for client setup (Claude Desktop, Claude Code, etc.).",
+          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) unlock with either an adminBearer token or a valid OAuth access token from this site's own OAuth server (see the /api/mcp/{register,authorize,token} entries below), and are absent from tools/list entirely when neither is present. search_content accepts an optional site_only boolean to restrict results to posts about the site itself. See docs/API.md for client setup (Claude Desktop, Claude Code, claude.ai, etc.).",
         responses: { "200": { description: "JSON-RPC 2.0 response (MCP protocol), streamed as text/event-stream." } },
+      },
+    },
+    "/api/mcp/register": {
+      post: {
+        summary: "OAuth dynamic client registration (RFC 7591)",
+        description:
+          "Part of the minimal OAuth server fronting /api/mcp's admin tier, for clients (like claude.ai's web connector UI) that can't send a raw bearer header. Open/unauthenticated — registering only issues a client_id, it grants no access on its own; an admin still has to approve the client at /api/mcp/authorize.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  redirect_uris: { type: "array", items: { type: "string" } },
+                  client_name: { type: "string" },
+                },
+                required: ["redirect_uris"],
+              },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "{ client_id, client_id_issued_at, redirect_uris, token_endpoint_auth_method: \"none\", grant_types, response_types }" },
+          "400": { description: "Missing/invalid redirect_uris." },
+        },
+      },
+    },
+    "/api/mcp/authorize": {
+      get: {
+        summary: "OAuth authorization endpoint (renders HTML, not JSON)",
+        description:
+          "Requires response_type=code, a registered client_id + matching redirect_uri, and PKCE (code_challenge / code_challenge_method=S256). Gated by an admin session, not a bearer token — shows a sign-in form if absent, otherwise a one-click Allow/Deny consent screen for the named client. On approval, redirects to the client's redirect_uri with a single-use authorization code, later exchanged for a token at /api/mcp/token.",
+        responses: {
+          "200": { description: "Sign-in form, consent screen, or an error screen for a malformed/unregistered request — never redirects to an unverified redirect_uri." },
+          "302": { description: "Redirect to redirect_uri with ?code=...&state=... (approved) or ?error=access_denied&state=... (denied)." },
+        },
+      },
+    },
+    "/api/mcp/token": {
+      post: {
+        summary: "OAuth token endpoint (RFC 6749)",
+        description:
+          "grant_type=authorization_code (with code, redirect_uri, client_id, code_verifier) exchanges a single-use code for tokens; grant_type=refresh_token (with refresh_token, client_id) rotates both tokens. No client secret — public clients only (token_endpoint_auth_method: \"none\").",
+        requestBody: {
+          required: true,
+          content: {
+            "application/x-www-form-urlencoded": { schema: { type: "object" } },
+          },
+        },
+        responses: {
+          "200": { description: "{ access_token, refresh_token, token_type: \"Bearer\", expires_in, scope: \"admin\" } — access tokens last 90 days." },
+          "400": { description: "invalid_request, invalid_grant, or unsupported_grant_type." },
+        },
+      },
+    },
+    "/.well-known/oauth-authorization-server": {
+      get: {
+        summary: "OAuth authorization server metadata (RFC 8414)",
+        description: "Advertises the authorize/token/register endpoints above for OAuth-only MCP clients doing discovery.",
+        responses: { "200": { description: "Authorization server metadata JSON." } },
+      },
+    },
+    "/.well-known/oauth-protected-resource": {
+      get: {
+        summary: "OAuth protected-resource metadata (RFC 9728)",
+        description: "Points /api/mcp at the authorization server above. Also served path-suffixed (e.g. /.well-known/oauth-protected-resource/api/mcp) for clients that look it up that way — same document either way, since this site has one protected resource.",
+        responses: { "200": { description: "{ resource, authorization_servers }" } },
       },
     },
     "/sitemap.xml": {

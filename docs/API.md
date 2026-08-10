@@ -279,9 +279,12 @@ Schedule: Mondays 14:00 UTC (`0 14 * * 1`).
 ### `GET /api/cron/purge-agent-logs`
 
 Deletes `content_audit_log` rows older than 7 days. The table has no other
-cleanup path, so this keeps it from growing unbounded — `/agent-activity`'s
-per-source counts and the admin audit-log page only need a recent window,
-not a permanent archive.
+cleanup path, so this keeps it from growing unbounded — the admin
+audit-log page only needs a recent window, not a permanent archive.
+`/agent-activity`'s per-source "N writes total" and "last active" figures
+are unaffected: they read from `audit_source_totals`, bumped by trigger on
+every insert and never touched by this delete, so they stay lifetime
+figures.
 
 **Auth:** `Authorization: Bearer <CRON_SECRET>` — same as above.
 

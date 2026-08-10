@@ -4,9 +4,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const RETENTION_DAYS = 7;
 
 // Hit by Vercel Cron (see vercel.json) once a day. content_audit_log has no
-// other cleanup path, so without this it grows forever — /agent-activity's
-// per-source counts and the admin audit-log page only ever need a recent
-// window, not a permanent archive.
+// other cleanup path, so without this it grows forever — the admin
+// audit-log page only ever needs a recent window, not a permanent archive.
+// /agent-activity's per-source "N writes total" and "last active" figures
+// are unaffected: those read from audit_source_totals, a separate table
+// bumped by trigger on every insert and never touched by this delete.
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (!process.env.CRON_SECRET || authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

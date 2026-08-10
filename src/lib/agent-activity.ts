@@ -39,33 +39,31 @@ export type AgentSourceStatus = {
   totalCount: number;
 };
 
+// Reads from audit_source_totals rather than counting content_audit_log
+// rows directly — that table gets its detail rows purged after 7 days (see
+// the purge-agent-logs cron), but these totals are bumped by trigger on
+// every insert and never touched by the purge, so "N writes total" stays a
+// lifetime figure instead of resetting to whatever's left in the window.
 export const getAgentSourceStatus = cache(
   async (): Promise<AgentSourceStatus[]> => {
     const supabase = createAdminClient();
+    const { data } = await supabase
+      .from("audit_source_totals")
+      .select("source, total_count, last_active");
 
-    return Promise.all(
-      SOURCES.map(async (source) => {
-        const [{ data: latest }, { count }] = await Promise.all([
-          supabase
-            .from("content_audit_log")
-            .select("created_at")
-            .eq("source", source)
-            .order("created_at", { ascending: false })
-            .limit(1),
-          supabase
-            .from("content_audit_log")
-            .select("id", { count: "exact", head: true })
-            .eq("source", source),
-        ]);
-
-        return {
-          source,
-          label: AUDIT_SOURCE_LABELS[source],
-          lastActive: latest?.[0]?.created_at ?? null,
-          totalCount: count ?? 0,
-        };
-      })
+    const bySource = new Map(
+      (data ?? []).map((row) => [row.source as AuditSource, row])
     );
+
+    return SOURCES.map((source) => {
+      const row = bySource.get(source);
+      return {
+        source,
+        label: AUDIT_SOURCE_LABELS[source],
+        lastActive: row?.last_active ?? null,
+        totalCount: row?.total_count ?? 0,
+      };
+    });
   }
 );
 

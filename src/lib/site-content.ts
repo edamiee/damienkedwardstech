@@ -22,14 +22,17 @@ export const SITE_CONTENT_DEFAULTS = {
   // homepage block — same convention as about_elsewhere_links/
   // how_it_works_sources, parsed with parsePairs(). Curated by hand rather
   // than pulled from an RSS feed, since Anthropic doesn't publish one and
-  // an auto-pulled feed kept surfacing OpenAI-only results on a
-  // Claude-centric site. Empty value hides the section entirely.
+  // an auto-pulled feed kept surfacing OpenAI-only results. Deliberately
+  // mixed across vendors rather than Anthropic-only — this is a news
+  // block, not a Claude ad. Empty value hides the section entirely.
   ai_news_links:
     "Anthropic News | https://www.anthropic.com/news\n" +
-    "Claude Release Notes | https://docs.claude.com/en/release-notes/overview\n" +
-    "Anthropic Engineering Blog | https://www.anthropic.com/engineering\n" +
-    "Anthropic Research | https://www.anthropic.com/research\n" +
-    "Claude Blog | https://claude.com/blog",
+    "OpenAI News | https://openai.com/news/\n" +
+    "Google DeepMind Blog | https://deepmind.google/discover/blog/\n" +
+    "Meta AI Blog | https://ai.meta.com/blog/\n" +
+    "Mistral AI News | https://mistral.ai/news\n" +
+    "xAI News | https://x.ai/news\n" +
+    "Microsoft AI Blog | https://www.microsoft.com/en-us/ai/blog/",
   about_body:
     "I'm Damien Edwards, an AI and data engineer. I build the pipelines that move and shape data, and the AI-powered features that sit on top of it — the parts a business actually depends on, not just a demo.\n\nReplace this paragraph with your real background: past roles, industries you've worked in, the kind of problems you're best at, and what you're looking for next (contract, freelance, full-time — or all three).",
   about_skills:
@@ -93,6 +96,13 @@ export const SITE_CONTENT_DEFAULTS = {
     "Not part of this site's own architecture above, but built the same way — a standalone repo with a real ingest → dbt → semantic layer → BI pipeline over my own GitHub activity, deliberately decoupled from damienkedwardstech's codebase.",
   how_it_works_related_link_title: "A dbt Semantic Layer Over My Own GitHub Activity",
   how_it_works_related_link_slug: "a-dbt-semantic-layer-over-my-own-github-activity",
+  // Per-tool visibility for the /mcp-demo playground — each card checks
+  // its own flag, default on. Lets a tool be pulled from the public demo
+  // (e.g. while its backing data is stale) without touching /api/mcp
+  // itself, which keeps serving it to real MCP clients either way.
+  mcp_demo_search_enabled: "true",
+  mcp_demo_availability_enabled: "true",
+  mcp_demo_build_log_stats_enabled: "true",
   agent_activity_eyebrow: "Live",
   agent_activity_heading: "Agent activity",
   agent_activity_intro:

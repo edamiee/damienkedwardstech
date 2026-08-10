@@ -140,9 +140,9 @@ export default async function HomePage() {
           <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
             Latest in AI
           </h2>
-          <ul className="divide-y divide-line">
+          <ul className="max-h-[20rem] divide-y divide-line overflow-y-auto rounded-sm border border-line">
             {aiNews.map((item) => (
-              <li key={item.link} className="py-3.5">
+              <li key={item.link} className="px-4 py-3.5">
                 <a
                   href={item.link}
                   target="_blank"

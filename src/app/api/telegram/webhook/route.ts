@@ -37,14 +37,8 @@ export async function POST(request: NextRequest) {
   // isn't the allowlisted admin chat, no reply and no tool access, so a
   // stranger can't probe the assistant or spend API credits.
   if (!process.env.TELEGRAM_ADMIN_CHAT_ID || chatId !== process.env.TELEGRAM_ADMIN_CHAT_ID) {
-    // TEMP: diagnosing a report that messages aren't reaching the tool
-    // loop — logs only the numeric chat id (not message content) so we
-    // can tell a chat-id mismatch apart from a downstream failure.
-    console.log("telegram webhook: dropped message from unrecognized chat", { chatId });
     return NextResponse.json({ ok: true });
   }
-
-  console.log("telegram webhook: processing message from admin chat");
 
   try {
     const reply = await runClaudeToolLoop({

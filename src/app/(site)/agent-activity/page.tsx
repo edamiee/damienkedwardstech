@@ -8,6 +8,12 @@ import { formatRelativeTime } from "@/lib/format-relative-time";
 import { AUDIT_SOURCE_LABELS } from "@/lib/audit-log";
 import { getSiteContent } from "@/lib/site-content";
 
+// Explicit bound on how stale this can get, matching the pipeline build
+// log entry's own revalidate — this page's "Live" framing shouldn't be
+// riding on the fact that getSiteContent()'s cookies() call happens to
+// force dynamic rendering as a side effect.
+export const revalidate = 60;
+
 export default async function AgentActivityPage() {
   const [entries, sourceStatus, pipelineStatus, content] = await Promise.all([
     getRecentAgentActivity(30),

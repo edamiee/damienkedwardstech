@@ -42,7 +42,7 @@ export const SITE_CONTENT_DEFAULTS = {
   how_it_works_intro:
     "Most of the words on this site were typed by a person. A growing share of them weren't — a handful of Claude-powered agents write and publish here directly, through the same front door as everything else. This page is the map: where content comes from, what happens to it on the way in, and how it gets found again.",
   how_it_works_sources:
-    "Site Agent | A Telegram bot (@dames81_bot) with full write access — posts, build log entries, site copy — over a plain HTTP endpoint.\n" +
+    "Site Agent | A Telegram bot (@dames81_bot) with full write access — posts, build log entries, site copy — over a plain HTTP endpoint. The \"Last published by...\" label in the homepage's status bar started as a hardcoded string; a Telegram message rewrote it live, no redeploy.\n" +
     "Admin Agent | A second, separate Telegram bot behind a webhook. Narrower tool set, and only replies to one allowlisted chat — anyone else is silently ignored.\n" +
     "MCP clients | Claude Desktop, Claude Code, or any other MCP-speaking tool, connected straight to this site's own MCP server.\n" +
     "Scheduled agents | A research-and-draft agent, a GitHub activity digest, a content-health checker, and a weekly note generator — each a bounded Claude tool loop.\n" +

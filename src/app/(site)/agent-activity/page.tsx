@@ -4,6 +4,7 @@ import {
   getAgentSourceStatus,
   getPipelineWorkflowStatus,
 } from "@/lib/agent-activity";
+import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import { AUDIT_SOURCE_LABELS } from "@/lib/audit-log";
 import { getSiteContent } from "@/lib/site-content";
@@ -15,10 +16,11 @@ import { getSiteContent } from "@/lib/site-content";
 export const revalidate = 60;
 
 export default async function AgentActivityPage() {
-  const [entries, sourceStatus, pipelineStatus, content] = await Promise.all([
+  const [entries, sourceStatus, pipelineStatus, pipelineMetrics, content] = await Promise.all([
     getRecentAgentActivity(30),
     getAgentSourceStatus(),
     getPipelineWorkflowStatus(),
+    getPipelineActivityMetrics(),
     getSiteContent(),
   ]);
 
@@ -97,6 +99,52 @@ export default async function AgentActivityPage() {
           ))}
         </div>
       </section>
+
+      {pipelineMetrics && (
+        <section className="mt-14">
+          <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+            Pipeline metrics
+          </h2>
+          <p className="mb-4 max-w-[60ch] text-[13px] text-muted">
+            The writes above are metered by this site&apos;s own audit log. These are
+            metered by a separate dbt Semantic Layer over my GitHub activity — same
+            idea, different pipeline.{" "}
+            <Link
+              href="/build-log/a-dbt-semantic-layer-over-my-own-github-activity"
+              className="text-teal underline"
+            >
+              Read the full story →
+            </Link>
+          </p>
+          <div className="rounded-sm border border-teal bg-surface p-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {[
+                { label: "Commits", value: pipelineMetrics.totalCommits.toLocaleString() },
+                { label: "Active repos", value: pipelineMetrics.activeRepos.toLocaleString() },
+                {
+                  label: "PR merge rate",
+                  value: formatRate(pipelineMetrics.mergedPrs, pipelineMetrics.totalPrs),
+                },
+                {
+                  label: "Issue close rate",
+                  value: formatRate(pipelineMetrics.closedIssues, pipelineMetrics.totalIssues),
+                },
+              ].map((stat) => (
+                <div key={stat.label}>
+                  <p className="font-display text-2xl text-teal">{stat.value}</p>
+                  <p className="mt-0.5 text-[11.5px] text-muted">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-[11.5px] text-muted">
+              Avg PR cycle time {formatHours(pipelineMetrics.avgPrCycleTimeHours)} · Avg
+              time to close {formatHours(pipelineMetrics.avgIssueCloseHours)}
+              {pipelineMetrics.lastIngestedAt &&
+                ` · Last ingested ${formatRelativeTime(pipelineMetrics.lastIngestedAt)}`}
+            </p>
+          </div>
+        </section>
+      )}
 
       <section className="mt-14">
         <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">

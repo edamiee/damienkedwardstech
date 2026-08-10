@@ -1,14 +1,11 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { AUDIT_SOURCE_LABELS } from "@/lib/audit-log";
 
-const SOURCES = [
-  { value: "admin_ui", label: "Admin UI" },
-  { value: "site_agent", label: "Site Agent" },
-  { value: "research_agent", label: "Research agent" },
-  { value: "dev_log_agent", label: "Dev-log agent" },
-  { value: "telegram_agent", label: "Telegram agent" },
-  { value: "mcp_agent", label: "MCP agent" },
-];
+const SOURCES = Object.entries(AUDIT_SOURCE_LABELS).map(([value, label]) => ({
+  value,
+  label,
+}));
 
 export default async function AdminAuditLogPage({
   searchParams,

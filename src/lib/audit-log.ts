@@ -9,6 +9,15 @@ export type AuditSource =
   | "telegram_agent"
   | "mcp_agent";
 
+export const AUDIT_SOURCE_LABELS: Record<AuditSource, string> = {
+  admin_ui: "Admin UI",
+  site_agent: "Site Agent",
+  research_agent: "Research agent",
+  dev_log_agent: "Dev-log agent",
+  telegram_agent: "Telegram agent",
+  mcp_agent: "MCP agent",
+};
+
 // Fire-and-forget-ish: awaited so ordering is predictable, but a logging
 // failure is swallowed rather than thrown — an audit trail write should
 // never be the reason the actual content operation fails.

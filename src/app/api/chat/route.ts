@@ -5,8 +5,9 @@ import { embedOne } from "@/lib/voyage";
 import { runClaudeToolLoop, type ToolDefinition } from "@/lib/anthropic";
 import { getSiteContent } from "@/lib/site-content";
 import { saveContactMessage } from "@/lib/contact-notify";
+import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
 
-const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and build log using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, build log entries, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_build_log_stats if asked about measurable results from a specific build log entry, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
+const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and build log using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, build log entries, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_build_log_stats if asked about measurable results from a specific build log entry, use get_github_activity if asked how active Damien currently is on GitHub or for his real commit/PR/issue numbers, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
 
 // Naive in-memory per-IP rate limit — resets on cold start and isn't
 // shared across serverless instances, but it's enough to stop a runaway
@@ -48,6 +49,12 @@ const CHAT_TOOLS: ToolDefinition[] = [
     },
   },
   {
+    name: "get_github_activity",
+    description:
+      "Get live commit, PR, and issue stats from Damien's own GitHub activity data pipeline (a real dbt + Postgres pipeline over his GitHub account, not a static number). Use for questions about how active he currently is, his commit volume, or PR/issue turnaround.",
+    input_schema: { type: "object", properties: {} },
+  },
+  {
     name: "notify_damien",
     description:
       "Send Damien a message on the visitor's behalf when they want to get in touch. Only call this once you have the visitor's email and a clear message to send, and after confirming with them what you're about to send.",
@@ -84,6 +91,19 @@ async function executeChatTool(
     const stats = (data?.stats ?? []) as { value: string; label: string }[];
     if (stats.length === 0) return "No stats recorded for that build log entry.";
     return stats.map((s) => `${s.value} ${s.label}`).join("; ");
+  }
+
+  if (name === "get_github_activity") {
+    const metrics = await getPipelineActivityMetrics();
+    if (!metrics) return "GitHub activity data isn't available right now.";
+    return [
+      `${metrics.totalCommits} commits across ${metrics.activeRepos} active repos.`,
+      `${metrics.totalPrs} pull requests, ${formatRate(metrics.mergedPrs, metrics.totalPrs)} merged, average cycle time ${formatHours(metrics.avgPrCycleTimeHours)}.`,
+      `${metrics.totalIssues} issues, ${formatRate(metrics.closedIssues, metrics.totalIssues)} closed, average time to close ${formatHours(metrics.avgIssueCloseHours)}.`,
+      metrics.lastIngestedAt ? `Data last refreshed ${metrics.lastIngestedAt}.` : null,
+    ]
+      .filter(Boolean)
+      .join(" ");
   }
 
   if (name === "notify_damien") {

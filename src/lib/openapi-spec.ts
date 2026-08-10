@@ -194,6 +194,49 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/admin/audit-logs": {
+      get: {
+        summary: "Read the content audit log",
+        security: [{ adminBearer: [] }],
+        description:
+          "Same content_audit_log table the admin UI's Audit log page and the public /agent-activity page read from, but authenticated and including entity_id.",
+        parameters: [
+          {
+            name: "source",
+            in: "query",
+            required: false,
+            schema: {
+              type: "string",
+              enum: [
+                "admin_ui",
+                "site_agent",
+                "research_agent",
+                "dev_log_agent",
+                "telegram_agent",
+                "mcp_agent",
+              ],
+            },
+            description: "Filter to one write path. Omit for all sources.",
+          },
+          {
+            name: "limit",
+            in: "query",
+            required: false,
+            schema: { type: "integer", default: 50, maximum: 200 },
+            description: "Max rows to return.",
+          },
+        ],
+        responses: {
+          "200": {
+            description:
+              "{ entries: [{ id, source, action, entity_type, entity_id, summary, created_at }, ...] }",
+          },
+          "400": { description: "Invalid source value." },
+          "401": { description: "Missing or incorrect bearer token." },
+          "429": { description: "Rate limited — 60 requests/minute, global across all callers." },
+        },
+      },
+    },
     "/api/chat": {
       post: {
         summary: "Ask the site's RAG chat widget a question",

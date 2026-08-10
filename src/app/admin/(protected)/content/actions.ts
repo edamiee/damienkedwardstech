@@ -12,6 +12,7 @@ function revalidatePublicPages() {
   revalidatePath("/about");
   revalidatePath("/contact");
   revalidatePath("/how-it-works");
+  revalidatePath("/agent-activity");
   revalidatePath("/", "layout");
 }
 

@@ -6,30 +6,29 @@ import {
 } from "@/lib/agent-activity";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import { AUDIT_SOURCE_LABELS } from "@/lib/audit-log";
+import { getSiteContent } from "@/lib/site-content";
 
 export default async function AgentActivityPage() {
-  const [entries, sourceStatus, pipelineStatus] = await Promise.all([
+  const [entries, sourceStatus, pipelineStatus, content] = await Promise.all([
     getRecentAgentActivity(30),
     getAgentSourceStatus(),
     getPipelineWorkflowStatus(),
+    getSiteContent(),
   ]);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.14em] text-rust">
-        Live
+        {content.agent_activity_eyebrow}
       </p>
       <h1 className="max-w-[18ch] text-balance font-display text-3xl font-normal leading-tight sm:text-4xl">
-        Agent activity
+        {content.agent_activity_heading}
       </h1>
       <p className="mt-4 max-w-[60ch] text-[15px] text-muted">
-        The{" "}
+        {content.agent_activity_intro}{" "}
         <Link href="/how-it-works" className="text-teal underline">
-          write paths
-        </Link>{" "}
-        that keep this site current, and what each has actually done —
-        pulled straight from the same audit log the admin panel reads, not a
-        curated highlight reel.
+          See how it works →
+        </Link>
       </p>
 
       <section className="mt-12">

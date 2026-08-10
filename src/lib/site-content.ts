@@ -65,6 +65,10 @@ export const SITE_CONTENT_DEFAULTS = {
     "Not part of this site's own architecture above, but built the same way — a standalone repo with a real ingest → dbt → semantic layer → BI pipeline over my own GitHub activity, deliberately decoupled from damienkedwardstech's codebase.",
   how_it_works_related_link_title: "A dbt Semantic Layer Over My Own GitHub Activity",
   how_it_works_related_link_slug: "a-dbt-semantic-layer-over-my-own-github-activity",
+  agent_activity_eyebrow: "Live",
+  agent_activity_heading: "Agent activity",
+  agent_activity_intro:
+    "The write paths that keep this site current, and what each has actually done — pulled straight from the same audit log the admin panel reads, not a curated highlight reel.",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

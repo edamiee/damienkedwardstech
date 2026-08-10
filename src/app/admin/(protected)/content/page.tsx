@@ -49,6 +49,15 @@ export default async function AdminSiteContentPage() {
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;Last published by...&quot; label (shown before the linked
+            title, only when something agent-published exists to show)
+            <input
+              name="hermes_activity_label"
+              defaultValue={content.hermes_activity_label}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

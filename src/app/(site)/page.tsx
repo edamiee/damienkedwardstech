@@ -70,7 +70,7 @@ export default async function HomePage() {
           <span className="inline-flex items-start gap-2 text-muted">
             <span className="mt-[5px] inline-block h-2.5 w-2.5 shrink-0 rounded-full bg-teal-soft" />
             <span>
-              Last published by Damien&apos;s agent that runs the site —{" "}
+              {content.hermes_activity_label}{" "}
               <Link href={hermesActivity.href} className="text-teal underline">
                 {hermesActivity.title}
               </Link>

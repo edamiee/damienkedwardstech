@@ -15,6 +15,7 @@ export const SITE_CONTENT_DEFAULTS = {
   now_line: "",
   uncharted_heading: "Uncharted",
   uncharted_body: "to see project work, including the Arcade game",
+  hermes_activity_label: "Last published by Damien's agent that runs the site —",
   weekly_ai_insight:
     "Checks back every Monday — this note is written fresh each week by Claude and hasn't run yet.",
   about_body:

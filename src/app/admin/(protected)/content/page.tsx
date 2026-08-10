@@ -466,6 +466,48 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            MCP demo page
+          </legend>
+          <p className="text-xs text-muted">
+            Which tools show as &quot;try it&quot; cards on{" "}
+            <a href="/mcp-demo" target="_blank" rel="noreferrer" className="text-teal hover:underline">
+              /mcp-demo ↗
+            </a>
+            . The MCP server itself at /api/mcp always exposes all three to
+            real clients regardless of these — this only hides cards from
+            the public demo page.
+          </p>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="mcp_demo_search_enabled"
+              defaultChecked={content.mcp_demo_search_enabled !== "false"}
+              className="h-4 w-4 accent-teal"
+            />
+            Search site content
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="mcp_demo_availability_enabled"
+              defaultChecked={content.mcp_demo_availability_enabled !== "false"}
+              className="h-4 w-4 accent-teal"
+            />
+            Check availability
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="mcp_demo_build_log_stats_enabled"
+              defaultChecked={content.mcp_demo_build_log_stats_enabled !== "false"}
+              className="h-4 w-4 accent-teal"
+            />
+            Get build log stats
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Agent activity page
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

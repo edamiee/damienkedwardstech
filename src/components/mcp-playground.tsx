@@ -227,12 +227,21 @@ function BuildLogStatsCard() {
   );
 }
 
-export function McpPlayground() {
+export type McpTool = "search_content" | "get_availability" | "get_build_log_stats";
+
+const CARDS: Record<McpTool, () => React.JSX.Element> = {
+  search_content: SearchCard,
+  get_availability: AvailabilityCard,
+  get_build_log_stats: BuildLogStatsCard,
+};
+
+export function McpPlayground({ enabledTools }: { enabledTools: McpTool[] }) {
   return (
     <div className="flex flex-col gap-4">
-      <SearchCard />
-      <AvailabilityCard />
-      <BuildLogStatsCard />
+      {enabledTools.map((tool) => {
+        const Card = CARDS[tool];
+        return <Card key={tool} />;
+      })}
     </div>
   );
 }

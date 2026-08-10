@@ -12,6 +12,7 @@ function revalidatePublicPages() {
   revalidatePath("/about");
   revalidatePath("/contact");
   revalidatePath("/how-it-works");
+  revalidatePath("/mcp-demo");
   revalidatePath("/agent-activity");
   revalidatePath("/", "layout");
 }
@@ -25,6 +26,9 @@ const CHECKBOX_KEYS: SiteContentKey[] = [
   "newsletter_sending_enabled",
   "testimonials_enabled",
   "business_inquiry_enabled",
+  "mcp_demo_search_enabled",
+  "mcp_demo_availability_enabled",
+  "mcp_demo_build_log_stats_enabled",
 ];
 
 export async function saveSiteContent(formData: FormData) {

@@ -315,6 +315,14 @@ export const openApiSpec = {
         responses: { "200": { description: "{ ok, insight, newsletter }" }, "401": { description: "Missing/incorrect bearer token." } },
       },
     },
+    "/api/cron/purge-agent-logs": {
+      get: {
+        summary: "Delete content_audit_log rows older than 7 days",
+        security: [{ cronBearer: [] }],
+        description: "Scheduled daily 05:00 UTC. Keeps the audit log — read by /agent-activity and the admin audit-log page — from growing unbounded.",
+        responses: { "200": { description: "{ ok, deleted }" }, "401": { description: "Missing/incorrect bearer token." } },
+      },
+    },
     "/feed.xml": {
       get: { summary: "RSS 2.0 feed of published posts", responses: { "200": { description: "RSS XML", content: { "application/rss+xml": {} } } } },
     },

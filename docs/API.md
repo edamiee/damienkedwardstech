@@ -276,6 +276,24 @@ Schedule: Mondays 14:00 UTC (`0 14 * * 1`).
 
 ---
 
+### `GET /api/cron/purge-agent-logs`
+
+Deletes `content_audit_log` rows older than 7 days. The table has no other
+cleanup path, so this keeps it from growing unbounded — `/agent-activity`'s
+per-source counts and the admin audit-log page only need a recent window,
+not a permanent archive.
+
+**Auth:** `Authorization: Bearer <CRON_SECRET>` — same as above.
+
+Schedule: daily, 05:00 UTC (`0 5 * * *`).
+
+```json
+// Response
+{ "ok": true, "deleted": 12 }
+```
+
+---
+
 ## Public feeds & metadata
 
 All of these are unauthenticated `GET` requests with no request body.
@@ -323,6 +341,6 @@ CSV export of the subscribers table (`email,source,created_at`).
 | Static bearer secret | `/api/admin/content` | `Authorization: Bearer <ADMIN_API_SECRET>` — for non-browser callers (agents/scripts) |
 | Static bearer secret, optional/tiered | `/api/mcp` | Same `ADMIN_API_SECRET`, but only required to unlock the admin tool tier — the public tools work unauthenticated |
 | Supabase session cookie | `/api/admin/draft-post`, `/api/admin/upload-image`, `/admin/subscribers/export`, all `/admin/*` pages | `requireAdmin()` — checks a logged-in session against `public.admins` |
-| Cron secret | `/api/cron/weekly-insight` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
+| Cron secret | `/api/cron/weekly-insight`, `/api/cron/purge-agent-logs` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
 | Telegram secret token + chat-id allowlist | `/api/telegram/webhook` | Header match + numeric chat id match; anyone else gets a silent 200 |
 | None (public) | `/api/chat`, feeds, `/unsubscribe`, `/auth/callback` | Rate-limited where it could be abused (`/api/chat` only) |

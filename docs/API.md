@@ -43,7 +43,9 @@ row. Errors return `{ error: "..." }` with a 4xx/5xx status.
 the one secret, so total volume is the meaningful thing to bound). Returns
 429 once exceeded. Every successful write is also recorded in
 `content_audit_log` (source `"site_agent"`), viewable at
-[Admin → Audit log](/admin/audit-log).
+[Admin → Audit log](/admin/audit-log), the public
+[`/agent-activity`](/agent-activity) page, or read back programmatically
+via [`GET /api/admin/audit-logs`](#get-apiadminaudit-logs) below.
 
 #### Site content keys
 
@@ -56,6 +58,47 @@ chat_subheader, chat_example_question, newsletter_capture_enabled,
 newsletter_sending_enabled ("true"/"false"), newsletter_from_email,
 testimonials_enabled ("true"/"false")
 ```
+
+---
+
+### `GET /api/admin/audit-logs`
+
+Remote read endpoint over `content_audit_log` — the same table
+[Admin → Audit log](/admin/audit-log) and the public
+[`/agent-activity`](/agent-activity) page read, for a script/agent that
+wants the full trail (including `entity_id`) rather than the public page's
+trimmed-down view.
+
+**Auth:** `Authorization: Bearer <ADMIN_API_SECRET>` (same static secret as
+`POST /api/admin/content`).
+
+Query params (all optional):
+
+| Param | Notes |
+|---|---|
+| `source` | One of `admin_ui`, `site_agent`, `research_agent`, `dev_log_agent`, `telegram_agent`, `mcp_agent`. Omit for all sources. |
+| `limit` | Max rows to return. Default 50, capped at 200. |
+
+```json
+// GET /api/admin/audit-logs?source=site_agent&limit=20
+// Response
+{
+  "entries": [
+    {
+      "id": "...",
+      "source": "site_agent",
+      "action": "post.upsert",
+      "entity_type": "post",
+      "entity_id": "...",
+      "summary": "Upserted \"...\" (published)",
+      "created_at": "2026-08-10T01:47:12.000Z"
+    }
+  ]
+}
+```
+
+**Rate limit:** 60 requests/minute, global — same policy as
+`POST /api/admin/content`.
 
 ---
 

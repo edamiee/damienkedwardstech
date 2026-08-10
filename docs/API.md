@@ -192,6 +192,15 @@ curl -s https://damienkedwards.tech/api/mcp \
     }
   }
   ```
+- **Claude web (claude.ai)** — Customize → Connectors → Add custom
+  connector → paste the URL. Custom request-header auth on this surface is
+  in beta and rolled out gradually per account: if an Add-connector dialog
+  shows a "Request headers" section, pick `authorization` and enter the
+  value as `Bearer <ADMIN_API_SECRET>` (type the `Bearer ` prefix yourself —
+  claude.ai sends the value exactly as entered). If that section isn't
+  present, only the public tier is reachable from claude.ai until the beta
+  reaches the account — use Claude Desktop or Claude Code for the admin
+  tier in the meantime.
 - **Any other MCP client** (Cursor, Windsurf, ChatGPT connectors, a custom
   script using `@modelcontextprotocol/sdk`'s client) — the same URL and
   optional bearer header work identically; this is a standard Streamable

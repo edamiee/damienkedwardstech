@@ -4,7 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import { getRelatedContent } from "@/lib/related-content";
 import { liveFilter } from "@/lib/publish-filter";
 import type { Stat } from "@/lib/parse-stats";
-import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
+import {
+  getPipelineActivityMetrics,
+  getPipelineCommitCalendar,
+  buildCommitCalendarWeeks,
+  formatRate,
+  formatHours,
+} from "@/lib/pipeline-metrics";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 
 // The one entry this live-queried section applies to — a distinct build
@@ -12,8 +18,29 @@ import { formatRelativeTime } from "@/lib/format-relative-time";
 // plain content. Not worth generalizing into a per-entry config field for
 // a single, one-off integration.
 const PIPELINE_METRICS_SLUG = "a-dbt-semantic-layer-over-my-own-github-activity";
-const PIPELINE_DASHBOARD_IMAGE_URL =
-  "https://hntcwtddauuazloxifnr.supabase.co/storage/v1/object/public/post-images/0e289ada-38dd-4c32-a4da-b87acc1efb27.png";
+
+const MONTH_LABELS = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function heatLevel(count: number, max: number): number {
+  if (count === 0) return 0;
+  if (max <= 1) return 4;
+  const ratio = count / max;
+  if (ratio > 0.75) return 4;
+  if (ratio > 0.5) return 3;
+  if (ratio > 0.25) return 2;
+  return 1;
+}
+
+const LEVEL_CLASSES = [
+  "bg-line",
+  "bg-teal/25",
+  "bg-teal/50",
+  "bg-teal/75",
+  "bg-teal",
+];
 
 export const revalidate = 60;
 
@@ -52,10 +79,16 @@ export default async function BuildLogEntryPage({
 
   if (!cs) notFound();
 
-  const [related, pipelineMetrics] = await Promise.all([
+  const isPipelineEntry = slug === PIPELINE_METRICS_SLUG;
+  const [related, pipelineMetrics, commitCalendarDays] = await Promise.all([
     isPreview ? Promise.resolve([]) : getRelatedContent("build_log", cs.id),
-    slug === PIPELINE_METRICS_SLUG ? getPipelineActivityMetrics() : Promise.resolve(null),
+    isPipelineEntry ? getPipelineActivityMetrics() : Promise.resolve(null),
+    isPipelineEntry ? getPipelineCommitCalendar() : Promise.resolve([]),
   ]);
+  const commitCalendarWeeks = isPipelineEntry
+    ? buildCommitCalendarWeeks(commitCalendarDays)
+    : [];
+  const maxDailyCommits = Math.max(1, ...commitCalendarDays.map((d) => d.count));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -178,13 +211,63 @@ export default async function BuildLogEntryPage({
         </div>
       )}
 
-      {slug === PIPELINE_METRICS_SLUG && (
-        // eslint-disable-next-line @next/next/no-img-element -- arbitrary uploaded image, not worth remotePatterns config
-        <img
-          src={PIPELINE_DASHBOARD_IMAGE_URL}
-          alt="The GitHub activity pipeline's Lightdash dashboard, showing total commits, active repos, and PR/issue metrics"
-          className="mt-6 w-full rounded-sm border border-line"
-        />
+      {isPipelineEntry && commitCalendarWeeks.length > 0 && (
+        <div className="mt-6 rounded-sm border border-line bg-surface p-5">
+          <p className="font-data text-[11.5px] font-semibold uppercase tracking-[0.06em] text-teal">
+            Commit activity, last 12 months
+          </p>
+          <p className="mt-1.5 max-w-[58ch] text-[13px] text-muted">
+            Queried from marts.fct_commits, grouped by day — the same table
+            the stats above come from.
+          </p>
+          <div className="mt-4 overflow-x-auto">
+            <div className="inline-flex gap-[3px] pb-1">
+              {commitCalendarWeeks.map((week, weekIndex) => {
+                const firstDay = week.find((d) => d.date)?.date;
+                const prevFirstDay = commitCalendarWeeks[weekIndex - 1]?.find(
+                  (d) => d.date
+                )?.date;
+                const showMonthLabel =
+                  firstDay &&
+                  (!prevFirstDay ||
+                    new Date(firstDay).getUTCMonth() !==
+                      new Date(prevFirstDay).getUTCMonth());
+
+                return (
+                  <div key={weekIndex} className="flex flex-col gap-[3px]">
+                    <div className="h-[13px] font-data text-[9.5px] text-muted">
+                      {showMonthLabel && firstDay
+                        ? MONTH_LABELS[new Date(firstDay).getUTCMonth()]
+                        : ""}
+                    </div>
+                    {week.map((day, dayIndex) => (
+                      <div
+                        key={day.date ?? `pad-${weekIndex}-${dayIndex}`}
+                        title={
+                          day.date
+                            ? `${day.count} commit${day.count === 1 ? "" : "s"} on ${day.date}`
+                            : undefined
+                        }
+                        className={`h-[11px] w-[11px] rounded-[2px] ${
+                          day.date
+                            ? LEVEL_CLASSES[heatLevel(day.count, maxDailyCommits)]
+                            : "bg-transparent"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-1.5 text-[11px] text-muted">
+            <span>Less</span>
+            {LEVEL_CLASSES.map((cls) => (
+              <span key={cls} className={`h-[11px] w-[11px] rounded-[2px] ${cls}`} />
+            ))}
+            <span>More</span>
+          </div>
+        </div>
       )}
 
       {cs.project_url && (

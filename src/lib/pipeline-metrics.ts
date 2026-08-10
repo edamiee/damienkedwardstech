@@ -54,6 +54,55 @@ export async function getPipelineActivityMetrics(): Promise<PipelineActivityMetr
   };
 }
 
+export type CommitCalendarDay = { date: string; count: number };
+
+type CommitCalendarRow = { commit_date: string; commit_count: number };
+
+// Backs the contribution heatmap on the pipeline build log entry. Same
+// live-query-on-every-load approach as getPipelineActivityMetrics above.
+export async function getPipelineCommitCalendar(): Promise<CommitCalendarDay[]> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase.rpc("get_pipeline_commit_calendar");
+  if (error || !data) return [];
+
+  return (data as CommitCalendarRow[]).map((row) => ({
+    date: row.commit_date,
+    count: row.commit_count,
+  }));
+}
+
+export type CommitCalendarWeek = { date: string | null; count: number }[];
+
+// Lays out the last ~53 weeks as GitHub does: columns are weeks, rows are
+// Sun–Sat, padded with null-date cells so the grid stays a clean rectangle
+// even though the data window doesn't start on a Sunday.
+export function buildCommitCalendarWeeks(
+  days: CommitCalendarDay[],
+  weekCount = 53
+): CommitCalendarWeek[] {
+  const counts = new Map(days.map((d) => [d.date, d.count]));
+
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const end = new Date(today);
+  const start = new Date(end);
+  start.setUTCDate(start.getUTCDate() - (weekCount * 7 - 1));
+  // Roll back to the Sunday on/before `start` so every week is a full column.
+  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
+
+  const cells: { date: string | null; count: number }[] = [];
+  for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+    const iso = d.toISOString().slice(0, 10);
+    cells.push({ date: iso, count: counts.get(iso) ?? 0 });
+  }
+  // Pad the final week out to a full 7 days.
+  while (cells.length % 7 !== 0) cells.push({ date: null, count: 0 });
+
+  const weeks: CommitCalendarWeek[] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+}
+
 // "—" rather than "0%"/"NaN%" when there's nothing to divide yet — a true
 // zero-rate and "no data" mean different things and shouldn't look the same.
 export function formatRate(numerator: number, denominator: number): string {

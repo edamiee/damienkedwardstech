@@ -12,11 +12,17 @@ import { ADMIN_AGENT_TOOLS, executeAdminAgentTool } from "@/lib/admin-agent-tool
 // Two tiers, gated by whether the request carries a valid bearer token:
 //   - Public (always registered): search_content, get_build_log_stats,
 //     get_availability — read-only, safe for any MCP client to call.
-//   - Admin (only registered when Authorization: Bearer <ADMIN_API_SECRET>
-//     is present and correct): the same curated write tools already used by
-//     the Telegram admin agent (see src/lib/admin-agent-tools.ts) —
-//     list_site_content, update_site_content, add_testimonial, add_service.
-//     Unauthenticated callers never see these in tools/list.
+//   - Admin (only registered when the bearer token is either the static
+//     ADMIN_API_SECRET or a valid, unexpired mcp_oauth_tokens access token):
+//     the same curated write tools already used by the Telegram admin agent
+//     (see src/lib/admin-agent-tools.ts) — list_site_content,
+//     update_site_content, add_testimonial, add_service. Unauthenticated
+//     callers never see these in tools/list.
+//
+// The OAuth path exists for clients (claude.ai's web connector UI) that
+// only support OAuth, not a raw bearer header — see
+// src/app/api/mcp/{authorize,token,register}/route.ts and the discovery
+// documents under src/app/.well-known/.
 //
 // See docs/API.md and /openapi.json for the REST-shaped sibling of this
 // endpoint, and the setup instructions given alongside this file for how to
@@ -33,12 +39,25 @@ function isRateLimited(): boolean {
   return requestTimestamps.length > RATE_LIMIT;
 }
 
-function extractAuthInfo(request: Request): AuthInfo | undefined {
+async function extractAuthInfo(request: Request): Promise<AuthInfo | undefined> {
   const secret = process.env.ADMIN_API_SECRET;
   const header = request.headers.get("authorization") ?? "";
   const token = header.replace(/^Bearer\s+/i, "").trim();
-  if (!secret || !token || token !== secret) return undefined;
-  return { token, clientId: "mcp-admin", scopes: ["admin"] };
+  if (!token) return undefined;
+
+  if (secret && token === secret) {
+    return { token, clientId: "mcp-admin-secret", scopes: ["admin"] };
+  }
+
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("mcp_oauth_tokens")
+    .select("client_id, expires_at")
+    .eq("access_token", token)
+    .maybeSingle();
+
+  if (!data || new Date(data.expires_at).getTime() < Date.now()) return undefined;
+  return { token, clientId: data.client_id, scopes: ["admin"] };
 }
 
 const factory: McpServerFactory = async (ctx) => {
@@ -154,7 +173,7 @@ async function handle(request: Request): Promise<Response> {
       headers: { "content-type": "application/json" },
     });
   }
-  return handler.fetch(request, { authInfo: extractAuthInfo(request) });
+  return handler.fetch(request, { authInfo: await extractAuthInfo(request) });
 }
 
 export async function POST(request: Request) {

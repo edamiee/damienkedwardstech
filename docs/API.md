@@ -141,10 +141,12 @@ Remote MCP server (Streamable HTTP transport, stateless — a fresh server
 instance per request, so no client-side session cleanup is required). Point
 any MCP-speaking client or LLM at this URL to give it tools for this site.
 
-**Auth:** none required for the public tier; `Authorization: Bearer
-<ADMIN_API_SECRET>` unlocks the admin tier. Unauthenticated callers never
-see the admin tools in `tools/list` — they don't just fail to call them, the
-tools are absent from discovery entirely.
+**Auth:** none required for the public tier. The admin tier unlocks with
+either `Authorization: Bearer <ADMIN_API_SECRET>` (the static secret) or a
+valid OAuth access token minted by this site's own minimal OAuth server
+(see below) — either way, unauthenticated callers never see the admin
+tools in `tools/list`, they're absent from discovery entirely, not just
+blocked from calling.
 
 | Tier | Tools | Notes |
 |---|---|---|
@@ -193,18 +195,39 @@ curl -s https://damienkedwards.tech/api/mcp \
   }
   ```
 - **Claude web (claude.ai)** — Customize → Connectors → Add custom
-  connector → paste the URL. Custom request-header auth on this surface is
-  in beta and rolled out gradually per account: if an Add-connector dialog
-  shows a "Request headers" section, pick `authorization` and enter the
-  value as `Bearer <ADMIN_API_SECRET>` (type the `Bearer ` prefix yourself —
-  claude.ai sends the value exactly as entered). If that section isn't
-  present, only the public tier is reachable from claude.ai until the beta
-  reaches the account — use Claude Desktop or Claude Code for the admin
-  tier in the meantime.
+  connector → paste the URL, click Add. claude.ai discovers this site's
+  OAuth server automatically (via the `.well-known` documents below),
+  registers itself as a client, and redirects to `/api/mcp/authorize` for
+  sign-in + consent — same admin login as `/admin`, no manual header
+  needed. (Its "Request headers" field, when present, is a beta-gated
+  alternative that also works if preferred — see the OAuth server section
+  below for why either path lands on the same admin tier.)
 - **Any other MCP client** (Cursor, Windsurf, ChatGPT connectors, a custom
-  script using `@modelcontextprotocol/sdk`'s client) — the same URL and
-  optional bearer header work identically; this is a standard Streamable
-  HTTP MCP server with no custom auth scheme beyond a normal bearer token.
+  script using `@modelcontextprotocol/sdk`'s client) — the same URL works;
+  clients that only support OAuth follow the discovery documents below,
+  clients that support a raw bearer header can use either the static
+  secret or a token obtained through the OAuth flow manually.
+
+### This site's own OAuth server
+
+A minimal OAuth 2.1 authorization server exists solely to front the admin
+tier of `/api/mcp` for clients that can't send a raw bearer header (like
+claude.ai's web connector UI). It has no separate user base — consent is
+gated by the exact same admin login used at `/admin` (`public.admins`).
+Registering a client here grants nothing by itself; a signed-in admin
+still has to approve that specific client at `/api/mcp/authorize`.
+
+| Endpoint | Purpose |
+|---|---|
+| `GET /.well-known/oauth-authorization-server` | RFC 8414 metadata — advertises the three endpoints below |
+| `GET /.well-known/oauth-protected-resource` (and `/…/api/mcp`) | RFC 9728 metadata — points `/api/mcp` at the authorization server |
+| `POST /api/mcp/register` | RFC 7591 dynamic client registration. Open/unauthenticated — see rationale above. Body: `{ redirect_uris: string[], client_name?: string }` |
+| `GET /api/mcp/authorize` | Authorization endpoint. Requires an admin session (redirects to a sign-in form if absent); on approval, redirects back to the client's `redirect_uri` with a single-use code |
+| `POST /api/mcp/token` | Token endpoint. `grant_type=authorization_code` (with PKCE `code_verifier`, required) or `grant_type=refresh_token`. Access tokens last 90 days; refresh rotates both tokens. |
+
+PKCE (S256) is required on every authorization request; there is no
+client secret (`token_endpoint_auth_method: "none"`) since these are
+public clients identified only by a registered `redirect_uri`.
 
 ---
 
@@ -351,7 +374,8 @@ CSV export of the subscribers table (`email,source,created_at`).
 | Pattern | Used by | Mechanism |
 |---|---|---|
 | Static bearer secret | `/api/admin/content` | `Authorization: Bearer <ADMIN_API_SECRET>` — for non-browser callers (agents/scripts) |
-| Static bearer secret, optional/tiered | `/api/mcp` | Same `ADMIN_API_SECRET`, but only required to unlock the admin tool tier — the public tools work unauthenticated |
+| Static bearer secret or OAuth token, optional/tiered | `/api/mcp` | `ADMIN_API_SECRET` or a token from this site's own OAuth server, only required to unlock the admin tool tier — the public tools work unauthenticated |
+| Supabase session cookie | `/api/mcp/authorize` | Same admin login as `/admin` — gates consent for the OAuth server above |
 | Supabase session cookie | `/api/admin/draft-post`, `/api/admin/upload-image`, `/admin/subscribers/export`, all `/admin/*` pages | `requireAdmin()` — checks a logged-in session against `public.admins` |
 | Cron secret | `/api/cron/weekly-insight`, `/api/cron/purge-agent-logs` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
 | Telegram secret token + chat-id allowlist | `/api/telegram/webhook` | Header match + numeric chat id match; anyone else gets a silent 200 |

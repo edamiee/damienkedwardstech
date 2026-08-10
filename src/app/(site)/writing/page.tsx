@@ -135,9 +135,9 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
         </div>
       )}
 
-      <ul className="mt-10 divide-y divide-line">
+      <ul className="mt-10 max-h-[42rem] divide-y divide-line overflow-y-auto rounded-sm border border-line">
         {items.map((item) => (
-          <li key={item.href} className="py-5">
+          <li key={item.href} className="px-4 py-5">
             <Link
               href={item.href}
               target={item.external ? "_blank" : undefined}
@@ -196,7 +196,7 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
           </li>
         ))}
         {items.length === 0 && (
-          <li className="py-5 text-sm text-muted">
+          <li className="px-4 py-5 text-sm text-muted">
             {activeTag
               ? `Nothing tagged "${activeTag}" yet.`
               : activeScope !== "all"

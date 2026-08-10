@@ -71,6 +71,10 @@ structured list without a bespoke editor, parsed with `parsePairs()` in
 value hides the "Also published elsewhere" section on `/about`, or the
 "Latest in AI" section on the homepage, entirely.
 
+`about_capabilities` is the same idea with two extra fields — one
+`Title | body | build-log link title | build-log slug` line per "What I
+do" card on `/about`, parsed with `parseCapabilities()` in the same file.
+
 ---
 
 ### `GET /api/admin/audit-logs`

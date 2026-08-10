@@ -271,6 +271,18 @@ export default async function AdminSiteContentPage() {
               className="rounded-sm border border-line bg-surface px-3 py-2"
             />
           </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;Also published elsewhere&quot; links — one per line, as{" "}
+            <code className="font-data">Title | https://…</code>. Leave blank
+            to hide the whole section.
+            <textarea
+              name="about_elsewhere_links"
+              rows={4}
+              placeholder="My Post on Company Blog | https://example.com/blog/post"
+              defaultValue={content.about_elsewhere_links}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
         </fieldset>
 
         <fieldset className="flex flex-col gap-3">

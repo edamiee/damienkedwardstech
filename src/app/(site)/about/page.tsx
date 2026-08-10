@@ -1,4 +1,5 @@
 import { getSiteContent } from "@/lib/site-content";
+import { parsePairs } from "@/lib/content-pairs";
 
 export default async function AboutPage() {
   const content = await getSiteContent();
@@ -7,6 +8,7 @@ export default async function AboutPage() {
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
+  const elsewhereLinks = parsePairs(content.about_elsewhere_links);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -58,6 +60,28 @@ export default async function AboutPage() {
           </li>
         ))}
       </ul>
+
+      {elsewhereLinks.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+            Also published elsewhere
+          </h2>
+          <ul className="mt-3 flex flex-col gap-2">
+            {elsewhereLinks.map((link) => (
+              <li key={link.detail}>
+                <a
+                  href={link.detail}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-[15px] text-fg hover:text-teal"
+                >
+                  {link.title} ↗
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

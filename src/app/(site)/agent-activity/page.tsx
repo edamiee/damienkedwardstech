@@ -105,11 +105,11 @@ export default async function AgentActivityPage() {
         {entries.length === 0 ? (
           <p className="text-sm text-muted">Nothing logged yet.</p>
         ) : (
-          <ul className="divide-y divide-line">
+          <ul className="max-h-[28rem] divide-y divide-line overflow-y-auto rounded-sm border border-line">
             {entries.map((e) => (
               <li
                 key={e.id}
-                className="flex items-start justify-between gap-4 py-3.5"
+                className="flex items-start justify-between gap-4 px-4 py-3.5"
               >
                 <div>
                   <p className="text-sm">{e.summary}</p>

@@ -94,7 +94,8 @@ export const openApiSpec = {
             enum: [
               "site_name", "home_eyebrow", "home_heading", "home_subheading", "now_line",
               "uncharted_heading", "uncharted_body", "hermes_activity_label", "weekly_ai_insight",
-              "about_body", "about_skills", "about_elsewhere_links", "resume_url",
+              "about_body", "about_skills", "about_capabilities", "about_elsewhere_links", "resume_url",
+              "ai_news_links",
               "footer_tagline", "contact_intro", "contact_email",
               "contact_linkedin", "chat_enabled", "chat_header", "chat_subheader",
               "chat_example_question", "newsletter_capture_enabled",

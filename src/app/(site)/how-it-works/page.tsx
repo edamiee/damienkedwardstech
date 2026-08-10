@@ -1,22 +1,8 @@
 import Link from "next/link";
 import { getSiteContent } from "@/lib/site-content";
 import { apiOperations, type ApiOperation } from "@/lib/openapi-spec";
-
-type TitleDetail = { title: string; detail: string };
-
-// how_it_works_sources / how_it_works_surfaces are stored as one
-// "Title | detail" pair per line in site_content — editable at
-// /admin/content without needing a bespoke structured-content editor.
-function parsePairs(raw: string): TitleDetail[] {
-  return raw
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => {
-      const [title, ...rest] = line.split("|");
-      return { title: title.trim(), detail: rest.join("|").trim() };
-    });
-}
+import { DEEP_DIVES } from "@/lib/deep-dives";
+import { parsePairs, type ContentPair } from "@/lib/content-pairs";
 
 function parseList(raw: string): string[] {
   return raw
@@ -24,16 +10,6 @@ function parseList(raw: string): string[] {
     .map((line) => line.trim())
     .filter(Boolean);
 }
-
-const DEEP_DIVES = [
-  { slug: "site-agent", title: "Site Agent" },
-  { slug: "an-agent-toolkit-for-running-the-site", title: "An Agent Toolkit for Running the Site" },
-  {
-    slug: "retrieval-augmented-chat-ask-this-site-a-question",
-    title: "Retrieval-Augmented Chat: Ask This Site a Question",
-  },
-  { slug: "this-site-as-mcp-tools", title: "This Site as MCP Tools" },
-];
 
 // Derived rather than hand-labeled per route, so it can't drift from the
 // spec's actual `security` field. Falls back to scanning the description
@@ -99,7 +75,7 @@ function StageArrow() {
   );
 }
 
-function CardGrid({ items }: { items: TitleDetail[] }) {
+function CardGrid({ items }: { items: ContentPair[] }) {
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       {items.map((item) => (
@@ -256,7 +232,11 @@ export default async function HowItWorksPage() {
         <p className="mt-2 max-w-[58ch] text-[14.5px] text-muted">
           The MCP server needs no account — point any MCP client at{" "}
           <code className="font-data text-[13px] text-fg">https://damienkedwards.tech/api/mcp</code>{" "}
-          and it can search everything published here. Or skip the client and just read the
+          and it can search everything published here. Don&apos;t have an MCP client handy?{" "}
+          <Link href="/mcp-demo" className="text-teal hover:underline">
+            Run the same three tools from this browser →
+          </Link>{" "}
+          — real requests, real responses, no install. Or skip the client and just read the
           machine-readable versions of this same page:
         </p>
         <ul className="mt-3 flex flex-wrap gap-2 text-[12.5px]">

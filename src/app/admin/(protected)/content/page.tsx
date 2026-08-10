@@ -216,6 +216,25 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            &quot;Latest in AI&quot; homepage block
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Links — one per line, as{" "}
+            <code className="font-data">Title | https://…</code>. The source
+            label shown next to each link is derived from the URL&apos;s
+            domain. Leave blank to hide the whole section.
+            <textarea
+              name="ai_news_links"
+              rows={5}
+              placeholder="Anthropic News | https://www.anthropic.com/news"
+              defaultValue={content.ai_news_links}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Weekly AI note
           </legend>
           <p className="text-xs text-muted">
@@ -251,6 +270,20 @@ export default async function AdminSiteContentPage() {
               rows={8}
               defaultValue={content.about_body}
               className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-sm"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            &quot;What I do&quot; cards — one per line, as{" "}
+            <code className="font-data">
+              Title | body | build-log link title | build-log slug
+            </code>
+            . Mirrors the homepage&apos;s three service cards, but each one
+            here links to the build log entry that backs it up.
+            <textarea
+              name="about_capabilities"
+              rows={6}
+              defaultValue={content.about_capabilities}
+              className="rounded-sm border border-line bg-surface px-3 py-2 font-data text-[13px]"
             />
           </label>
           <label className="flex flex-col gap-1.5 text-sm">

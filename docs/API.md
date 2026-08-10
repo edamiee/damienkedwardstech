@@ -52,7 +52,7 @@ via [`GET /api/admin/audit-logs`](#get-apiadminaudit-logs) below.
 ```
 site_name, home_eyebrow, home_heading, home_subheading, now_line,
 uncharted_heading, uncharted_body, hermes_activity_label, weekly_ai_insight,
-about_body, about_skills, about_elsewhere_links, resume_url, footer_tagline,
+about_body, about_skills, about_capabilities, about_elsewhere_links, resume_url, ai_news_links, footer_tagline,
 contact_intro, contact_email, contact_linkedin, chat_enabled ("true"/"false"),
 chat_header, chat_subheader, chat_example_question, newsletter_capture_enabled,
 newsletter_sending_enabled ("true"/"false"), newsletter_from_email,
@@ -63,12 +63,13 @@ how_it_works_related_link_title, how_it_works_related_link_slug,
 agent_activity_eyebrow, agent_activity_heading, agent_activity_intro
 ```
 
-`about_elsewhere_links` and `how_it_works_sources`/`_surfaces` are stored as
-one `Title | detail` pair per line — a real structured list without a
-bespoke editor, parsed with `parsePairs()` in `src/lib/content-pairs.ts`.
-For `about_elsewhere_links` specifically, `detail` is the external URL the
-title links to; empty value hides the "Also published elsewhere" section
-on `/about` entirely.
+`about_elsewhere_links`, `ai_news_links`, and `how_it_works_sources`/
+`_surfaces` are stored as one `Title | detail` pair per line — a real
+structured list without a bespoke editor, parsed with `parsePairs()` in
+`src/lib/content-pairs.ts`. For `about_elsewhere_links` and
+`ai_news_links`, `detail` is the external URL the title links to; an empty
+value hides the "Also published elsewhere" section on `/about`, or the
+"Latest in AI" section on the homepage, entirely.
 
 ---
 

@@ -18,10 +18,33 @@ export const SITE_CONTENT_DEFAULTS = {
   hermes_activity_label: "Last published by Damien's agent that runs the site —",
   weekly_ai_insight:
     "Checks back every Monday — this note is written fresh each week by Claude and hasn't run yet.",
+  // "Title | https://..." pairs, one per line, powering the "Latest in AI"
+  // homepage block — same convention as about_elsewhere_links/
+  // how_it_works_sources, parsed with parsePairs(). Curated by hand rather
+  // than pulled from an RSS feed, since Anthropic doesn't publish one and
+  // an auto-pulled feed kept surfacing OpenAI-only results on a
+  // Claude-centric site. Empty value hides the section entirely.
+  ai_news_links:
+    "Anthropic News | https://www.anthropic.com/news\n" +
+    "Claude Release Notes | https://docs.claude.com/en/release-notes/overview\n" +
+    "Anthropic Engineering Blog | https://www.anthropic.com/engineering\n" +
+    "Anthropic Research | https://www.anthropic.com/research\n" +
+    "Claude Blog | https://claude.com/blog",
   about_body:
     "I'm Damien Edwards, an AI and data engineer. I build the pipelines that move and shape data, and the AI-powered features that sit on top of it — the parts a business actually depends on, not just a demo.\n\nReplace this paragraph with your real background: past roles, industries you've worked in, the kind of problems you're best at, and what you're looking for next (contract, freelance, full-time — or all three).",
   about_skills:
     "Data pipelines, Python, TypeScript / Next.js, Supabase / Postgres, Claude / LLM integration, ETL & orchestration",
+  // One line per "What I do" category, as
+  // "Title | body | build-log link title | build-log slug" — same
+  // delimited-list convention as how_it_works_sources/_surfaces, extended
+  // with two extra fields so each category can point at the entry that
+  // actually proves it. Mirrors the three home_services rows (pipelines,
+  // llm, features) but isn't read from that table, since the About page
+  // needs a longer narrative body than the homepage cards do.
+  about_capabilities:
+    "Data pipelines | Ingestion, transformation, and orchestration that hold up under real production load — the unglamorous plumbing that decides whether anything built on top of it can be trusted. | A dbt Semantic Layer Over My Own GitHub Activity | a-dbt-semantic-layer-over-my-own-github-activity\n" +
+    "AI integration | Wiring Claude and other models into products as features, not demos — tool use, structured output, and small agents scoped to one job, each held to the same audit trail as a human editor. | An Agent Toolkit for Running the Site | an-agent-toolkit-for-running-the-site\n" +
+    "Applied AI features | The interface layer on top — the part your users and customers actually touch. Grounded in what's actually published, cited, and honest about what it doesn't know. | Retrieval-Augmented Chat: Ask This Site a Question | retrieval-augmented-chat-ask-this-site-a-question",
   // "Title | https://..." pairs, one per line — same structured-list
   // pattern as how_it_works_sources/_surfaces, parsed with parsePairs().
   // Empty by default so the "Also published elsewhere" section on /about

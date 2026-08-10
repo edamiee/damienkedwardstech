@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { getLatestAiNews } from "@/lib/ai-feed";
 import { getSiteContent } from "@/lib/site-content";
+import { parsePairs } from "@/lib/content-pairs";
 import { getHomeServices } from "@/lib/home-services";
 import { getLatestHermesActivity } from "@/lib/hermes-activity";
 import { getTestimonials } from "@/lib/testimonials";
@@ -9,8 +9,7 @@ import { TerrainHero } from "@/components/terrain-hero";
 import { NewsletterForm } from "@/components/newsletter-form";
 
 export default async function HomePage() {
-  const [aiNews, content, services, hermesActivity] = await Promise.all([
-    getLatestAiNews(5),
+  const [content, services, hermesActivity] = await Promise.all([
     getSiteContent(),
     getHomeServices(),
     getLatestHermesActivity(),
@@ -18,6 +17,17 @@ export default async function HomePage() {
 
   const testimonials =
     content.testimonials_enabled === "true" ? await getTestimonials() : [];
+  const aiNews = parsePairs(content.ai_news_links).map((item) => ({
+    title: item.title,
+    link: item.detail,
+    source: (() => {
+      try {
+        return new URL(item.detail).hostname.replace(/^www\./, "");
+      } catch {
+        return "";
+      }
+    })(),
+  }));
 
   return (
     <div className="mx-auto max-w-4xl px-6">

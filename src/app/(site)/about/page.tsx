@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { getSiteContent } from "@/lib/site-content";
-import { parsePairs } from "@/lib/content-pairs";
+import { parsePairs, parseCapabilities } from "@/lib/content-pairs";
 
 export default async function AboutPage() {
   const content = await getSiteContent();
@@ -9,6 +10,7 @@ export default async function AboutPage() {
     .map((s) => s.trim())
     .filter(Boolean);
   const elsewhereLinks = parsePairs(content.about_elsewhere_links);
+  const capabilities = parseCapabilities(content.about_capabilities);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -46,6 +48,30 @@ export default async function AboutPage() {
           <p key={i}>{paragraph}</p>
         ))}
       </div>
+
+      {capabilities.length > 0 && (
+        <div className="mt-10">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+            What I do
+          </h2>
+          <div className="mt-4 grid gap-6 sm:grid-cols-3">
+            {capabilities.map((item) => (
+              <div key={item.title}>
+                <h3 className="font-display text-lg">{item.title}</h3>
+                <p className="mt-1.5 max-w-[32ch] text-sm text-muted">{item.body}</p>
+                {item.slug && (
+                  <Link
+                    href={`/build-log/${item.slug}`}
+                    className="mt-2 inline-block text-[13px] text-teal hover:underline"
+                  >
+                    {item.linkTitle} →
+                  </Link>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <h2 className="mt-10 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
         Skills &amp; tools

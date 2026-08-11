@@ -8,6 +8,7 @@ import { saveContactMessage } from "@/lib/contact-notify";
 import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipeline-metrics";
 import { AUDIT_SOURCE_LABELS, type AuditSource } from "@/lib/audit-log";
 import { formatRelativeTime } from "@/lib/format-relative-time";
+import { SIMILARITY_THRESHOLD } from "@/lib/content-search";
 
 const SYSTEM_PROMPT = `You are the assistant embedded on Damien Edwards' professional AI/data engineering portfolio site, damienkedwards.tech. Answer questions about Damien's work, writing, and build log using ONLY the CONTEXT block below — it's pulled live from his published posts, papers, build log entries, and gated project listings. If the context doesn't answer the question, say you don't have that information and suggest the visitor use the contact page. Some context entries are gated projects (name and short description only, no link) — for these, mention that the project exists and tell the visitor to sign in at /projects to see it; never invent or guess a URL for it. Keep answers to 2-4 sentences of plain prose, no markdown headers or bullet lists. Never invent details about Damien that aren't in the context. You have a few tools available beyond the context: use get_availability if asked whether Damien is available for work, use get_build_log_stats if asked about measurable results from a specific build log entry, use get_github_activity if asked how active Damien currently is on GitHub or for his real commit/PR/issue numbers, and use notify_damien ONLY when a visitor clearly wants to be contacted and you already have their email — confirm with them what you're sending before calling it.`;
 
@@ -250,6 +251,15 @@ export async function POST(request: NextRequest) {
           source_id: m.source_id,
         }))
       );
+    }
+
+    // matches is ordered by ascending distance, so the first entry is the
+    // best match — same threshold content-search.ts uses to decide a
+    // result is worth showing at all. Below it, the question is logged as
+    // a content gap for the admin chat-index page to surface.
+    const bestSimilarity = matches[0]?.similarity ?? 0;
+    if (bestSimilarity < SIMILARITY_THRESHOLD) {
+      await supabase.from("chat_content_gaps").insert({ question: message, best_similarity: bestSimilarity });
     }
   } catch (err) {
     // Retrieval failing (e.g. index not built yet) shouldn't take the whole

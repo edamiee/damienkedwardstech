@@ -26,7 +26,9 @@ const KIND_LABELS: Record<string, string> = {
   project: "Gated project",
 };
 
-const SIMILARITY_THRESHOLD = 0.3;
+// Exported for the chat route, which uses the same cutoff to decide
+// whether a question counts as an unanswered content gap.
+export const SIMILARITY_THRESHOLD = 0.3;
 
 // Shared by the /search page and the public search_content MCP tool —
 // semantic search over published content via pgvector. snippetLength

@@ -5,7 +5,10 @@ import { getRecentShippedCommits } from "@/lib/github-activity";
 
 export const revalidate = 60;
 
-export default async function BuildLogIndexPage() {
+export default async function BuildLogIndexPage({ searchParams }: PageProps<"/build-log">) {
+  const { stack } = await searchParams;
+  const activeStack = typeof stack === "string" ? stack : null;
+
   const supabase = await createClient();
   const [{ data: caseStudies }, recentCommits] = await Promise.all([
     supabase
@@ -16,6 +19,20 @@ export default async function BuildLogIndexPage() {
       .order("sort_order", { ascending: true }),
     getRecentShippedCommits(7),
   ]);
+
+  const withStack = (caseStudies ?? []).map((cs) => ({
+    ...cs,
+    stackItems: (cs.stack ?? "")
+      .split(",")
+      .map((s: string) => s.trim())
+      .filter(Boolean) as string[],
+  }));
+  const allStackTags = Array.from(new Set(withStack.flatMap((cs) => cs.stackItems))).sort();
+  const items = activeStack
+    ? withStack.filter((cs) => cs.stackItems.includes(activeStack))
+    : withStack;
+
+  const buildHref = (tag: string | null) => (tag ? `/build-log?stack=${encodeURIComponent(tag)}` : "/build-log");
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-16">
@@ -52,42 +69,56 @@ export default async function BuildLogIndexPage() {
         </div>
       )}
 
+      {allStackTags.length > 0 && (
+        <div className="mt-6 flex flex-wrap items-center gap-2">
+          {allStackTags.map((tag) => (
+            <Link
+              key={tag}
+              href={buildHref(tag === activeStack ? null : tag)}
+              className={`rounded-sm border px-2.5 py-1 text-[11.5px] ${
+                tag === activeStack
+                  ? "border-teal bg-teal text-ground"
+                  : "border-line bg-surface text-muted hover:text-teal"
+              }`}
+            >
+              {tag}
+            </Link>
+          ))}
+        </div>
+      )}
+
       <ul className="mt-10 divide-y divide-line">
-        {(caseStudies ?? []).map((cs) => {
-          const stack: string[] = (cs.stack ?? "")
-            .split(",")
-            .map((s: string) => s.trim())
-            .filter(Boolean);
-          return (
-            <li key={cs.slug} className="py-6">
-              <Link href={`/build-log/${cs.slug}`} className="group block">
-                <span className="font-display text-xl group-hover:text-teal">
-                  {cs.title}
+        {items.map((cs) => (
+          <li key={cs.slug} className="py-6">
+            <Link href={`/build-log/${cs.slug}`} className="group block">
+              <span className="font-display text-xl group-hover:text-teal">
+                {cs.title}
+              </span>
+              {cs.summary && (
+                <span className="mt-1.5 block max-w-[60ch] text-sm text-muted">
+                  {cs.summary}
                 </span>
-                {cs.summary && (
-                  <span className="mt-1.5 block max-w-[60ch] text-sm text-muted">
-                    {cs.summary}
-                  </span>
-                )}
-                {stack.length > 0 && (
-                  <span className="mt-3 flex flex-wrap gap-2">
-                    {stack.map((item: string) => (
-                      <span
-                        key={item}
-                        className="rounded-sm border border-line bg-surface px-2.5 py-1 text-[11.5px] text-muted"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </span>
-                )}
-              </Link>
-            </li>
-          );
-        })}
-        {(!caseStudies || caseStudies.length === 0) && (
+              )}
+              {cs.stackItems.length > 0 && (
+                <span className="mt-3 flex flex-wrap gap-2">
+                  {cs.stackItems.map((item) => (
+                    <span
+                      key={item}
+                      className="rounded-sm border border-line bg-surface px-2.5 py-1 text-[11.5px] text-muted"
+                    >
+                      {item}
+                    </span>
+                  ))}
+                </span>
+              )}
+            </Link>
+          </li>
+        ))}
+        {items.length === 0 && (
           <li className="py-6 text-sm text-muted">
-            Nothing published yet — check back soon.
+            {activeStack
+              ? `Nothing tagged "${activeStack}" yet.`
+              : "Nothing published yet — check back soon."}
           </li>
         )}
       </ul>

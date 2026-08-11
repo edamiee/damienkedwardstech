@@ -302,6 +302,36 @@ export const openApiSpec = {
         },
       },
     },
+    "/api/chat/feedback": {
+      post: {
+        summary: "Thumbs up/down on a chat widget answer",
+        description:
+          "Public, rate-limited to 30 requests/60s per IP. Logs a rating on a prior /api/chat answer for the admin chat-index page to surface.",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  question: { type: "string", maxLength: 500 },
+                  answer: { type: "string", maxLength: 2000 },
+                  rating: { type: "string", enum: ["up", "down"] },
+                  sources: { type: "array", items: { type: "object" } },
+                },
+                required: ["question", "answer", "rating"],
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "{ ok: true }" },
+          "400": { description: "Missing question/answer, or rating isn't 'up'/'down'." },
+          "429": { description: "Rate limited." },
+          "500": { description: "Insert failed." },
+        },
+      },
+    },
     "/api/telegram/webhook": {
       post: {
         summary: "Telegram webhook for the conversational admin agent",

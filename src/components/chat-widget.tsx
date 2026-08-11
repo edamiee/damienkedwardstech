@@ -11,6 +11,8 @@ type Message = {
     lastUpdatedBy?: string;
     lastUpdatedAt?: string;
   }[];
+  question?: string;
+  feedback?: "up" | "down";
 };
 
 type ChatWidgetProps = {
@@ -29,6 +31,28 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
   }, [messages, open]);
+
+  async function rateMessage(index: number, rating: "up" | "down") {
+    const target = messages[index];
+    if (target.role !== "assistant" || target.feedback) return;
+
+    setMessages((prev) => prev.map((m, i) => (i === index ? { ...m, feedback: rating } : m)));
+
+    try {
+      await fetch("/api/chat/feedback", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          question: target.question ?? "",
+          answer: target.text,
+          rating,
+          sources: target.sources ?? [],
+        }),
+      });
+    } catch {
+      // Best-effort — a failed feedback POST shouldn't disrupt the chat.
+    }
+  }
 
   async function sendMessage(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +74,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
       if (!res.ok) throw new Error(data.error ?? "Request failed");
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", text: data.answer, sources: data.sources },
+        { role: "assistant", text: data.answer, sources: data.sources, question },
       ]);
     } catch {
       setMessages((prev) => [
@@ -107,6 +131,43 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
                         )}
                       </div>
                     ))}
+                  </div>
+                )}
+                {m.role === "assistant" && (
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      aria-label="Good answer"
+                      onClick={() => rateMessage(i, "up")}
+                      disabled={!!m.feedback}
+                      className={`rounded-sm px-1.5 py-0.5 text-xs ${
+                        m.feedback === "up"
+                          ? "text-teal"
+                          : m.feedback
+                            ? "text-muted opacity-40"
+                            : "text-muted hover:text-teal"
+                      }`}
+                    >
+                      👍
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Bad answer"
+                      onClick={() => rateMessage(i, "down")}
+                      disabled={!!m.feedback}
+                      className={`rounded-sm px-1.5 py-0.5 text-xs ${
+                        m.feedback === "down"
+                          ? "text-rust"
+                          : m.feedback
+                            ? "text-muted opacity-40"
+                            : "text-muted hover:text-rust"
+                      }`}
+                    >
+                      👎
+                    </button>
+                    {m.feedback && (
+                      <span className="text-[10px] text-muted">Thanks for the feedback</span>
+                    )}
                   </div>
                 )}
               </div>

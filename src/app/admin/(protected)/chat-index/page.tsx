@@ -45,6 +45,15 @@ export default async function AdminChatIndexPage({
     .limit(300);
   const gaps = groupGaps(gapRows ?? []).slice(0, 15);
 
+  const { data: feedbackRows } = await supabase
+    .from("chat_feedback")
+    .select("question, rating, created_at")
+    .order("created_at", { ascending: false })
+    .limit(300);
+  const upCount = (feedbackRows ?? []).filter((r) => r.rating === "up").length;
+  const downCount = (feedbackRows ?? []).filter((r) => r.rating === "down").length;
+  const recentDownvotes = (feedbackRows ?? []).filter((r) => r.rating === "down").slice(0, 15);
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="font-display text-2xl">Chat index</h1>
@@ -95,6 +104,30 @@ export default async function AdminChatIndexPage({
         ))}
         {gaps.length === 0 && (
           <li className="px-4 py-3 text-sm text-teal">No unanswered questions logged.</li>
+        )}
+      </ul>
+
+      <h2 className="mt-10 font-display text-lg">Answer feedback</h2>
+      <p className="mt-1 text-sm text-muted">
+        Thumbs up/down from the chat widget. Down-votes are the ones worth
+        digging into — retrieval found something, but the answer missed.
+      </p>
+      <p className="mt-3 text-sm">
+        <span className="text-teal">{upCount} up</span>
+        {" · "}
+        <span className="text-rust">{downCount} down</span>
+      </p>
+      <ul className="mt-4 divide-y divide-line rounded-sm border border-line bg-surface">
+        {recentDownvotes.map((row, i) => (
+          <li key={i} className="flex items-baseline justify-between gap-4 px-4 py-3">
+            <p className="text-sm">{row.question}</p>
+            <p className="shrink-0 whitespace-nowrap text-xs text-muted">
+              {formatRelativeTime(row.created_at)}
+            </p>
+          </li>
+        ))}
+        {recentDownvotes.length === 0 && (
+          <li className="px-4 py-3 text-sm text-teal">No down-votes logged.</li>
         )}
       </ul>
     </div>

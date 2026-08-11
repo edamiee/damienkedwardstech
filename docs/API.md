@@ -305,6 +305,30 @@ limited; 502 if generation fails.
 
 ---
 
+### `POST /api/chat/feedback`
+
+Thumbs up/down on a chat widget answer, shown inline under each assistant
+message. Logged to `chat_feedback` — the admin chat-index page surfaces
+recent down-votes so a real "answered, but wrong" case is visible alongside
+the content-gap ("couldn't answer at all") list.
+
+**Auth:** none (public) — rate-limited to 30 requests/60s per IP.
+
+```json
+// Request
+{
+  "question": "...",
+  "answer": "...",
+  "rating": "up" | "down",
+  "sources": [{ "title": "...", "url_path": "..." }]  // optional
+}
+
+// Response
+{ "ok": true }
+```
+
+---
+
 ## Scheduled jobs
 
 ### `GET /api/cron/weekly-insight`

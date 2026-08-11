@@ -21,6 +21,28 @@ type ChatWidgetProps = {
   exampleQuestion: string;
 };
 
+// Line-art thumb icons in currentColor — plain 👍/👎 emoji render in their
+// own fixed color on most platforms and ignore text-teal/text-rust
+// entirely, which is why the buttons looked the same regardless of state.
+function ThumbIcon({ direction }: { direction: "up" | "down" }) {
+  return (
+    <svg
+      viewBox="0 0 20 20"
+      width="14"
+      height="14"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={direction === "down" ? "rotate-180" : undefined}
+    >
+      <path d="M7 8.5V17H4.5A1.5 1.5 0 0 1 3 15.5v-5A1.5 1.5 0 0 1 4.5 9H7Z" />
+      <path d="M7 8.5 10.5 3a1.8 1.8 0 0 1 2 2l-1 3.5H15a2 2 0 0 1 1.9 2.7l-1.8 5A2 2 0 0 1 13.2 17H7" />
+    </svg>
+  );
+}
+
 export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetProps) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -140,7 +162,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
                       aria-label="Good answer"
                       onClick={() => rateMessage(i, "up")}
                       disabled={!!m.feedback}
-                      className={`rounded-sm px-1.5 py-0.5 text-xs ${
+                      className={`rounded-sm p-1 ${
                         m.feedback === "up"
                           ? "text-teal"
                           : m.feedback
@@ -148,14 +170,14 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
                             : "text-muted hover:text-teal"
                       }`}
                     >
-                      👍
+                      <ThumbIcon direction="up" />
                     </button>
                     <button
                       type="button"
                       aria-label="Bad answer"
                       onClick={() => rateMessage(i, "down")}
                       disabled={!!m.feedback}
-                      className={`rounded-sm px-1.5 py-0.5 text-xs ${
+                      className={`rounded-sm p-1 ${
                         m.feedback === "down"
                           ? "text-rust"
                           : m.feedback
@@ -163,7 +185,7 @@ export function ChatWidget({ header, subheader, exampleQuestion }: ChatWidgetPro
                             : "text-muted hover:text-rust"
                       }`}
                     >
-                      👎
+                      <ThumbIcon direction="down" />
                     </button>
                     {m.feedback && (
                       <span className="text-[10px] text-muted">Thanks for the feedback</span>

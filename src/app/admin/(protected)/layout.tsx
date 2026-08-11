@@ -49,6 +49,7 @@ export default async function ProtectedAdminLayout({
     { href: "/admin/contact-messages", label: "Messages" },
     { href: "/admin/subscribers", label: "Subscribers" },
     { href: "/admin/chat-index", label: "Chat index" },
+    { href: "/admin/mcp-clients", label: "MCP clients" },
     { href: "/admin/content-health", label: "Content health" },
     { href: "/admin/audit-log", label: "Audit log" },
   ];

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { recordCronRun } from "@/lib/cron-runs";
 
 const RETENTION_DAYS = 7;
 
@@ -25,8 +26,10 @@ export async function GET(request: NextRequest) {
     .select("id");
 
   if (error) {
+    await recordCronRun("purge-agent-logs", "error", error.message);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  await recordCronRun("purge-agent-logs", "ok", `deleted ${data?.length ?? 0} rows`);
   return NextResponse.json({ ok: true, deleted: data?.length ?? 0 });
 }

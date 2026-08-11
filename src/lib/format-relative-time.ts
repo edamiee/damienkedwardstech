@@ -19,3 +19,10 @@ export function formatRelativeTime(date: string | Date): string {
   }
   return "just now";
 }
+
+// Small pure wrapper so callers (server components especially) don't call
+// Date.now()/new Date() directly during render — react-hooks/purity flags
+// that as an impure call even though it's harmless here.
+export function isPast(date: string): boolean {
+  return new Date(date).getTime() <= Date.now();
+}

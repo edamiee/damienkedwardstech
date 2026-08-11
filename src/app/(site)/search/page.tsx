@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { searchContent, type SearchResult } from "@/lib/content-search";
+import { logContentGap } from "@/lib/content-gaps";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +14,9 @@ export default async function SearchPage({ searchParams }: PageProps<"/search">)
   if (query) {
     try {
       results = await searchContent(query);
+      if (results.length === 0) {
+        await logContentGap(createAdminClient(), { question: query, source: "search_gap" });
+      }
     } catch (err) {
       console.error("search page failed", err);
       searchFailed = true;

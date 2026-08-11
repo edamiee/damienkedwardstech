@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { generateWeeklyInsight, saveWeeklyInsight } from "@/lib/weekly-insight";
 import { sendWeeklyNewsletter } from "@/lib/newsletter-send";
+import { recordCronRun } from "@/lib/cron-runs";
 
 // Hit by Vercel Cron (see vercel.json) once a week. Vercel automatically
 // sends `Authorization: Bearer $CRON_SECRET` on cron-triggered requests
@@ -14,9 +15,15 @@ export async function GET(request: NextRequest) {
   }
 
   const supabase = createAdminClient();
-  const insight = await generateWeeklyInsight();
-  await saveWeeklyInsight(supabase, insight);
-  const newsletter = await sendWeeklyNewsletter(supabase, insight);
+  try {
+    const insight = await generateWeeklyInsight();
+    await saveWeeklyInsight(supabase, insight);
+    const newsletter = await sendWeeklyNewsletter(supabase, insight);
 
-  return NextResponse.json({ ok: true, insight, newsletter });
+    await recordCronRun("weekly-insight", "ok", `sent to ${newsletter?.sent ?? 0} subscribers`);
+    return NextResponse.json({ ok: true, insight, newsletter });
+  } catch (err) {
+    await recordCronRun("weekly-insight", "error", err instanceof Error ? err.message : String(err));
+    throw err;
+  }
 }

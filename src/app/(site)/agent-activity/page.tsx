@@ -8,6 +8,7 @@ import { getPipelineActivityMetrics, formatRate, formatHours } from "@/lib/pipel
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import { AUDIT_SOURCE_LABELS } from "@/lib/audit-log";
 import { getSiteContent } from "@/lib/site-content";
+import { getCronHealth } from "@/lib/cron-runs";
 
 // Explicit bound on how stale this can get, matching the pipeline build
 // log entry's own revalidate — this page's "Live" framing shouldn't be
@@ -16,12 +17,13 @@ import { getSiteContent } from "@/lib/site-content";
 export const revalidate = 60;
 
 export default async function AgentActivityPage() {
-  const [entries, sourceStatus, pipelineStatus, pipelineMetrics, content] = await Promise.all([
+  const [entries, sourceStatus, pipelineStatus, pipelineMetrics, content, cronHealth] = await Promise.all([
     getRecentAgentActivity(30),
     getAgentSourceStatus(),
     getPipelineWorkflowStatus(),
     getPipelineActivityMetrics(),
     getSiteContent(),
+    getCronHealth(),
   ]);
 
   return (
@@ -97,6 +99,36 @@ export default async function AgentActivityPage() {
               </p>
             </a>
           ))}
+        </div>
+      </section>
+
+      <section className="mt-14">
+        <h2 className="mb-4 text-xs font-semibold uppercase tracking-[0.12em] text-teal">
+          Scheduled jobs
+        </h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {cronHealth.map((job) => {
+            const healthy = job.status === "ok" && !job.overdue;
+            return (
+              <div key={job.name} className="rounded-sm border border-line bg-surface p-4">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-data text-[11.5px] font-semibold uppercase tracking-[0.06em] text-teal">
+                    {job.label}
+                  </p>
+                  <span
+                    className={`h-2 w-2 shrink-0 rounded-full ${healthy ? "bg-teal-soft" : "bg-rust"}`}
+                  />
+                </div>
+                <p className="mt-1.5 text-[13px] text-muted">
+                  {job.lastRunAt
+                    ? `Last ran ${formatRelativeTime(job.lastRunAt)}`
+                    : "Never run"}
+                  {job.status === "error" && " · last run failed"}
+                  {job.overdue && job.lastRunAt && " · overdue"}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 

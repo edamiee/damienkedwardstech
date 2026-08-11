@@ -369,6 +369,14 @@ Schedule: daily, 05:00 UTC (`0 5 * * *`).
 
 ---
 
+Both jobs record their own last-run time and ok/error status to
+`cron_runs` on every invocation — surfaced as a "Scheduled jobs" section on
+[`/agent-activity`](https://damienkedwards.tech/agent-activity), so a job
+that silently stops firing (rather than erroring) still shows up as
+overdue instead of just going quiet.
+
+---
+
 ## Public feeds & metadata
 
 All of these are unauthenticated `GET` requests with no request body.

@@ -2,9 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
-
-export const CONTACT_MESSAGE_STATUSES = ["new", "triage", "replied", "archived"] as const;
-export type ContactMessageStatus = (typeof CONTACT_MESSAGE_STATUSES)[number];
+import { CONTACT_MESSAGE_STATUSES, type ContactMessageStatus } from "./status";
 
 export async function setContactMessageStatus(formData: FormData) {
   const admin = await requireAdmin();

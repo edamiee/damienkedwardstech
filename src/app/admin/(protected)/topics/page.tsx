@@ -1,7 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 import TopicStatusSelect from "./topic-status-select";
-import type { TopicStatus } from "./actions";
+import type { TopicStatus } from "./status";
 
 type Topic = {
   id: string;

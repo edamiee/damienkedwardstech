@@ -1,11 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import {
-  CONTACT_MESSAGE_STATUSES,
-  setContactMessageStatus,
-  type ContactMessageStatus,
-} from "./actions";
+import { setContactMessageStatus } from "./actions";
+import { CONTACT_MESSAGE_STATUSES, type ContactMessageStatus } from "./status";
 
 export default function StatusSelect({
   id,

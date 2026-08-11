@@ -2,9 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/require-admin";
-
-export const TOPIC_STATUSES = ["open", "writing", "published", "closed"] as const;
-export type TopicStatus = (typeof TOPIC_STATUSES)[number];
+import { TOPIC_STATUSES, type TopicStatus } from "./status";
 
 export async function setTopicStatus(formData: FormData) {
   const admin = await requireAdmin();

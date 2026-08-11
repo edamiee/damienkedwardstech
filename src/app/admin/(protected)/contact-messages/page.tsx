@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import StatusSelect from "./status-select";
-import type { ContactMessageStatus } from "./actions";
+import type { ContactMessageStatus } from "./status";
 
 export default async function AdminContactMessagesPage() {
   const supabase = await createClient();

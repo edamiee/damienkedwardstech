@@ -1,7 +1,8 @@
 "use client";
 
 import { useTransition } from "react";
-import { TOPIC_STATUSES, setTopicStatus, type TopicStatus } from "./actions";
+import { setTopicStatus } from "./actions";
+import { TOPIC_STATUSES, type TopicStatus } from "./status";
 
 export default function TopicStatusSelect({ id, status }: { id: string; status: TopicStatus }) {
   const [isPending, startTransition] = useTransition();

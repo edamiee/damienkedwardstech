@@ -96,13 +96,14 @@ export const SITE_CONTENT_DEFAULTS = {
     "Not part of this site's own architecture above, but built the same way — a standalone repo with a real ingest → dbt → semantic layer → BI pipeline over my own GitHub activity, deliberately decoupled from damienkedwardstech's codebase.",
   how_it_works_related_link_title: "A dbt Semantic Layer Over My Own GitHub Activity",
   how_it_works_related_link_slug: "a-dbt-semantic-layer-over-my-own-github-activity",
-  // Per-tool visibility for the /mcp-demo playground — each card checks
-  // its own flag, default on. Lets a tool be pulled from the public demo
-  // (e.g. while its backing data is stale) without touching /api/mcp
-  // itself, which keeps serving it to real MCP clients either way.
-  mcp_demo_search_enabled: "true",
-  mcp_demo_availability_enabled: "true",
-  mcp_demo_build_log_stats_enabled: "true",
+  // Per-tool kill switch for /api/mcp — each of the three public tools
+  // checks its own flag before registering (see src/app/api/mcp/route.ts),
+  // default on. Turns the tool off entirely, for every caller: it drops
+  // out of tools/list and off the /mcp-demo playground alike, not just
+  // one or the other.
+  mcp_search_enabled: "true",
+  mcp_availability_enabled: "true",
+  mcp_build_log_stats_enabled: "true",
   agent_activity_eyebrow: "Live",
   agent_activity_heading: "Agent activity",
   agent_activity_intro:

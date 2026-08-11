@@ -5,9 +5,9 @@ import { getSiteContent } from "@/lib/site-content";
 export default async function McpDemoPage() {
   const content = await getSiteContent();
   const enabledTools: McpTool[] = [
-    content.mcp_demo_search_enabled !== "false" && "search_content",
-    content.mcp_demo_availability_enabled !== "false" && "get_availability",
-    content.mcp_demo_build_log_stats_enabled !== "false" && "get_build_log_stats",
+    content.mcp_search_enabled !== "false" && "search_content",
+    content.mcp_availability_enabled !== "false" && "get_availability",
+    content.mcp_build_log_stats_enabled !== "false" && "get_build_log_stats",
   ].filter((tool): tool is McpTool => Boolean(tool));
 
   return (

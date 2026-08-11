@@ -466,22 +466,26 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
-            MCP demo page
+            MCP tools
           </legend>
           <p className="text-xs text-muted">
-            Which tools show as &quot;try it&quot; cards on{" "}
+            Turn a tool off entirely — it drops out of{" "}
+            <code className="font-data">/api/mcp</code>&apos;s tool list for real
+            MCP clients and off the{" "}
             <a href="/mcp-demo" target="_blank" rel="noreferrer" className="text-teal hover:underline">
               /mcp-demo ↗
-            </a>
-            . The MCP server itself at /api/mcp always exposes all three to
-            real clients regardless of these — this only hides cards from
-            the public demo page.
+            </a>{" "}
+            playground alike. Check{" "}
+            <a href="/agent-activity" target="_blank" rel="noreferrer" className="text-teal hover:underline">
+              /agent-activity ↗
+            </a>{" "}
+            for what MCP clients have actually been calling before switching one off.
           </p>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              name="mcp_demo_search_enabled"
-              defaultChecked={content.mcp_demo_search_enabled !== "false"}
+              name="mcp_search_enabled"
+              defaultChecked={content.mcp_search_enabled !== "false"}
               className="h-4 w-4 accent-teal"
             />
             Search site content
@@ -489,8 +493,8 @@ export default async function AdminSiteContentPage() {
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              name="mcp_demo_availability_enabled"
-              defaultChecked={content.mcp_demo_availability_enabled !== "false"}
+              name="mcp_availability_enabled"
+              defaultChecked={content.mcp_availability_enabled !== "false"}
               className="h-4 w-4 accent-teal"
             />
             Check availability
@@ -498,8 +502,8 @@ export default async function AdminSiteContentPage() {
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
-              name="mcp_demo_build_log_stats_enabled"
-              defaultChecked={content.mcp_demo_build_log_stats_enabled !== "false"}
+              name="mcp_build_log_stats_enabled"
+              defaultChecked={content.mcp_build_log_stats_enabled !== "false"}
               className="h-4 w-4 accent-teal"
             />
             Get build log stats

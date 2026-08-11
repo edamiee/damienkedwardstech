@@ -26,9 +26,9 @@ const CHECKBOX_KEYS: SiteContentKey[] = [
   "newsletter_sending_enabled",
   "testimonials_enabled",
   "business_inquiry_enabled",
-  "mcp_demo_search_enabled",
-  "mcp_demo_availability_enabled",
-  "mcp_demo_build_log_stats_enabled",
+  "mcp_search_enabled",
+  "mcp_availability_enabled",
+  "mcp_build_log_stats_enabled",
 ];
 
 export async function saveSiteContent(formData: FormData) {

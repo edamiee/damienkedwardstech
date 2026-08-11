@@ -4,6 +4,7 @@ import { searchContent } from "@/lib/content-search";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteContent } from "@/lib/site-content";
 import { ADMIN_AGENT_TOOLS, executeAdminAgentTool } from "@/lib/admin-agent-tools";
+import { logContentChange } from "@/lib/audit-log";
 
 // Remote MCP server (Streamable HTTP, stateless — a fresh McpServer instance
 // per request, matching Vercel's serverless model) exposing this site as
@@ -27,6 +28,21 @@ import { ADMIN_AGENT_TOOLS, executeAdminAgentTool } from "@/lib/admin-agent-tool
 // See docs/API.md and /openapi.json for the REST-shaped sibling of this
 // endpoint, and the setup instructions given alongside this file for how to
 // point Claude Desktop / another MCP client at it.
+//
+// Every public tool call also gets logged (source "mcp_client", distinct
+// from the already-logged "mcp_agent" admin writes) so the live demo shows
+// up on /agent-activity the same way every other write path does.
+//
+// Each public tool also checks its own site_content flag
+// (mcp_search_enabled / mcp_availability_enabled /
+// mcp_build_log_stats_enabled, editable at /admin/content) before
+// registering — a tool that's off simply isn't in tools/list and
+// tools/call for it returns the standard "unknown tool" error, for every
+// caller (the /mcp-demo page and real MCP clients alike), not just the demo.
+
+function truncate(text: string, max = 150): string {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
+}
 
 const RATE_LIMIT = 60; // requests
 const RATE_WINDOW_MS = 60_000;
@@ -62,76 +78,100 @@ async function extractAuthInfo(request: Request): Promise<AuthInfo | undefined> 
 
 const factory: McpServerFactory = async (ctx) => {
   const server = new McpServer({ name: "damienkedwardstech", version: "1.0.0" });
+  const siteContent = await getSiteContent();
 
-  server.registerTool(
-    "search_content",
-    {
-      title: "Search site content",
-      description:
-        "Semantic search over everything published on damienkedwards.tech — posts, papers, build log entries, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
-      inputSchema: z.object({
-        query: z.string().describe("What to search for, in natural language."),
-        site_only: z
-          .boolean()
-          .optional()
-          .describe(
-            "If true, restrict results to posts about damienkedwardstech/the arcade itself, excluding posts on other topics."
-          ),
-      }),
-    },
-    async ({ query, site_only }) => {
-      const results = await searchContent(query, 12, 600, site_only ?? false);
-      if (results.length === 0) {
-        return { content: [{ type: "text", text: "No matches." }] };
+  if (siteContent.mcp_search_enabled !== "false") {
+    server.registerTool(
+      "search_content",
+      {
+        title: "Search site content",
+        description:
+          "Semantic search over everything published on damienkedwards.tech — posts, papers, build log entries, and gated-project teasers. Returns titles, URLs, and a ~600-character excerpt for each match, ranked by relevance to the query.",
+        inputSchema: z.object({
+          query: z.string().describe("What to search for, in natural language."),
+          site_only: z
+            .boolean()
+            .optional()
+            .describe(
+              "If true, restrict results to posts about damienkedwardstech/the arcade itself, excluding posts on other topics."
+            ),
+        }),
+      },
+      async ({ query, site_only }) => {
+        const results = await searchContent(query, 12, 600, site_only ?? false);
+        await logContentChange({
+          source: "mcp_client",
+          action: "mcp.search_content",
+          entity_type: "mcp_tool_call",
+          summary: `MCP client searched for "${truncate(query)}"${site_only ? " (site only)" : ""} — ${results.length} result${results.length === 1 ? "" : "s"}`,
+        });
+        if (results.length === 0) {
+          return { content: [{ type: "text", text: "No matches." }] };
+        }
+        const text = results
+          .map((r) => `[${r.kind}] ${r.title} — https://damienkedwards.tech${r.url_path}\n${r.snippet}`)
+          .join("\n\n");
+        return { content: [{ type: "text", text }] };
       }
-      const text = results
-        .map((r) => `[${r.kind}] ${r.title} — https://damienkedwards.tech${r.url_path}\n${r.snippet}`)
-        .join("\n\n");
-      return { content: [{ type: "text", text }] };
-    }
-  );
+    );
+  }
 
-  server.registerTool(
-    "get_build_log_stats",
-    {
-      title: "Get build log stats",
-      description:
-        "Get the measurable outcome stats for one of Damien's build log entries by its slug (slugs appear at the end of a build log URL, e.g. /build-log/site-agent -> slug 'site-agent').",
-      inputSchema: z.object({ slug: z.string() }),
-    },
-    async ({ slug }) => {
-      const supabase = createAdminClient();
-      const { data } = await supabase
-        .from("case_studies")
-        .select("stats")
-        .eq("slug", slug)
-        .eq("published", true)
-        .maybeSingle();
-      const stats = (data?.stats ?? []) as { value: string; label: string }[];
-      const text = stats.length === 0 ? "No stats recorded for that build log entry." : stats.map((s) => `${s.value} ${s.label}`).join("; ");
-      return { content: [{ type: "text", text }] };
-    }
-  );
+  if (siteContent.mcp_build_log_stats_enabled !== "false") {
+    server.registerTool(
+      "get_build_log_stats",
+      {
+        title: "Get build log stats",
+        description:
+          "Get the measurable outcome stats for one of Damien's build log entries by its slug (slugs appear at the end of a build log URL, e.g. /build-log/site-agent -> slug 'site-agent').",
+        inputSchema: z.object({ slug: z.string() }),
+      },
+      async ({ slug }) => {
+        const supabase = createAdminClient();
+        const { data } = await supabase
+          .from("case_studies")
+          .select("stats")
+          .eq("slug", slug)
+          .eq("published", true)
+          .maybeSingle();
+        const stats = (data?.stats ?? []) as { value: string; label: string }[];
+        const text = stats.length === 0 ? "No stats recorded for that build log entry." : stats.map((s) => `${s.value} ${s.label}`).join("; ");
+        await logContentChange({
+          source: "mcp_client",
+          action: "mcp.get_build_log_stats",
+          entity_type: "mcp_tool_call",
+          summary: `MCP client looked up build log stats for "${truncate(slug)}"`,
+        });
+        return { content: [{ type: "text", text }] };
+      }
+    );
+  }
 
-  server.registerTool(
-    "get_availability",
-    {
-      title: "Get availability",
-      description: "Check Damien's current availability status and preferred contact info.",
-      inputSchema: z.object({}),
-    },
-    async () => {
-      const content = await getSiteContent();
-      return {
-        content: [
-          {
-            type: "text",
-            text: `Now: ${content.now_line || "no status set"}. Contact: ${content.contact_email}.`,
-          },
-        ],
-      };
-    }
-  );
+  if (siteContent.mcp_availability_enabled !== "false") {
+    server.registerTool(
+      "get_availability",
+      {
+        title: "Get availability",
+        description: "Check Damien's current availability status and preferred contact info.",
+        inputSchema: z.object({}),
+      },
+      async () => {
+        await logContentChange({
+          source: "mcp_client",
+          action: "mcp.get_availability",
+          entity_type: "mcp_tool_call",
+          summary: "MCP client checked availability",
+        });
+        return {
+          content: [
+            {
+              type: "text",
+              text: `Now: ${siteContent.now_line || "no status set"}. Contact: ${siteContent.contact_email}.`,
+            },
+          ],
+        };
+      }
+    );
+  }
 
   // Admin tier: only visible/callable to a caller who supplied a valid
   // ADMIN_API_SECRET bearer token (checked before this factory ever runs —

@@ -7,7 +7,8 @@ export type AuditSource =
   | "research_agent"
   | "dev_log_agent"
   | "telegram_agent"
-  | "mcp_agent";
+  | "mcp_agent"
+  | "mcp_client";
 
 export const AUDIT_SOURCE_LABELS: Record<AuditSource, string> = {
   admin_ui: "Admin UI",
@@ -16,6 +17,7 @@ export const AUDIT_SOURCE_LABELS: Record<AuditSource, string> = {
   dev_log_agent: "Dev-log agent",
   telegram_agent: "Telegram agent",
   mcp_agent: "MCP agent",
+  mcp_client: "MCP client",
 };
 
 // Fire-and-forget-ish: awaited so ordering is predictable, but a logging

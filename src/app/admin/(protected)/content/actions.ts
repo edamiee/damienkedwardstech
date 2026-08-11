@@ -14,6 +14,9 @@ function revalidatePublicPages() {
   revalidatePath("/how-it-works");
   revalidatePath("/mcp-demo");
   revalidatePath("/agent-activity");
+  revalidatePath("/ai-ops");
+  revalidatePath("/write-next");
+  revalidatePath("/connect-your-ai");
   revalidatePath("/", "layout");
 }
 

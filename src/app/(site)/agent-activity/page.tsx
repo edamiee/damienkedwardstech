@@ -39,6 +39,10 @@ export default async function AgentActivityPage() {
         <Link href="/how-it-works" className="text-teal underline">
           See how it works →
         </Link>
+        {" · "}
+        <Link href="/ai-ops" className="text-teal underline">
+          See AI-ops cost &amp; reliability →
+        </Link>
       </p>
 
       <section className="mt-12">

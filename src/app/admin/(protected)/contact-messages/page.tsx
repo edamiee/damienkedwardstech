@@ -1,10 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import StatusSelect from "./status-select";
+import type { ContactMessageStatus } from "./actions";
 
 export default async function AdminContactMessagesPage() {
   const supabase = await createClient();
   const { data: messages } = await supabase
     .from("contact_messages")
-    .select("id, name, email, message, created_at, source, project_type, budget_range, timeline")
+    .select(
+      "id, name, email, message, created_at, source, project_type, budget_range, timeline, status",
+    )
     .order("created_at", { ascending: false });
 
   return (
@@ -21,13 +25,16 @@ export default async function AdminContactMessagesPage() {
               <a href={`mailto:${m.email}`} className="font-medium text-teal hover:underline">
                 {m.name} — {m.email}
               </a>
-              <span className="whitespace-nowrap font-data text-[11.5px] text-muted">
-                {new Date(m.created_at).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "short",
-                  day: "numeric",
-                })}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="whitespace-nowrap font-data text-[11.5px] text-muted">
+                  {new Date(m.created_at).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </span>
+                <StatusSelect id={m.id} status={m.status as ContactMessageStatus} />
+              </div>
             </div>
             {m.source === "business_inquiry" && (
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">

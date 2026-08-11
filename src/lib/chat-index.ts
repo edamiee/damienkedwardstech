@@ -112,7 +112,8 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
     const batch = rows.slice(i, i + EMBED_BATCH);
     const embeddings = await embedTexts(
       batch.map((r) => r.chunk_text),
-      "document"
+      "document",
+      "reindex"
     );
     const { error } = await supabase.from("content_embeddings").insert(
       batch.map((r, j) => ({ ...r, embedding: embeddings[j] }))

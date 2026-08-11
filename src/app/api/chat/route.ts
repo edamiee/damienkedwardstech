@@ -219,7 +219,7 @@ export async function POST(request: NextRequest) {
   let sources: ChatSource[] = [];
 
   try {
-    const queryEmbedding = await embedOne(message, "query");
+    const queryEmbedding = await embedOne(message, "query", "chat_embed");
     const { data } = await supabase.rpc("match_content_embeddings", {
       query_embedding: queryEmbedding,
       match_count: 6,
@@ -277,6 +277,7 @@ export async function POST(request: NextRequest) {
       tools: CHAT_TOOLS,
       executeTool: (name, input) => executeChatTool(supabase, content, name, input),
       maxTokens: 400,
+      operation: "chat",
       maxTurns: 3,
       history,
     });

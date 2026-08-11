@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
       tools: ADMIN_AGENT_TOOLS,
       executeTool: executeAdminAgentTool,
       maxTokens: 1024,
+      operation: "telegram_agent",
       maxTurns: 4,
     });
     await sendTelegramMessage(chatId, reply);

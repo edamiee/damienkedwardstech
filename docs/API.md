@@ -369,7 +369,28 @@ Schedule: daily, 05:00 UTC (`0 5 * * *`).
 
 ---
 
-Both jobs record their own last-run time and ok/error status to
+### `GET /api/cron/synthetic-check`
+
+Runs a fixed test question ("What has Damien built recently?") through the
+same retrieval `/search` uses (`searchContent`) and the same Claude
+generation call `/api/chat` uses, end to end. Fails if search returns zero
+results or Claude returns an empty answer — this is what catches a broken
+Voyage key, an empty/stale embeddings index, or an Anthropic outage before
+a visitor hits it, rather than waiting for someone to notice chat or
+search silently stopped working.
+
+**Auth:** `Authorization: Bearer <CRON_SECRET>` — same as above.
+
+Schedule: daily, 06:00 UTC (`0 6 * * *`).
+
+```json
+// Response
+{ "ok": true, "searchResults": 3 }
+```
+
+---
+
+All three jobs record their own last-run time and ok/error status to
 `cron_runs` on every invocation — surfaced as a "Scheduled jobs" section on
 [`/agent-activity`](https://damienkedwards.tech/agent-activity), so a job
 that silently stops firing (rather than erroring) still shows up as
@@ -425,6 +446,6 @@ CSV export of the subscribers table (`email,source,created_at`).
 | Static bearer secret or OAuth token, optional/tiered | `/api/mcp` | `ADMIN_API_SECRET` or a token from this site's own OAuth server, only required to unlock the admin tool tier — the public tools work unauthenticated |
 | Supabase session cookie | `/api/mcp/authorize` | Same admin login as `/admin` — gates consent for the OAuth server above |
 | Supabase session cookie | `/api/admin/draft-post`, `/api/admin/upload-image`, `/admin/subscribers/export`, all `/admin/*` pages | `requireAdmin()` — checks a logged-in session against `public.admins` |
-| Cron secret | `/api/cron/weekly-insight`, `/api/cron/purge-agent-logs` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
+| Cron secret | `/api/cron/weekly-insight`, `/api/cron/purge-agent-logs`, `/api/cron/synthetic-check` | `Authorization: Bearer <CRON_SECRET>` — Vercel supplies this automatically for its own cron |
 | Telegram secret token + chat-id allowlist | `/api/telegram/webhook` | Header match + numeric chat id match; anyone else gets a silent 200 |
 | None (public) | `/api/chat`, feeds, `/unsubscribe`, `/auth/callback` | Rate-limited where it could be abused (`/api/chat` only) |

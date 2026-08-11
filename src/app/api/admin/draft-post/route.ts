@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
 
   const system = `You draft blog posts for an AI/data engineer's professional site. Write in first person, direct and technical, no marketing fluff. Respond with strict JSON only: {"title": string, "excerpt": string (one sentence), "body_markdown": string (the post body in Markdown, no h1 title in the body)}.`;
 
-  const raw = await callClaude(system, `Draft a post about: ${topic}`, 2000);
+  const raw = await callClaude(system, `Draft a post about: ${topic}`, 2000, "admin_draft_post");
 
   let draft: { title: string; excerpt: string; body_markdown: string };
   try {

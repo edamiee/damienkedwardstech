@@ -49,6 +49,11 @@ export default async function McpDemoPage() {
           request — no different from what Claude Desktop sends once you add it as a remote MCP
           server. Same URL, same tools, same responses.
         </p>
+        <p className="mt-3 text-[13.5px]">
+          <Link href="/connect-your-ai" className="text-teal hover:underline">
+            Ready to connect your own client? Setup guide →
+          </Link>
+        </p>
       </div>
 
       <div className="mt-10 flex flex-wrap gap-x-6 gap-y-2 text-[13.5px]">

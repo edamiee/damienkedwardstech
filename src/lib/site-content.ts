@@ -108,6 +108,10 @@ export const SITE_CONTENT_DEFAULTS = {
   agent_activity_heading: "Agent activity",
   agent_activity_intro:
     "The write paths that keep this site current, and what each has actually done — pulled straight from the same audit log the admin panel reads, not a curated highlight reel.",
+  ai_ops_eyebrow: "Live",
+  ai_ops_heading: "AI ops: cost & reliability",
+  ai_ops_intro:
+    "Every Anthropic and Voyage call this site makes — the chat widget, drafting agents, cron jobs — logged with real token counts, latency, and an estimated cost. Not a curated highlight reel, the actual bill.",
 } satisfies Record<string, string>;
 
 export type SiteContentKey = keyof typeof SITE_CONTENT_DEFAULTS;

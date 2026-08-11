@@ -30,7 +30,10 @@ export default async function BuildLogIndexPage() {
       </div>
       <p className="mt-2 max-w-[55ch] text-sm text-muted">
         Real problems, the approach taken, and what happened — the fuller
-        story behind the project list.
+        story behind the project list.{" "}
+        <Link href="/write-next" className="text-teal underline">
+          Vote on what I write next →
+        </Link>
       </p>
 
       {recentCommits.length > 0 && (

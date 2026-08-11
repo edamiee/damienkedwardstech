@@ -7,6 +7,10 @@
     {
       "path": "/api/cron/purge-agent-logs",
       "schedule": "0 5 * * *"
+    },
+    {
+      "path": "/api/cron/synthetic-check",
+      "schedule": "0 6 * * *"
     }
   ]
 }

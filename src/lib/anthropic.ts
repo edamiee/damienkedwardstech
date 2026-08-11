@@ -1,4 +1,7 @@
 import "server-only";
+import { logAiUsage } from "@/lib/ai-usage";
+
+const MODEL = "claude-sonnet-5";
 
 // Thin wrapper around the Messages API. Server-only: ANTHROPIC_API_KEY never
 // reaches the browser. Reuses the same key/model convention as the arcade
@@ -6,34 +9,46 @@ import "server-only";
 export async function callClaude(
   system: string,
   userPrompt: string,
-  maxTokens: number
+  maxTokens: number,
+  operation: string
 ) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY is not configured on the server.");
   }
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-5",
-      max_tokens: maxTokens,
-      system,
-      messages: [{ role: "user", content: userPrompt }],
-    }),
-  });
+  const started = Date.now();
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: "user", content: userPrompt }],
+      }),
+    });
+  } catch (err) {
+    await logCallFailure(operation, Date.now() - started, err);
+    throw err;
+  }
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Anthropic API error ${res.status}: ${text}`);
+    const err = new Error(`Anthropic API error ${res.status}: ${text}`);
+    await logCallFailure(operation, Date.now() - started, err);
+    throw err;
   }
 
   const data = await res.json();
+  await logCallSuccess(operation, Date.now() - started, data.usage);
+
   const textBlock = (data.content || []).find(
     (b: { type: string; text?: string }) => b.type === "text" && b.text
   );
@@ -46,8 +61,35 @@ export async function callClaude(
 }
 
 type AnthropicBlock = { type: string; [key: string]: unknown };
+type AnthropicUsage = { input_tokens?: number; output_tokens?: number };
 
-async function anthropicRequest(body: Record<string, unknown>): Promise<{
+async function logCallSuccess(operation: string, latencyMs: number, usage?: AnthropicUsage) {
+  await logAiUsage({
+    provider: "anthropic",
+    model: MODEL,
+    operation,
+    status: "ok",
+    latencyMs,
+    inputTokens: usage?.input_tokens ?? null,
+    outputTokens: usage?.output_tokens ?? null,
+  });
+}
+
+async function logCallFailure(operation: string, latencyMs: number, err: unknown) {
+  await logAiUsage({
+    provider: "anthropic",
+    model: MODEL,
+    operation,
+    status: "error",
+    latencyMs,
+    errorMessage: err instanceof Error ? err.message : "request failed",
+  });
+}
+
+async function anthropicRequest(
+  body: Record<string, unknown>,
+  operation: string
+): Promise<{
   content: AnthropicBlock[];
   stop_reason: string;
 }> {
@@ -56,22 +98,33 @@ async function anthropicRequest(body: Record<string, unknown>): Promise<{
     throw new Error("ANTHROPIC_API_KEY is not configured on the server.");
   }
 
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-    },
-    body: JSON.stringify({ model: "claude-sonnet-5", ...body }),
-  });
+  const started = Date.now();
+  let res: Response;
+  try {
+    res = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({ model: MODEL, ...body }),
+    });
+  } catch (err) {
+    await logCallFailure(operation, Date.now() - started, err);
+    throw err;
+  }
 
   if (!res.ok) {
     const text = await res.text();
-    throw new Error(`Anthropic API error ${res.status}: ${text}`);
+    const err = new Error(`Anthropic API error ${res.status}: ${text}`);
+    await logCallFailure(operation, Date.now() - started, err);
+    throw err;
   }
 
-  return res.json();
+  const data = await res.json();
+  await logCallSuccess(operation, Date.now() - started, data.usage);
+  return data;
 }
 
 // Anthropic's web_search server tool: the API runs searches itself
@@ -81,14 +134,18 @@ export async function callClaudeWithWebSearch(
   system: string,
   userPrompt: string,
   maxTokens: number,
+  operation: string,
   maxSearches = 5
 ): Promise<{ text: string; sources: { url: string; title: string }[] }> {
-  const data = await anthropicRequest({
-    max_tokens: maxTokens,
-    system,
-    messages: [{ role: "user", content: userPrompt }],
-    tools: [{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }],
-  });
+  const data = await anthropicRequest(
+    {
+      max_tokens: maxTokens,
+      system,
+      messages: [{ role: "user", content: userPrompt }],
+      tools: [{ type: "web_search_20250305", name: "web_search", max_uses: maxSearches }],
+    },
+    operation
+  );
 
   const text = data.content
     .filter((b) => b.type === "text" && typeof b.text === "string")
@@ -131,6 +188,7 @@ export async function runClaudeToolLoop({
   tools,
   executeTool,
   maxTokens,
+  operation,
   maxTurns = 4,
   history = [],
 }: {
@@ -139,6 +197,7 @@ export async function runClaudeToolLoop({
   tools: ToolDefinition[];
   executeTool: (name: string, input: Record<string, unknown>) => Promise<string>;
   maxTokens: number;
+  operation: string;
   maxTurns?: number;
   history?: { role: "user" | "assistant"; content: string }[];
 }): Promise<string> {
@@ -148,12 +207,15 @@ export async function runClaudeToolLoop({
   ];
 
   for (let turn = 0; turn < maxTurns; turn++) {
-    const data = await anthropicRequest({
-      max_tokens: maxTokens,
-      system,
-      messages,
-      tools,
-    });
+    const data = await anthropicRequest(
+      {
+        max_tokens: maxTokens,
+        system,
+        messages,
+        tools,
+      },
+      operation
+    );
 
     messages.push({ role: "assistant", content: data.content });
 

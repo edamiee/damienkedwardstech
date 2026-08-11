@@ -85,7 +85,7 @@ BODY:
   let draft = null as ReturnType<typeof parseAgentDraft> | null;
 
   try {
-    const text = await callClaude(system, `Commit log from the last 7 days:\n${commitLog}`, 3000);
+    const text = await callClaude(system, `Commit log from the last 7 days:\n${commitLog}`, 3000, "github_dev_log");
     draft = parseAgentDraft(text);
   } catch (err) {
     errorMessage = err instanceof Error ? err.message : "Draft failed.";

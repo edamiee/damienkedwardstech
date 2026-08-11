@@ -108,7 +108,7 @@ Avoid topics already covered here: ${existingTitles}.`;
   let sources: { url: string; title: string }[] = [];
 
   try {
-    const result = await callClaudeWithWebSearch(system, `Topic: ${topic}`, 4096, 5);
+    const result = await callClaudeWithWebSearch(system, `Topic: ${topic}`, 4096, "admin_draft_post", 5);
     draft = parseAgentDraft(result.text);
     sources = result.sources;
   } catch (err) {

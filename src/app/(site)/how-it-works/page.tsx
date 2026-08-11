@@ -236,8 +236,11 @@ export default async function HowItWorksPage() {
           <Link href="/mcp-demo" className="text-teal hover:underline">
             Run the same three tools from this browser →
           </Link>{" "}
-          — real requests, real responses, no install. Or skip the client and just read the
-          machine-readable versions of this same page:
+          — real requests, real responses, no install. Or{" "}
+          <Link href="/connect-your-ai" className="text-teal hover:underline">
+            see the setup guide for your own client →
+          </Link>
+          . Or skip the client and just read the machine-readable versions of this same page:
         </p>
         <ul className="mt-3 flex flex-wrap gap-2 text-[12.5px]">
           {["/llms.txt", "/openapi.json", "/sitemap.xml", "/build-log/feed.xml"].map((path) => (

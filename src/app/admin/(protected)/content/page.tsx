@@ -551,6 +551,44 @@ export default async function AdminSiteContentPage() {
 
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
+            AI ops page
+          </legend>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Eyebrow (small label above the headline)
+            <input
+              name="ai_ops_eyebrow"
+              defaultValue={content.ai_ops_eyebrow}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Headline
+            <input
+              name="ai_ops_heading"
+              defaultValue={content.ai_ops_heading}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <label className="flex flex-col gap-1.5 text-sm">
+            Intro paragraph
+            <textarea
+              name="ai_ops_intro"
+              rows={3}
+              defaultValue={content.ai_ops_intro}
+              className="rounded-sm border border-line bg-surface px-3 py-2"
+            />
+          </label>
+          <p className="text-xs text-muted">
+            See it live at{" "}
+            <a href="/ai-ops" target="_blank" rel="noreferrer" className="text-teal hover:underline">
+              /ai-ops ↗
+            </a>
+            .
+          </p>
+        </fieldset>
+
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 text-xs font-semibold uppercase tracking-[0.1em] text-teal">
             Footer
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">

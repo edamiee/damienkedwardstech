@@ -98,7 +98,10 @@ export default async function WritingIndexPage({ searchParams }: PageProps<"/wri
       </div>
       <p className="mt-2 max-w-[55ch] text-sm text-muted">
         Posts written here, and longer documents — research notes, guides —
-        linked out from wherever they&apos;re hosted.
+        linked out from wherever they&apos;re hosted.{" "}
+        <Link href="/write-next" className="text-teal underline">
+          Vote on what I write next →
+        </Link>
       </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-2">

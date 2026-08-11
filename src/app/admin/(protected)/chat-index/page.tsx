@@ -1,5 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin";
-import { reindexAction } from "./actions";
+import { reindexAction, publishTopic } from "./actions";
 import { formatRelativeTime } from "@/lib/format-relative-time";
 
 type GapSource = "chat_gap" | "chat_downvote" | "search_gap";
@@ -113,7 +113,7 @@ export default async function AdminChatIndexPage({
       <ul className="mt-4 divide-y divide-line rounded-sm border border-line bg-surface">
         {gaps.map((gap) => (
           <li key={gap.question} className="flex items-start justify-between gap-4 px-4 py-3">
-            <div>
+            <div className="min-w-0 flex-1">
               <p className="text-sm">{gap.question}</p>
               <p className="mt-1 flex flex-wrap gap-1.5">
                 {[...gap.sources].map((s) => (
@@ -125,6 +125,20 @@ export default async function AdminChatIndexPage({
                   </span>
                 ))}
               </p>
+              <form action={publishTopic} className="mt-2 flex flex-wrap items-center gap-1.5">
+                <input type="hidden" name="source_gap_question" value={gap.question} />
+                <input
+                  name="title"
+                  defaultValue={gap.question}
+                  className="min-w-[16rem] flex-1 rounded-sm border border-line bg-ground px-2 py-1 text-xs"
+                />
+                <button
+                  type="submit"
+                  className="whitespace-nowrap rounded-sm border border-teal px-2 py-1 text-[11px] text-teal hover:bg-teal hover:text-ground"
+                >
+                  Publish to public vote
+                </button>
+              </form>
             </div>
             <p className="shrink-0 whitespace-nowrap text-xs text-muted">
               {gap.count > 1 ? `×${gap.count}, ` : ""}

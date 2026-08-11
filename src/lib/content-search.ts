@@ -44,7 +44,7 @@ export async function searchContent(
   siteOnly = false
 ): Promise<SearchResult[]> {
   const supabase = createAdminClient();
-  const queryEmbedding = await embedOne(query, "query");
+  const queryEmbedding = await embedOne(query, "query", "search_embed");
   const { data, error } = await supabase.rpc("match_content_embeddings", {
     query_embedding: queryEmbedding,
     match_count: siteOnly ? matchCount * 4 : matchCount,

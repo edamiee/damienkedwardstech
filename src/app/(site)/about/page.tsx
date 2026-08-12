@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getSiteContent } from "@/lib/site-content";
-import { parsePairs, parseCapabilities } from "@/lib/content-pairs";
+import { parsePairs, parseCapabilities, parseInlineLinks } from "@/lib/content-pairs";
 
 export default async function AboutPage() {
   const content = await getSiteContent();
@@ -45,7 +45,23 @@ export default async function AboutPage() {
       </div>
       <div className="mt-6 max-w-[60ch] space-y-4 text-[15.5px] text-muted">
         {paragraphs.map((paragraph, i) => (
-          <p key={i}>{paragraph}</p>
+          <p key={i}>
+            {parseInlineLinks(paragraph).map((segment, j) =>
+              segment.href ? (
+                <a
+                  key={j}
+                  href={segment.href}
+                  target={segment.href.startsWith("/") ? undefined : "_blank"}
+                  rel={segment.href.startsWith("/") ? undefined : "noreferrer"}
+                  className="text-teal hover:underline"
+                >
+                  {segment.text}
+                </a>
+              ) : (
+                segment.text
+              ),
+            )}
+          </p>
         ))}
       </div>
 

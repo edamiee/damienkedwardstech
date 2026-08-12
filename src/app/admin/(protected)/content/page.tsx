@@ -264,7 +264,8 @@ export default async function AdminSiteContentPage() {
             About page
           </legend>
           <label className="flex flex-col gap-1.5 text-sm">
-            Body (one paragraph per line)
+            Body (one paragraph per line) — use{" "}
+            <code className="font-data">[text](url)</code> for links
             <textarea
               name="about_body"
               rows={8}

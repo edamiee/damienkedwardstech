@@ -34,3 +34,27 @@ export function parseCapabilities(raw: string): CapabilityEntry[] {
       return { title: title ?? "", body: body ?? "", linkTitle: linkTitle ?? "", slug: slug ?? "" };
     });
 }
+
+export type InlineSegment = { text: string; href?: string };
+
+const INLINE_LINK_PATTERN = /\[([^\]]+)\]\(([^)]+)\)/g;
+
+// Minimal [text](url) support for prose fields (see about_body) that don't
+// warrant pulling in the full markdown renderer used for posts.
+export function parseInlineLinks(text: string): InlineSegment[] {
+  const segments: InlineSegment[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  INLINE_LINK_PATTERN.lastIndex = 0;
+  while ((match = INLINE_LINK_PATTERN.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      segments.push({ text: text.slice(lastIndex, match.index) });
+    }
+    segments.push({ text: match[1], href: match[2] });
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    segments.push({ text: text.slice(lastIndex) });
+  }
+  return segments;
+}

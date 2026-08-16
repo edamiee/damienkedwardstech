@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { getSiteContent } from "@/lib/site-content";
 import { ADMIN_AGENT_TOOLS, executeAdminAgentTool } from "@/lib/admin-agent-tools";
 import { logContentChange } from "@/lib/audit-log";
+import { VENDORS, PATTERN_CATEGORIES, VENDOR_LABELS, searchPipelinePatterns } from "@/lib/research-findings";
 
 // Remote MCP server (Streamable HTTP, stateless — a fresh McpServer instance
 // per request, matching Vercel's serverless model) exposing this site as
@@ -169,6 +170,48 @@ const factory: McpServerFactory = async (ctx) => {
             },
           ],
         };
+      }
+    );
+  }
+
+  if (siteContent.mcp_pipeline_patterns_enabled !== "false") {
+    server.registerTool(
+      "search_pipeline_patterns",
+      {
+        title: "Search pipeline & warehouse patterns",
+        description:
+          "Search curated findings about genuine architectural patterns across Snowflake, Databricks, dbt, Spark, Qlik, Redshift, MS Fabric, and n8n — incremental modeling, semantic layers, orchestration, cost optimization, and similar. Filtered from vendor marketing by a review pipeline; every result is human-approved. Filter by vendor and/or pattern_category, optionally re-ranked by a free-text query.",
+        inputSchema: z.object({
+          query: z
+            .string()
+            .optional()
+            .describe("Free-text relevance query, e.g. 'incremental models'. Optional."),
+          vendor: z.enum(VENDORS).optional(),
+          pattern_category: z.enum(PATTERN_CATEGORIES).optional(),
+          since: z
+            .string()
+            .optional()
+            .describe("ISO date (YYYY-MM-DD) — only findings found on or after this date."),
+        }),
+      },
+      async ({ query, vendor, pattern_category, since }) => {
+        const results = await searchPipelinePatterns({ query, vendor, pattern_category, since });
+        await logContentChange({
+          source: "mcp_client",
+          action: "mcp.search_pipeline_patterns",
+          entity_type: "mcp_tool_call",
+          summary: `MCP client searched pipeline patterns${vendor ? ` (${vendor})` : ""}${query ? ` for "${truncate(query)}"` : ""} — ${results.length} result${results.length === 1 ? "" : "s"}`,
+        });
+        if (results.length === 0) {
+          return { content: [{ type: "text", text: "No matching findings." }] };
+        }
+        const text = results
+          .map(
+            (r) =>
+              `[${VENDOR_LABELS[r.vendor]} · ${r.pattern_category}] ${r.title} — https://damienkedwards.tech/research/${r.slug}\n${r.why_it_matters}`
+          )
+          .join("\n\n");
+        return { content: [{ type: "text", text }] };
       }
     );
   }

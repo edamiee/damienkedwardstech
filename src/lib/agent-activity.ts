@@ -69,53 +69,85 @@ export const getAgentSourceStatus = cache(
 
 export type PipelineWorkflowStatus = {
   name: string;
+  repo: string;
   active: boolean;
   lastSuccess: string | null;
   htmlUrl: string;
 };
 
-const PIPELINE_REPO = "edamiee/github-activity-pipeline";
-const PIPELINE_WORKFLOWS = [
-  { file: "pipeline.yml", label: "Ingest and transform" },
-  { file: "freshness-check.yml", label: "Freshness check" },
+type PipelineDef = {
+  repo: string;
+  workflows: { file: string; label: string }[];
+};
+
+// One entry per external ingestion pipeline this site's build log describes.
+// research_agent's repo is assumed to end up at "edamiee/research_agent" —
+// same GitHub account as github-activity-pipeline, matching the local
+// ~/research_agent directory this was scaffolded into — but it hasn't
+// actually been created/pushed yet as of this writing. That's fine: each
+// workflow fetch below fails independently (404) rather than as a group, so
+// an as-yet-nonexistent repo just produces no card for it instead of
+// breaking github-activity-pipeline's real ones. Update the repo string
+// here if it ends up named differently once pushed.
+const PIPELINES: PipelineDef[] = [
+  {
+    repo: "edamiee/github-activity-pipeline",
+    workflows: [
+      { file: "pipeline.yml", label: "Ingest and transform" },
+      { file: "freshness-check.yml", label: "Freshness check" },
+    ],
+  },
+  {
+    repo: "edamiee/research_agent",
+    workflows: [
+      { file: "pipeline.yml", label: "Poll, classify, and summarize" },
+      { file: "freshness-check.yml", label: "Freshness check" },
+    ],
+  },
 ];
 
-// Reads the separate github-activity-pipeline repo's own GitHub Actions
-// history directly — a real external signal, not anything stored in this
-// site's database. Public repo, so this works unauthenticated; revalidated
-// every 5 minutes rather than fetched fresh on every page view.
+// Reads each pipeline repo's own GitHub Actions history directly — a real
+// external signal, not anything stored in this site's database. Public
+// repos, so this works unauthenticated; revalidated every 5 minutes rather
+// than fetched fresh on every page view.
 export const getPipelineWorkflowStatus = cache(
   async (): Promise<PipelineWorkflowStatus[]> => {
-    try {
-      return await Promise.all(
-        PIPELINE_WORKFLOWS.map(async ({ file, label }) => {
-          const [workflowRes, runsRes] = await Promise.all([
-            fetch(
-              `https://api.github.com/repos/${PIPELINE_REPO}/actions/workflows/${file}`,
-              { headers: { accept: "application/vnd.github+json" }, next: { revalidate: 300 } }
-            ),
-            fetch(
-              `https://api.github.com/repos/${PIPELINE_REPO}/actions/workflows/${file}/runs?status=success&per_page=1`,
-              { headers: { accept: "application/vnd.github+json" }, next: { revalidate: 300 } }
-            ),
-          ]);
+    const results = await Promise.all(
+      PIPELINES.flatMap(({ repo, workflows }) =>
+        workflows.map(async ({ file, label }): Promise<PipelineWorkflowStatus | null> => {
+          try {
+            const [workflowRes, runsRes] = await Promise.all([
+              fetch(
+                `https://api.github.com/repos/${repo}/actions/workflows/${file}`,
+                { headers: { accept: "application/vnd.github+json" }, next: { revalidate: 300 } }
+              ),
+              fetch(
+                `https://api.github.com/repos/${repo}/actions/workflows/${file}/runs?status=success&per_page=1`,
+                { headers: { accept: "application/vnd.github+json" }, next: { revalidate: 300 } }
+              ),
+            ]);
 
-          const workflow = await workflowRes.json();
-          const runs = await runsRes.json();
+            // Repo/workflow doesn't exist (yet) or the API rate-limited us —
+            // skip this one card rather than throwing, so it doesn't take
+            // every other pipeline's card down with it.
+            if (!workflowRes.ok) return null;
+            const workflow = await workflowRes.json();
+            const runs = runsRes.ok ? await runsRes.json() : { workflow_runs: [] };
 
-          return {
-            name: label,
-            active: workflow.state === "active",
-            lastSuccess: runs.workflow_runs?.[0]?.updated_at ?? null,
-            htmlUrl:
-              workflow.html_url ??
-              `https://github.com/${PIPELINE_REPO}/actions/workflows/${file}`,
-          };
+            return {
+              name: label,
+              repo,
+              active: workflow.state === "active",
+              lastSuccess: runs.workflow_runs?.[0]?.updated_at ?? null,
+              htmlUrl: workflow.html_url ?? `https://github.com/${repo}/actions/workflows/${file}`,
+            };
+          } catch (err) {
+            console.error(`failed to fetch pipeline workflow status for ${repo}/${file}`, err);
+            return null;
+          }
         })
-      );
-    } catch (err) {
-      console.error("failed to fetch pipeline workflow status", err);
-      return [];
-    }
+      )
+    );
+    return results.filter((r): r is PipelineWorkflowStatus => r !== null);
   }
 );

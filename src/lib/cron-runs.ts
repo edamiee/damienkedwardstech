@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-export type CronJobName = "purge-agent-logs" | "weekly-insight" | "synthetic-check";
+export type CronJobName = "purge-agent-logs" | "weekly-insight" | "synthetic-check" | "research-digest";
 
 // Recorded at the end of every cron invocation (success or failure) so a
 // silently broken cron is visible on /agent-activity instead of just...
@@ -42,6 +42,7 @@ const CRON_JOBS: { name: CronJobName; label: string; expectedHours: number }[] =
   { name: "purge-agent-logs", label: "Purge agent logs (daily)", expectedHours: 24 * 1.5 },
   { name: "weekly-insight", label: "Weekly insight + newsletter (Mondays)", expectedHours: 24 * 7 * 1.5 },
   { name: "synthetic-check", label: "Chat/search synthetic check (daily)", expectedHours: 24 * 1.5 },
+  { name: "research-digest", label: "Research digest (Sundays)", expectedHours: 24 * 7 * 1.5 },
 ];
 
 export const getCronHealth = cache(async (): Promise<CronJobHealth[]> => {

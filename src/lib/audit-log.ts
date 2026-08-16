@@ -8,7 +8,8 @@ export type AuditSource =
   | "dev_log_agent"
   | "telegram_agent"
   | "mcp_agent"
-  | "mcp_client";
+  | "mcp_client"
+  | "pipeline_research_agent";
 
 export const AUDIT_SOURCE_LABELS: Record<AuditSource, string> = {
   admin_ui: "Admin UI",
@@ -18,6 +19,12 @@ export const AUDIT_SOURCE_LABELS: Record<AuditSource, string> = {
   telegram_agent: "Telegram agent",
   mcp_agent: "MCP agent",
   mcp_client: "MCP client",
+  // Distinct from "research_agent" (a human types a topic, one web-search
+  // call happens, right now) — this is the autonomous pipeline-research-agent
+  // repo's continuous ingest/classify/summarize/digest pipeline. Conflating
+  // the two would make this source's "last active"/"total writes" stats on
+  // /agent-activity meaningless for both. See docs/research-assistant/design.md §9.
+  pipeline_research_agent: "Pipeline research agent",
 };
 
 // Fire-and-forget-ish: awaited so ordering is predictable, but a logging

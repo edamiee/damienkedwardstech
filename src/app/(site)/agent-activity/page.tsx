@@ -99,7 +99,7 @@ export default async function AgentActivityPage() {
                   : p.lastSuccess
                     ? `Last success ${formatRelativeTime(p.lastSuccess)}`
                     : "Never succeeded"}
-                {" · github-activity-pipeline"}
+                {` · ${p.repo.split("/")[1] ?? p.repo}`}
               </p>
             </a>
           ))}

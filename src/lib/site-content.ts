@@ -104,6 +104,7 @@ export const SITE_CONTENT_DEFAULTS = {
   mcp_search_enabled: "true",
   mcp_availability_enabled: "true",
   mcp_build_log_stats_enabled: "true",
+  mcp_pipeline_patterns_enabled: "true",
   agent_activity_eyebrow: "Live",
   agent_activity_heading: "Agent activity",
   agent_activity_intro:

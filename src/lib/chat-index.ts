@@ -5,7 +5,7 @@ import { chunkText } from "@/lib/chunk-text";
 import { liveFilter } from "@/lib/publish-filter";
 
 type EmbeddingRow = {
-  source_type: "post" | "paper" | "build_log" | "project";
+  source_type: "post" | "paper" | "build_log" | "project" | "research_finding";
   source_id: string;
   title: string;
   url_path: string;
@@ -24,7 +24,7 @@ const EMBED_BATCH = 50; // stays well under Voyage's per-request input limit
 export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
   const supabase = createAdminClient();
 
-  const [{ data: posts }, { data: papers }, { data: caseStudies }, { data: projects }] =
+  const [{ data: posts }, { data: papers }, { data: caseStudies }, { data: projects }, { data: findings }] =
     await Promise.all([
       supabase
         .from("posts")
@@ -38,6 +38,10 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         .eq("published", true)
         .or(liveFilter()),
       supabase.from("site_projects").select("id, name, description").eq("visible", true),
+      supabase
+        .from("research_findings")
+        .select("id, slug, title, what_changed, why_it_matters")
+        .eq("status", "approved"),
     ]);
 
   const rows: EmbeddingRow[] = [];
@@ -97,6 +101,25 @@ export async function reindexContentEmbeddings(): Promise<{ chunks: number }> {
         title: project.name,
         url_path: "/projects",
         chunk_text: text,
+        is_site_post: false,
+      });
+    }
+  }
+
+  // Research findings — same "only published rows get embedded" rule as
+  // everything else above. Unlike the others, these don't get a full-post
+  // treatment: what_changed + why_it_matters together are already the
+  // citable content, so they're chunked as one block rather than a
+  // long-form body.
+  for (const finding of findings ?? []) {
+    const text = [finding.what_changed, finding.why_it_matters].join("\n\n");
+    for (const chunk of chunkText(text)) {
+      rows.push({
+        source_type: "research_finding",
+        source_id: finding.id,
+        title: finding.title,
+        url_path: `/research/${finding.slug}`,
+        chunk_text: chunk,
         is_site_post: false,
       });
     }

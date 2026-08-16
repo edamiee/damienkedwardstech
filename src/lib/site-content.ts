@@ -76,13 +76,13 @@ export const SITE_CONTENT_DEFAULTS = {
     "Site Agent | A Telegram bot (@dames81_bot) with full write access — posts, build log entries, site copy — over a plain HTTP endpoint. The \"Last published by...\" label in the homepage's status bar started as a hardcoded string; a Telegram message rewrote it live, no redeploy.\n" +
     "Admin Agent | A second, separate Telegram bot behind a webhook. Narrower tool set, and only replies to one allowlisted chat — anyone else is silently ignored.\n" +
     "MCP clients | Claude Desktop, Claude Code, or any other MCP-speaking tool, connected straight to this site's own MCP server.\n" +
-    "Scheduled agents | A research-and-draft agent, a GitHub activity digest, a content-health checker, and a weekly note generator — each a bounded Claude tool loop.\n" +
+    "Scheduled agents | A research-and-draft agent, a GitHub activity digest, a content-health checker, a weekly note generator, and a pipeline-pattern research agent that classifies and drafts data-stack findings for review — each a bounded Claude tool loop.\n" +
     "Admin UI | Damien, signed in at /admin — the fallback for anything the agents above don't do, like image uploads or deleting things.",
   how_it_works_surfaces:
     "Public pages | Server-rendered straight from Postgres — no build-time regeneration needed to go live.\n" +
     "Chat widget | pgvector search feeds Claude only what's actually published; answers are grounded and cited, never hallucinated.\n" +
     "/search | The same semantic search as the chat widget, as a plain results page.\n" +
-    "MCP server | The same search, plus availability and build-log stats, exposed as tools any MCP client can call — no auth needed for the public tier.\n" +
+    "MCP server | The same search, plus availability, build-log stats, and curated pipeline/warehouse pattern findings, exposed as tools any MCP client can call — no auth needed for the public tier.\n" +
     "Feeds | /llms.txt, /sitemap.xml, two RSS feeds, and /openapi.json — for the visitors that don't run JS.",
   how_it_works_stack:
     "Next.js 16 (App Router, Vercel)\n" +

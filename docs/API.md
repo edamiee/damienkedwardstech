@@ -166,7 +166,7 @@ blocked from calling.
 
 | Tier | Tools | Notes |
 |---|---|---|
-| Public (always available) | `search_content`, `get_build_log_stats`, `get_availability` | Read-only, safe for any client. `search_content` takes an optional `site_only` boolean to restrict results to posts about damienkedwardstech itself. |
+| Public (always available) | `search_content`, `get_build_log_stats`, `get_availability`, `search_pipeline_patterns` | Read-only, safe for any client. `search_content` takes an optional `site_only` boolean to restrict results to posts about damienkedwardstech itself. `search_pipeline_patterns` searches curated, human-approved findings about pipeline/warehouse architecture patterns across Snowflake, Databricks, dbt, Spark, Qlik, Redshift, MS Fabric, and n8n — filterable by `vendor`, `pattern_category`, and `since`, optionally re-ranked by a free-text `query`. |
 | Admin (bearer-gated) | `list_site_content`, `update_site_content`, `add_testimonial`, `add_service` | Same tool set + executor as the Telegram admin agent (`src/lib/admin-agent-tools.ts`); writes logged to `content_audit_log` with source `"mcp_agent"` |
 
 Built with `@modelcontextprotocol/server` v2 (`createMcpHandler` +

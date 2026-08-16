@@ -12,7 +12,7 @@ import { AUDIT_SOURCE_LABELS, type AuditSource } from "@/lib/audit-log";
 //
 // Query params (all optional):
 //   source - one of admin_ui | site_agent | research_agent | dev_log_agent
-//            | telegram_agent | mcp_agent
+//            | telegram_agent | mcp_agent | pipeline_research_agent
 //   limit  - max rows, default 50, capped at 200
 //
 // Response: { entries: [{ id, source, action, entity_type, entity_id,

@@ -217,6 +217,7 @@ export const openApiSpec = {
                 "dev_log_agent",
                 "telegram_agent",
                 "mcp_agent",
+                "pipeline_research_agent",
               ],
             },
             description: "Filter to one write path. Omit for all sources.",
@@ -369,7 +370,7 @@ export const openApiSpec = {
       post: {
         summary: "MCP server (Streamable HTTP) — tools for this site",
         description:
-          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) unlock with either an adminBearer token or a valid OAuth access token from this site's own OAuth server (see the /api/mcp/{register,authorize,token} entries below), and are absent from tools/list entirely when neither is present. search_content accepts an optional site_only boolean to restrict results to posts about the site itself. See docs/API.md for client setup (Claude Desktop, Claude Code, claude.ai, etc.).",
+          "Not a REST endpoint — a Model Context Protocol server any MCP client can connect to. Public tools (search_content, get_build_log_stats, get_availability, search_pipeline_patterns) need no auth; admin tools (list_site_content, update_site_content, add_testimonial, add_service — same set as the Telegram admin agent) unlock with either an adminBearer token or a valid OAuth access token from this site's own OAuth server (see the /api/mcp/{register,authorize,token} entries below), and are absent from tools/list entirely when neither is present. search_content accepts an optional site_only boolean to restrict results to posts about the site itself. search_pipeline_patterns searches curated, human-approved findings about pipeline/warehouse architecture patterns, filterable by vendor/pattern_category/since and optionally re-ranked by a free-text query. See docs/API.md for client setup (Claude Desktop, Claude Code, claude.ai, etc.).",
         responses: { "200": { description: "JSON-RPC 2.0 response (MCP protocol), streamed as text/event-stream." } },
       },
     },

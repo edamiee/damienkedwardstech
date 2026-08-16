@@ -24,6 +24,7 @@ const KIND_LABELS: Record<string, string> = {
   paper: "Document",
   build_log: "Build log",
   project: "Gated project",
+  research_finding: "Research finding",
 };
 
 // Exported for the chat route, which uses the same cutoff to decide

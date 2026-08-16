@@ -8,6 +8,7 @@ export default async function McpDemoPage() {
     content.mcp_search_enabled !== "false" && "search_content",
     content.mcp_availability_enabled !== "false" && "get_availability",
     content.mcp_build_log_stats_enabled !== "false" && "get_build_log_stats",
+    content.mcp_pipeline_patterns_enabled !== "false" && "search_pipeline_patterns",
   ].filter((tool): tool is McpTool => Boolean(tool));
 
   return (

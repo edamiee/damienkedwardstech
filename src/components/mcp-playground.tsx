@@ -104,6 +104,44 @@ function ResultBody({ toolName, result }: { toolName: string; result: CallResult
     );
   }
 
+  // search_pipeline_patterns' text follows "[Vendor · category] Title —
+  // url\nwhy_it_matters" — deliberately close to search_content's shape
+  // (see src/app/api/mcp/route.ts) but split into two small tags instead of
+  // one combined badge, since "SNOWFLAKE · INCREMENTAL_MODELING" is long
+  // for the same pill search_content uses for a single word like "Post".
+  if (toolName === "search_pipeline_patterns") {
+    const entries = result.text.split("\n\n").filter(Boolean);
+    return (
+      <div className="flex flex-col gap-3">
+        {entries.map((entry, i) => {
+          const [head, ...rest] = entry.split("\n");
+          const match = head.match(/^\[(.+?) · (.+?)\] (.+?) — (https?:\S+)$/);
+          if (!match) return <p key={i} className="text-[13.5px] text-fg">{entry}</p>;
+          const [, vendor, category, title, url] = match;
+          return (
+            <div key={i}>
+              <span className="font-data text-[10px] uppercase tracking-[0.06em] text-rust">
+                {vendor}
+              </span>
+              <span className="ml-2 font-data text-[10px] uppercase tracking-[0.06em] text-muted">
+                {category.replaceAll("_", " ")}
+              </span>
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-0.5 block text-[13.5px] font-semibold text-fg hover:text-teal"
+              >
+                {title} ↗
+              </a>
+              <p className="mt-0.5 text-[13px] text-muted">{rest.join(" ")}</p>
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
   return <p className="text-[13.5px] text-fg">{result.text}</p>;
 }
 
@@ -227,12 +265,77 @@ function BuildLogStatsCard() {
   );
 }
 
-export type McpTool = "search_content" | "get_availability" | "get_build_log_stats";
+// Local, client-safe copy of the vendor list — src/lib/research-findings.ts
+// imports "server-only", so it can't be imported here (same reason
+// admin/research-findings/status.ts keeps its own copy instead of
+// re-exporting from that file).
+const VENDOR_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "All vendors" },
+  { value: "snowflake", label: "Snowflake" },
+  { value: "databricks", label: "Databricks" },
+  { value: "dbt", label: "dbt" },
+  { value: "spark", label: "Spark" },
+  { value: "qlik", label: "Qlik" },
+  { value: "redshift", label: "Redshift" },
+  { value: "fabric", label: "MS Fabric" },
+  { value: "n8n", label: "n8n" },
+];
+
+function PipelinePatternsCard() {
+  const [vendor, setVendor] = useState("");
+  const [query, setQuery] = useState("");
+  const selectId = useId();
+  const inputId = useId();
+
+  return (
+    <ToolCard
+      toolName="search_pipeline_patterns"
+      title="Search pipeline & warehouse patterns"
+      description="Curated, human-approved findings about genuine architecture changes across the data stack — filtered from vendor marketing, not a changelog dump."
+      run={() =>
+        callMcpTool("search_pipeline_patterns", {
+          ...(vendor && { vendor }),
+          ...(query && { query }),
+        })
+      }
+      controls={
+        <>
+          <select
+            id={selectId}
+            value={vendor}
+            onChange={(e) => setVendor(e.target.value)}
+            className="min-w-0 rounded-sm border border-line bg-ground px-3 py-1.5 text-[13px] text-fg focus:border-teal focus:outline-none"
+          >
+            {VENDOR_OPTIONS.map((v) => (
+              <option key={v.value} value={v.value}>
+                {v.label}
+              </option>
+            ))}
+          </select>
+          <input
+            id={inputId}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="optional query, e.g. incremental models"
+            className="min-w-0 flex-1 rounded-sm border border-line bg-ground px-3 py-1.5 text-[13px] text-fg placeholder:text-muted focus:border-teal focus:outline-none"
+          />
+        </>
+      }
+    />
+  );
+}
+
+export type McpTool =
+  | "search_content"
+  | "get_availability"
+  | "get_build_log_stats"
+  | "search_pipeline_patterns";
 
 const CARDS: Record<McpTool, () => React.JSX.Element> = {
   search_content: SearchCard,
   get_availability: AvailabilityCard,
   get_build_log_stats: BuildLogStatsCard,
+  search_pipeline_patterns: PipelinePatternsCard,
 };
 
 export function McpPlayground({ enabledTools }: { enabledTools: McpTool[] }) {
